@@ -1,0 +1,5530 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>10A website</title>
+<link rel="icon" href="./Picsart_25-04-29_18-23-38-058.jpg">
+
+<!-- ══ FIREBASE SDK ══ -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script>
+  // ══════════════════════════════════════════════════════
+  //  🔥 ВСТАВЬТЕ СЮДА СВОИ ДАННЫЕ ИЗ FIREBASE CONSOLE
+  //  (Firebase Console → Project Settings → Your apps → SDK setup)
+  // ══════════════════════════════════════════════════════
+  const firebaseConfig = {
+    apiKey:            "AIzaSyBn_T427SM0L3C8Wr6GRPqIkvwXQ42GAQk",
+    authDomain:        "askar-3879e.firebaseapp.com",
+    databaseURL:       "https://askar-3879e-default-rtdb.firebaseio.com",
+    projectId:         "askar-3879e",
+    storageBucket:     "askar-3879e.firebasestorage.app",
+    messagingSenderId: "56810290178",
+    appId:             "1:56810290178:web:b8f58a76601f4531befb1b",
+    measurementId:     "G-H4KKSHTLGD"
+  };
+
+  try {
+    const app = firebase.initializeApp(firebaseConfig);
+    window.firebaseDB = firebase.database(app);
+    console.log('✅ Firebase подключён');
+  } catch(e) {
+    console.error('❌ Firebase ошибка:', e);
+  }
+</script>
+<style>
+
+:root {
+    --yellow: #2d225e;
+    --coral: #FF6B6B;
+    --teal: #4ECDC4;
+    --navy: #17174d;
+    --purple: #A855F7;
+    --green: #6BCB77;
+    --cream: #FFF8EE;
+    --card-shadow: 0 8px 30px rgba(0,0,0,0.10);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: sans-serif;
+    background: var(--cream);
+    color: var(--navy);
+    overflow-x: hidden;
+
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--navy);
+    padding: 0;
+    position: relative; 
+    overflow: hidden;
+    
+
+  }
+
+  .header-tape {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 24px;
+    background: var(--yellow);
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    color: var(--navy);
+    color: rgb(218, 217, 217);
+  }
+
+  .header-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 28px 48px 32px;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+
+  .class-title { line-height: 1; }
+
+  .class-title h1 {
+    font-size: clamp(2.2rem, 5vw, 3.8rem);
+    color: rgb(247, 242, 242);
+    font-family: sans-serif;
+  }
+
+  .class-title p {
+    color: rgba(255,255,255,0.7);
+    font-size: 1rem;
+    font-weight: 600;
+    margin-top: 4px;
+    letter-spacing: 0.5px;
+  }
+
+  .header-badges {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .badge {
+    background: rgba(255,255,255,0.1);
+    border: 2px solid rgba(255,255,255,0.2);
+    color: #fff;
+    border-radius: 999px;
+    padding: 8px 18px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: background 0.2s;
+    cursor: default;
+  }
+
+  .badge:hover { background: rgba(255,255,255,0.18);}
+  
+
+  /* decorative dots */
+  header::before {
+    content: '';
+    position: absolute;
+    width: 260px; height: 260px;
+    border-radius: 50%;
+    background: rgba(78,205,196,0.12);
+    top: -80px; right: -60px;
+    pointer-events: none;
+  }
+
+  /* ── NAV ── */
+  nav {
+    background: #fff;
+    border-bottom: 3px solid var(--yellow);
+    display: flex;
+    gap: 0;
+    overflow-x: auto;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+    text-align: center;
+    justify-content: center;
+    font-family: sans-serif;
+    animation: fadeUp 0.9s ease both;
+
+  }
+
+  nav a {
+    padding: 14px 22px;
+    text-decoration: none;
+    font-weight: 800;
+    font-size: 0.9rem;
+    color: var(--navy);
+    white-space: nowrap;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -3px;
+    transition: 0.5s;
+    letter-spacing: 0.3px;
+  }
+
+  nav a:hover { 
+background-color: #1A1A2E;
+color: rgb(255, 255, 255);
+border-radius: 20px;
+transition: 0.5s;
+
+}
+
+  /* ── MAIN LAYOUT ── */
+  main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+  }
+
+  section { margin-bottom: 64px; }
+
+  .section-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.7rem;
+    margin-bottom: 24px;
+    color: var(--navy);
+  }
+
+  .section-label .dot {
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+  }
+
+  /* ── HERO WELCOME ── */
+  .welcome-card {
+    background-color: #323272;
+    border-radius: 24px;
+    padding: 36px 40px;
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    box-shadow: var(--card-shadow);
+    position: relative;
+    overflow: hidden;
+    animation: fadeUp 0.9s ease both;
+  }
+
+  .welcome-card::after {
+    content: '🌟';
+    font-size: 120px;
+    position: absolute;
+    right: 32px; bottom: -20px;
+    opacity: 0.15;
+    pointer-events: none;
+  }
+
+  .welcome-card h2 {
+    font-family: 'Fredoka One', cursive;
+    font-size: 2.2rem;
+    color: #fff;
+    margin-bottom: 8px;
+  }
+
+  .welcome-card p {
+    color: rgba(255,255,255,0.9);
+    font-size: 1.05rem;
+    line-height: 1.6;
+    max-width: 520px;
+  }
+
+  .welcome-emoji { font-size: 80px; flex-shrink: 0; }
+
+  /* ── ANNOUNCEMENTS ── */
+  #announcements .cards {
+    display: grid;
+    gap: 16px;
+  }
+
+  .announce-card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 20px 24px;
+    display: flex;
+    align-items: flex-start;
+    gap: 18px;
+    box-shadow: var(--card-shadow);
+    border-left: 5px solid var(--coral);
+    animation: fadeUp 0.5s ease both;
+    transition: transform 0.2s;
+    transform: translateY(-5px);
+  }
+
+  .announce-card:nth-child(2) { border-color: var(--purple); animation-delay: 0.1s; }
+  .announce-card:nth-child(3) { border-color: var(--green); animation-delay: 0.2s; }
+
+  .announce-card:hover { transform: translateX(4px); 
+  }
+
+
+  .announce-icon {
+    width: 46px; height: 46px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    background: #FFF3F3;
+    flex-shrink: 0;
+  }
+
+  .announce-card:nth-child(2) .announce-icon { background: #F5EDFF; }
+  .announce-card:nth-child(3) .announce-icon { background: #EDFFF0; }
+
+  .announce-meta {
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    color: var(--coral);
+    margin-bottom: 4px;
+    text-transform: uppercase;
+  }
+
+  .announce-card:nth-child(2) .announce-meta { color: var(--purple); }
+  .announce-card:nth-child(3) .announce-meta { color: var(--green); }
+
+  .announce-card h3 { font-size: 1rem; font-weight: 800; margin-bottom: 4px; }
+  .announce-card p { font-size: 0.92rem; color: #555; line-height: 1.5; }
+
+  /* ── SCHEDULE ── */
+  #schedule .week-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+  }
+
+  .day-card {
+     background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+    
+  }
+     .day-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.12);
+        }
+
+
+  .day-card:nth-child(1) { animation-delay: 0s; }
+  .day-card:nth-child(2) { animation-delay: 0.08s; }
+  .day-card:nth-child(3) { animation-delay: 0.16s; }
+  .day-card:nth-child(4) { animation-delay: 0.24s; }
+  .day-card:nth-child(5) { animation-delay: 0.32s; }
+  .day-card:nth-child(6) { animation-delay: 0.32s; }
+
+
+  .day-header {
+    padding: 20px 25px;
+            color: white;
+            font-weight: 700;
+            font-size: 1.1rem;
+            letter-spacing: 0.5px;
+  }
+
+  .day-card:nth-child(1) .day-header { background: var(--coral); }
+  .day-card:nth-child(2) .day-header { background: var(--purple); }
+  .day-card:nth-child(3) .day-header { background: var(--teal); }
+  .day-card:nth-child(4) .day-header { background: var(--green); }
+  .day-card:nth-child(5) .day-header { background: #F59E0B; }
+  .day-card:nth-child(6) .day-header { background: #0b70f5; }
+
+  .day-body { padding: 14px 16px;}
+ .periods {
+            padding: 20px;
+        }
+
+  .period {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 7px 0;
+    border-bottom: 1px dashed #eee;
+    font-size: 0.85rem;
+  }
+
+  .period:last-child { border-bottom: none; }
+  .period-time { color: #999; font-size: 0.78rem; font-weight: 700; }
+  .period-name { font-weight: 700; }
+
+  /* ── STUDENT WORK ── */
+  #work .gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
+  }
+
+  .work-card {
+    background: #fff;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: var(--card-shadow);
+    animation: fadeUp 0.5s ease both;
+    transition: transform 0.25s, box-shadow 0.25s;
+    cursor: pointer;
+  }
+
+  .work-card:hover { transform: translateY(-6px) rotate(-1deg); box-shadow: 0 16px 40px rgba(0,0,0,0.13); }
+  .work-card:nth-child(even):hover { transform: translateY(-6px) rotate(1deg); }
+
+  .work-thumb {
+    height: 130px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 56px;
+    position: relative;
+    overflow: hidden;
+  }
+
+
+  .work-info { padding: 14px 16px; }
+  .work-info h3 { font-size: 0.9rem; font-weight: 800; margin-bottom: 2px; }
+  .work-info p { font-size: 0.8rem; color: #888; }
+
+  .star-badge {
+    position: absolute;
+    top: 8px; right: 8px;
+    background: var(--yellow);
+    color: var(--navy);
+    font-size: 10px;
+    font-weight: 800;
+    padding: 3px 8px;
+    border-radius: 999px;
+    letter-spacing: 0.5px;
+  }
+
+  /* ── RESOURCES ── */
+  #resources .res-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 16px;
+  }
+
+  .res-card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 22px 20px;
+    box-shadow: var(--card-shadow);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    text-decoration: none;
+    color: var(--navy);
+    animation: fadeUp 0.5s ease both;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+
+  .res-card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(0,0,0,0.12); }
+
+  .res-icon {
+    width: 52px; height: 52px;
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px;
+    flex-shrink: 0;
+  }
+
+  .res-card:nth-child(1) .res-icon { background: #FFF3F3; }
+  .res-card:nth-child(2) .res-icon { background: #EFF6FF; }
+  .res-card:nth-child(3) .res-icon { background: #EDFFF0; }
+  .res-card:nth-child(4) .res-icon { background: #FFF8E1; }
+  .res-card:nth-child(5) .res-icon { background: #F5EDFF; }
+  .res-card:nth-child(6) .res-icon { background: #E0F7FA; }
+
+  .res-info h3 { font-size: 0.92rem; font-weight: 800; margin-bottom: 2px; }
+  .res-info p { font-size: 0.8rem; color: #888; }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--navy);
+    color: rgba(255,255,255,0.6);
+    text-align: center;
+    padding: 28px 24px;
+    font-size: 0.85rem;
+  }
+
+  footer strong { color: var(--yellow); }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(22px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── STUDENT CARDS SECTION ── */
+  #student-cards {
+    margin-bottom: 64px;
+  }
+
+  .cards-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 24px;
+    width: 100%;
+  }
+
+  .card {
+    position: relative;
+    width: 100%;
+    height: 400px;
+    border-radius: 15px;
+    overflow: hidden;
+    font-family: 'poppins', sans-serif;
+    cursor: pointer;
+    box-shadow: var(--card-shadow);
+    animation: fadeUp 0.6s ease both;
+    transition: transform 0.3s, box-shadow 0.3s;
+  }
+
+  .card:nth-child(1) { animation-delay: 0s; }
+  .card:nth-child(2) { animation-delay: 0.1s; }
+  .card:nth-child(3) { animation-delay: 0.2s; }
+  .card:nth-child(4) { animation-delay: 0.3s; }
+
+  .card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+  }
+
+  .card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.4) 40%, transparent 100%);
+    transform: translateY(20px);
+    opacity: 0;
+    justify-content: flex-end;
+    padding: 20px;
+    transition: all 0.4s ease-out;
+  }
+
+  .card:hover .overlay {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  .content {
+    color: white;
+  }
+
+  .title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .meta {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.85rem;
+    opacity: 0.9;
+  }
+
+  .author {
+    font-weight: 600;
+  }
+
+  .date {
+    font-size: 0.8rem;
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 900px) {
+    .cards-container {
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    }
+  }
+
+  @media (max-width: 600px) {
+    .header-inner { padding: 20px 20px 24px; }
+    .welcome-card { flex-direction: column; text-align: center; }
+    .welcome-emoji { font-size: 56px; }
+    
+    .cards-container {
+      grid-template-columns: 1fr;
+    }
+
+    .card {
+      height: 350px;
+    }
+  }
+
+  /* LOGIN */
+#login {
+  display: flex;
+  justify-content: center;
+  margin-top: 40px;
+}
+
+.login-container {
+  background: white;
+  padding: 40px;
+  border-radius: 24px;
+  box-shadow: var(--card-shadow);
+  width: 100%;
+  max-width:700px;
+  text-align: center;
+  animation: fadeUp 0.7s ease;
+}
+
+.login-container h2 {
+  margin-bottom: 36px;
+  color: var(--navy);
+}
+
+.input-group {
+  margin-bottom: 15px;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 20px;
+  border-radius: 20px;
+  border: 1px solid #ddd;
+  outline: none;
+  font-size: 16px;
+  transition: 0.3s;
+}
+
+.input-group input:focus {
+  border-color: var(--purple);
+  box-shadow: 0 0 5px rgba(168,85,247,0.4);
+}
+
+/* password eye */
+.password-box {
+  position: relative;
+}
+
+.password-box span {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+}
+
+/* button */
+.login-container button {
+  width: 100%;
+  padding: 20px;
+  border: none;
+  border-radius: 20px;
+  background: var(--purple);
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.login-container button:hover {
+  background: #7e22ce;
+}
+
+.quiz-container {
+  background: white;
+  padding: 50px;
+  border-radius: 20px;
+  box-shadow: var(--card-shadow);
+  max-width: 700px;
+  margin: 40px auto;
+}
+
+.quiz-container p {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    margin-bottom: 30px;
+    color: var(--text-dark);
+}
+
+.question {
+  margin-bottom: 35px;
+  padding-bottom: 25px;
+  border-bottom: 1px solid var(--border);
+}
+
+.question:last-of-type {
+  border-bottom: none;
+}
+
+.question p {
+  font-weight: 700;
+  font-size: 1.1rem;
+  margin-bottom: 15px;
+  color: var(--text-dark);
+}
+
+.question label {
+  display: block;
+  padding: 12px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: var(--light);
+  border: 2px solid transparent;
+}
+
+.question label:hover {
+  background: rgba(22, 199, 132, 0.1);
+  border-color: var(--secondary);
+}
+
+.question input[type="radio"] {
+  margin-right: 10px;
+  cursor: pointer;
+}
+
+.quiz-container button {
+  margin-top: 15px;
+  padding: 15px;
+  width: 50%;
+  border: none;
+  border-radius: 12px;
+  background-color: rgb(52, 155, 52);
+  color: white;
+  font-weight:bold;
+  cursor: pointer;
+  font-size: 15px;
+}
+
+.quiz-container button:hover {
+  margin-top: 15px;
+  padding: 15px;
+  width: 50%;
+  border: none;
+  border-radius: 12px;
+  background-color: rgb(14, 75, 14);
+  color: white;
+  font-weight:bold;
+  cursor: pointer;
+}
+
+#result {
+  margin-top: 30px;
+  padding: 20px;
+  background: linear-gradient(135deg, rgba(22, 199, 132, 0.1) 0%, rgba(22, 199, 132, 0.05) 100%);
+  border-left: 4px solid var(--secondary);
+  border-radius: 8px;
+  color: var(--text-dark);
+  font-weight: 600;
+  line-height: 1.8;
+}
+
+.leaderboard-container {
+  max-width: 700px;
+  margin: 40px auto;
+  background: white;
+  padding: 30px;
+  border-radius: 20px;
+  box-shadow: var(--card-shadow);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  padding: 12px;
+  text-align: center;
+}
+
+th {
+  background: var(--purple);
+  color: white;
+}
+
+tr:nth-child(even) {
+  background: #f9f9f9;
+}
+
+.resett {
+  margin-top: 15px;
+  padding: 15px;
+  width: 49%;
+  border: none;
+  border-radius: 12px;
+  background-color: rgb(52, 155, 52);
+  color: white;
+  font-weight:bold;
+  cursor: pointer;
+  font-size: 15px;
+}
+
+.resett:hover {
+  margin-top: 15px;
+  padding: 15px;
+  width: 49%;
+  border: none;
+  border-radius: 12px;
+  background-color: rgb(14, 75, 14);
+  color: white;
+  font-weight:bold;
+  cursor: pointer;
+}
+/* FORM */
+.add-form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.add-form input {
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid #ddd;
+}
+
+.add-form button {
+  background: var(--green);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: 0.3s;
+}
+
+.add-form button:hover {
+  background: #15803d;
+}
+.grades-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.grades-header button {
+  background: var(--purple);
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.grades-header button:hover {
+  background: #7e22ce;
+}
+
+/* топ 3 */
+.top1 { background: #fff7cc !important; }
+.top2 { background: #e6f0ff !important; }
+.top3 { background: #ffe6e6 !important; }
+.controls {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+}
+
+.btn {
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: 0.2s;
+}
+
+.btn-plus {
+  background: #22c55e;
+  color: white;
+}
+
+.btn-minus {
+  background: #ef4444;
+  color: white;
+}
+
+.btn:hover {
+  transform: scale(1.1);
+}
+/* ══════════════════════════════════════════
+   ТРЕКЕР ПРОГУЛОВ
+══════════════════════════════════════════ */
+#attendance { margin-bottom: 64px; }
+.attendance-wrapper { background:#fff; border-radius:20px; box-shadow:0 8px 30px rgba(0,0,0,.10); overflow:hidden; }
+.att-topbar { background:linear-gradient(135deg,#17174d,#2d225e); padding:24px 28px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:16px; }
+.att-topbar h3 { color:#fff; font-family:'Fredoka One',cursive; font-size:1.5rem; margin:0; }
+.att-stats { display:flex; gap:12px; flex-wrap:wrap; }
+.att-stat-chip { background:rgba(255,255,255,.13); border:1px solid rgba(255,255,255,.22); color:#fff; border-radius:999px; padding:6px 16px; font-size:.82rem; font-weight:700; white-space:nowrap; }
+.att-controls { padding:20px 28px; background:#f8f7ff; border-bottom:1px solid #eee; display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+.att-search { flex:1 1 220px; padding:11px 16px; border-radius:12px; border:2px solid #e0e0e0; font-size:.92rem; font-family:'Nunito',sans-serif; outline:none; transition:border-color .2s; }
+.att-search:focus { border-color:#A855F7; box-shadow:0 0 0 3px rgba(168,85,247,.12); }
+.att-btn { padding:11px 18px; border:none; border-radius:12px; font-size:.88rem; font-weight:800; font-family:'Nunito',sans-serif; cursor:pointer; transition:transform .15s,box-shadow .15s; white-space:nowrap; }
+.att-btn:hover { transform:translateY(-2px); box-shadow:0 6px 18px rgba(0,0,0,.15); }
+.att-btn-reset { background:#f1f5f9; color:#475569; border:2px solid #e2e8f0; }
+.att-legend { padding:12px 28px; background:#fafafa; border-bottom:1px solid #eee; display:flex; gap:14px; flex-wrap:wrap; align-items:center; }
+.att-legend-label { font-size:.78rem; font-weight:700; color:#888; letter-spacing:.5px; text-transform:uppercase; margin-right:4px; }
+.status-chip { display:inline-flex; align-items:center; gap:5px; border-radius:999px; padding:4px 12px; font-size:.78rem; font-weight:800; border:2px solid transparent; }
+.status-good     { background:#f0fdf4; color:#15803d; border-color:#bbf7d0; }
+.status-warning  { background:#fefce8; color:#a16207; border-color:#fef08a; }
+.status-alert    { background:#fff7ed; color:#c2410c; border-color:#fed7aa; }
+.status-critical { background:#fef2f2; color:#b91c1c; border-color:#fecaca; }
+.att-table-wrap { overflow-x:auto; }
+.att-table { width:100%; border-collapse:collapse; font-family:'Nunito',sans-serif; }
+.att-table thead th { background:#17174d; color:#fff; padding:14px 16px; font-size:.82rem; letter-spacing:.5px; text-align:left; white-space:nowrap; }
+.att-table tbody tr { border-bottom:1px solid #f0f0f0; transition:background .15s; }
+.att-table tbody tr:hover { background:#f5f3ff !important; }
+.att-table tbody tr:nth-child(even) { background:#fafafa; }
+.att-table td { padding:13px 16px; font-size:.9rem; vertical-align:middle; }
+.att-table td:first-child { color:#aaa; font-weight:700; font-size:.8rem; width:36px; }
+.att-num-cell { font-size:1.1rem; font-weight:800; text-align:center; width:90px; }
+.att-actions { display:flex; gap:6px; align-items:center; justify-content:center; }
+.att-action-btn { width:34px; height:34px; border:none; border-radius:9px; font-size:1rem; cursor:pointer; font-weight:900; transition:transform .15s; display:flex; align-items:center; justify-content:center; }
+.att-action-btn:hover { transform:scale(1.15); }
+.att-plus  { background:#22c55e; color:#fff; }
+.att-minus { background:#ef4444; color:#fff; }
+.att-wa    { background:#25D366; color:#fff; font-size:1.1rem; }
+.att-empty { text-align:center; padding:40px 20px; color:#aaa; font-size:.95rem; }
+.att-footer { padding:14px 28px; background:#f8f7ff; border-top:1px solid #eee; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; }
+.att-footer-text { font-size:.8rem; color:#999; font-weight:600; }
+.att-row-hidden { display:none !important; }
+
+/* ══════════════════════════════════════════
+   УМНЫЙ ПРОФИЛЬ УЧЕНИКА
+══════════════════════════════════════════ */
+#profile-section { margin-bottom: 72px; }
+
+/* Выбор ученика */
+.profile-selector-wrap {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+}
+
+.profile-select {
+  flex: 1 1 280px;
+  padding: 14px 20px;
+  border-radius: 16px;
+  border: 2.5px solid #e0d8f8;
+  background: #fff;
+  font-family: 'Sora', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #17174d;
+  outline: none;
+  cursor: pointer;
+  transition: border-color .2s, box-shadow .2s;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23A855F7' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  padding-right: 44px;
+}
+
+.profile-select:focus {
+  border-color: #A855F7;
+  box-shadow: 0 0 0 4px rgba(168,85,247,.14);
+}
+
+/* Карточка профиля */
+.profile-card {
+  background: #fff;
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 12px 48px rgba(23,23,77,.13);
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity .4s ease, transform .4s ease;
+}
+
+.profile-card.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Шапка профиля */
+.profile-hero {
+  background: linear-gradient(135deg, #17174d 0%, #3b1fa8 60%, #7c3aed 100%);
+  padding: 36px 40px;
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  position: relative;
+  overflow: hidden;
+}
+
+.profile-hero::before {
+  content: '';
+  position: absolute;
+  width: 300px; height: 300px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.05);
+  top: -100px; right: -80px;
+  pointer-events: none;
+}
+
+.profile-hero::after {
+  content: '';
+  position: absolute;
+  width: 180px; height: 180px;
+  border-radius: 50%;
+  background: rgba(168,85,247,.18);
+  bottom: -60px; left: 200px;
+  pointer-events: none;
+}
+
+.profile-avatar {
+  width: 88px; height: 88px;
+  border-radius: 50%;
+  border: 4px solid rgba(255,255,255,.3);
+  background: linear-gradient(135deg, #A855F7, #6366f1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.4rem;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+  box-shadow: 0 8px 32px rgba(0,0,0,.25);
+}
+
+.profile-hero-info {
+  position: relative;
+  z-index: 1;
+}
+
+.profile-name {
+  font-family: 'Fredoka One', cursive;
+  font-size: 2rem;
+  color: #fff;
+  margin-bottom: 4px;
+  line-height: 1.1;
+}
+
+.profile-meta-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.profile-meta-badge {
+  background: rgba(255,255,255,.15);
+  border: 1px solid rgba(255,255,255,.25);
+  color: rgba(255,255,255,.92);
+  border-radius: 999px;
+  padding: 4px 14px;
+  font-size: .8rem;
+  font-weight: 700;
+  font-family: 'Sora', sans-serif;
+}
+
+.profile-rank-badge {
+  position: absolute;
+  top: 28px; right: 32px;
+  background: linear-gradient(135deg, #f59e0b, #ef4444);
+  color: #fff;
+  border-radius: 16px;
+  padding: 8px 18px;
+  font-family: 'Fredoka One', cursive;
+  font-size: 1rem;
+  box-shadow: 0 4px 16px rgba(0,0,0,.2);
+  z-index: 2;
+}
+
+/* Тело профиля */
+.profile-body {
+  padding: 32px 36px;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 20px;
+}
+
+@media (max-width: 800px) {
+  .profile-body { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 520px) {
+  .profile-body { grid-template-columns: 1fr; padding: 20px; }
+  .profile-hero { flex-direction: column; padding: 28px 24px; }
+  .profile-rank-badge { position: static; margin-top: 8px; align-self: flex-start; }
+}
+
+/* Stat-блоки */
+.profile-stat-block {
+  background: #f8f7ff;
+  border-radius: 18px;
+  padding: 20px 22px;
+  border: 2px solid #ede9fe;
+  position: relative;
+  overflow: hidden;
+  transition: transform .2s, box-shadow .2s;
+}
+
+.profile-stat-block:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 28px rgba(168,85,247,.12);
+}
+
+.profile-stat-icon {
+  font-size: 1.8rem;
+  margin-bottom: 8px;
+}
+
+.profile-stat-label {
+  font-size: .72rem;
+  font-weight: 800;
+  letter-spacing: .8px;
+  text-transform: uppercase;
+  color: #9ca3af;
+  font-family: 'Sora', sans-serif;
+  margin-bottom: 4px;
+}
+
+.profile-stat-value {
+  font-family: 'Fredoka One', cursive;
+  font-size: 1.7rem;
+  color: #17174d;
+  line-height: 1;
+}
+
+.profile-stat-sub {
+  font-size: .78rem;
+  color: #888;
+  font-weight: 600;
+  margin-top: 4px;
+}
+
+/* Прогресс-бар */
+.profile-progress-bar {
+  height: 6px;
+  background: #e0d8f8;
+  border-radius: 999px;
+  margin-top: 10px;
+  overflow: hidden;
+}
+
+.profile-progress-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #A855F7, #6366f1);
+  transition: width .8s cubic-bezier(.4,0,.2,1);
+}
+
+/* Статус посещаемости */
+.profile-att-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 999px;
+  padding: 5px 14px;
+  font-size: .82rem;
+  font-weight: 800;
+  margin-top: 8px;
+  border: 2px solid transparent;
+}
+
+/* Умные выводы */
+.profile-insights {
+  grid-column: 1 / -1;
+  background: linear-gradient(135deg, #fdf4ff 0%, #f0f9ff 100%);
+  border: 2px solid #e0d8f8;
+  border-radius: 18px;
+  padding: 22px 26px;
+}
+
+.profile-insights-title {
+  font-family: 'Fredoka One', cursive;
+  font-size: 1.1rem;
+  color: #17174d;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.insight-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  margin-bottom: 8px;
+  font-size: .9rem;
+  font-weight: 600;
+  font-family: 'Sora', sans-serif;
+  animation: insightIn .4s ease both;
+}
+
+@keyframes insightIn {
+  from { opacity:0; transform:translateX(-10px); }
+  to   { opacity:1; transform:translateX(0); }
+}
+
+.insight-item:last-child { margin-bottom: 0; }
+
+.insight-positive { background: #f0fdf4; color: #15803d; border-left: 4px solid #22c55e; }
+.insight-warning  { background: #fefce8; color: #92400e; border-left: 4px solid #f59e0b; }
+.insight-danger   { background: #fef2f2; color: #991b1b; border-left: 4px solid #ef4444; }
+.insight-info     { background: #eff6ff; color: #1e40af; border-left: 4px solid #3b82f6; }
+.insight-star     { background: #fdf4ff; color: #7e22ce; border-left: 4px solid #A855F7; }
+
+.insight-icon { font-size: 1.2rem; flex-shrink: 0; }
+
+/* Мини-бары предметов */
+.profile-subjects {
+  grid-column: 1 / -1;
+  background: #fff;
+  border: 2px solid #f0eef8;
+  border-radius: 18px;
+  padding: 22px 26px;
+}
+
+.subject-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.subject-row:last-child { margin-bottom: 0; }
+
+.subject-name {
+  width: 130px;
+  flex-shrink: 0;
+  font-size: .85rem;
+  font-weight: 700;
+  color: #374151;
+  font-family: 'Sora', sans-serif;
+}
+
+.subject-bar-wrap {
+  flex: 1;
+  height: 10px;
+  background: #f0f0f0;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.subject-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width .9s cubic-bezier(.4,0,.2,1);
+}
+
+.subject-score {
+  width: 32px;
+  text-align: right;
+  font-size: .9rem;
+  font-weight: 800;
+  font-family: 'Fredoka One', cursive;
+}
+
+/* Нет профиля */
+.profile-placeholder {
+  text-align: center;
+  padding: 60px 20px;
+  color: #c4b8f0;
+  font-family: 'Fredoka One', cursive;
+  font-size: 1.1rem;
+  background: #f8f7ff;
+  border-radius: 20px;
+  border: 2px dashed #ddd5f8;
+}
+
+.profile-placeholder .ph-icon { font-size: 3rem; margin-bottom: 12px; }
+
+/* ══════════════════════════════════════════
+   ТРЕКЕР ПРОГУЛОВ
+══════════════════════════════════════════ */
+#attendance { margin-bottom: 64px; }
+.attendance-wrapper { background:#fff; border-radius:20px; box-shadow:0 8px 30px rgba(0,0,0,.10); overflow:hidden; }
+.att-topbar { background:linear-gradient(135deg,#17174d,#2d225e); padding:24px 28px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:16px; }
+.att-topbar h3 { color:#fff; font-family:'Fredoka One',cursive; font-size:1.5rem; margin:0; }
+.att-stats { display:flex; gap:12px; flex-wrap:wrap; }
+.att-stat-chip { background:rgba(255,255,255,.13); border:1px solid rgba(255,255,255,.22); color:#fff; border-radius:999px; padding:6px 16px; font-size:.82rem; font-weight:700; white-space:nowrap; }
+.att-controls { padding:20px 28px; background:#f8f7ff; border-bottom:1px solid #eee; display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+.att-search { flex:1 1 220px; padding:11px 16px; border-radius:12px; border:2px solid #e0e0e0; font-size:.92rem; font-family:'Nunito',sans-serif; outline:none; transition:border-color .2s; }
+.att-search:focus { border-color:#A855F7; box-shadow:0 0 0 3px rgba(168,85,247,.12); }
+.att-btn { padding:11px 18px; border:none; border-radius:12px; font-size:.88rem; font-weight:800; font-family:'Nunito',sans-serif; cursor:pointer; transition:transform .15s,box-shadow .15s; white-space:nowrap; }
+.att-btn:hover { transform:translateY(-2px); box-shadow:0 6px 18px rgba(0,0,0,.15); }
+.att-btn-reset { background:#f1f5f9; color:#475569; border:2px solid #e2e8f0; }
+.att-legend { padding:12px 28px; background:#fafafa; border-bottom:1px solid #eee; display:flex; gap:14px; flex-wrap:wrap; align-items:center; }
+.att-legend-label { font-size:.78rem; font-weight:700; color:#888; letter-spacing:.5px; text-transform:uppercase; margin-right:4px; }
+.status-chip { display:inline-flex; align-items:center; gap:5px; border-radius:999px; padding:4px 12px; font-size:.78rem; font-weight:800; border:2px solid transparent; }
+.status-good     { background:#f0fdf4; color:#15803d; border-color:#bbf7d0; }
+.status-warning  { background:#fefce8; color:#a16207; border-color:#fef08a; }
+.status-alert    { background:#fff7ed; color:#c2410c; border-color:#fed7aa; }
+.status-critical { background:#fef2f2; color:#b91c1c; border-color:#fecaca; }
+.att-table-wrap { overflow-x:auto; }
+.att-table { width:100%; border-collapse:collapse; font-family:'Nunito',sans-serif; }
+.att-table thead th { background:#17174d; color:#fff; padding:14px 16px; font-size:.82rem; letter-spacing:.5px; text-align:left; white-space:nowrap; }
+.att-table tbody tr { border-bottom:1px solid #f0f0f0; transition:background .15s; }
+.att-table tbody tr:hover { background:#f5f3ff !important; }
+.att-table tbody tr:nth-child(even) { background:#fafafa; }
+.att-table td { padding:13px 16px; font-size:.9rem; vertical-align:middle; }
+.att-table td:first-child { color:#aaa; font-weight:700; font-size:.8rem; width:36px; }
+.att-num-cell { font-size:1.1rem; font-weight:800; text-align:center; width:90px; }
+.att-actions { display:flex; gap:6px; align-items:center; justify-content:center; }
+.att-action-btn { width:34px; height:34px; border:none; border-radius:9px; font-size:1rem; cursor:pointer; font-weight:900; transition:transform .15s; display:flex; align-items:center; justify-content:center; }
+.att-action-btn:hover { transform:scale(1.15); }
+.att-plus  { background:#22c55e; color:#fff; }
+.att-minus { background:#ef4444; color:#fff; }
+.att-empty { text-align:center; padding:40px 20px; color:#aaa; font-size:.95rem; }
+.att-footer { padding:14px 28px; background:#f8f7ff; border-top:1px solid #eee; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; }
+.att-footer-text { font-size:.8rem; color:#999; font-weight:600; }
+.att-row-hidden { display:none !important; }
+
+/* ══════════════════════════════════════════
+   УМНЫЙ ПРОФИЛЬ УЧЕНИКА
+══════════════════════════════════════════ */
+#profile-section { margin-bottom: 72px; }
+
+/* Выбор ученика */
+.profile-selector-wrap {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+}
+
+.profile-select {
+  flex: 1 1 280px;
+  padding: 14px 20px;
+  border-radius: 16px;
+  border: 2.5px solid #e0d8f8;
+  background: #fff;
+  font-family: 'Sora', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #17174d;
+  outline: none;
+  cursor: pointer;
+  transition: border-color .2s, box-shadow .2s;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23A855F7' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  padding-right: 44px;
+}
+
+.profile-select:focus {
+  border-color: #A855F7;
+  box-shadow: 0 0 0 4px rgba(168,85,247,.14);
+}
+
+/* Карточка профиля */
+.profile-card {
+  background: #fff;
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 12px 48px rgba(23,23,77,.13);
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity .4s ease, transform .4s ease;
+}
+
+.profile-card.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Шапка профиля */
+.profile-hero {
+  background: linear-gradient(135deg, #17174d 0%, #3b1fa8 60%, #7c3aed 100%);
+  padding: 36px 40px;
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  position: relative;
+  overflow: hidden;
+}
+
+.profile-hero::before {
+  content: '';
+  position: absolute;
+  width: 300px; height: 300px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.05);
+  top: -100px; right: -80px;
+  pointer-events: none;
+}
+
+.profile-hero::after {
+  content: '';
+  position: absolute;
+  width: 180px; height: 180px;
+  border-radius: 50%;
+  background: rgba(168,85,247,.18);
+  bottom: -60px; left: 200px;
+  pointer-events: none;
+}
+
+.profile-avatar {
+  width: 88px; height: 88px;
+  border-radius: 50%;
+  border: 4px solid rgba(255,255,255,.3);
+  background: linear-gradient(135deg, #A855F7, #6366f1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.4rem;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+  box-shadow: 0 8px 32px rgba(0,0,0,.25);
+}
+
+.profile-hero-info {
+  position: relative;
+  z-index: 1;
+}
+
+.profile-name {
+  font-family: 'Fredoka One', cursive;
+  font-size: 2rem;
+  color: #fff;
+  margin-bottom: 4px;
+  line-height: 1.1;
+}
+
+.profile-meta-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.profile-meta-badge {
+  background: rgba(255,255,255,.15);
+  border: 1px solid rgba(255,255,255,.25);
+  color: rgba(255,255,255,.92);
+  border-radius: 999px;
+  padding: 4px 14px;
+  font-size: .8rem;
+  font-weight: 700;
+  font-family: 'Sora', sans-serif;
+}
+
+.profile-rank-badge {
+  position: absolute;
+  top: 28px; right: 32px;
+  background: linear-gradient(135deg, #f59e0b, #ef4444);
+  color: #fff;
+  border-radius: 16px;
+  padding: 8px 18px;
+  font-family: 'Fredoka One', cursive;
+  font-size: 1rem;
+  box-shadow: 0 4px 16px rgba(0,0,0,.2);
+  z-index: 2;
+}
+
+/* Тело профиля */
+.profile-body {
+  padding: 32px 36px;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 20px;
+}
+
+@media (max-width: 800px) {
+  .profile-body { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 520px) {
+  .profile-body { grid-template-columns: 1fr; padding: 20px; }
+  .profile-hero { flex-direction: column; padding: 28px 24px; }
+  .profile-rank-badge { position: static; margin-top: 8px; align-self: flex-start; }
+}
+
+/* Stat-блоки */
+.profile-stat-block {
+  background: #f8f7ff;
+  border-radius: 18px;
+  padding: 20px 22px;
+  border: 2px solid #ede9fe;
+  position: relative;
+  overflow: hidden;
+  transition: transform .2s, box-shadow .2s;
+}
+
+.profile-stat-block:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 28px rgba(168,85,247,.12);
+}
+
+.profile-stat-icon {
+  font-size: 1.8rem;
+  margin-bottom: 8px;
+}
+
+.profile-stat-label {
+  font-size: .72rem;
+  font-weight: 800;
+  letter-spacing: .8px;
+  text-transform: uppercase;
+  color: #9ca3af;
+  font-family: 'Sora', sans-serif;
+  margin-bottom: 4px;
+}
+
+.profile-stat-value {
+  font-family: 'Fredoka One', cursive;
+  font-size: 1.7rem;
+  color: #17174d;
+  line-height: 1;
+}
+
+.profile-stat-sub {
+  font-size: .78rem;
+  color: #888;
+  font-weight: 600;
+  margin-top: 4px;
+}
+
+/* Прогресс-бар */
+.profile-progress-bar {
+  height: 6px;
+  background: #e0d8f8;
+  border-radius: 999px;
+  margin-top: 10px;
+  overflow: hidden;
+}
+
+.profile-progress-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #A855F7, #6366f1);
+  transition: width .8s cubic-bezier(.4,0,.2,1);
+}
+
+/* Статус посещаемости */
+.profile-att-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 999px;
+  padding: 5px 14px;
+  font-size: .82rem;
+  font-weight: 800;
+  margin-top: 8px;
+  border: 2px solid transparent;
+}
+
+/* Умные выводы */
+.profile-insights {
+  grid-column: 1 / -1;
+  background: linear-gradient(135deg, #fdf4ff 0%, #f0f9ff 100%);
+  border: 2px solid #e0d8f8;
+  border-radius: 18px;
+  padding: 22px 26px;
+}
+
+.profile-insights-title {
+  font-family: 'Fredoka One', cursive;
+  font-size: 1.1rem;
+  color: #17174d;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.insight-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  margin-bottom: 8px;
+  font-size: .9rem;
+  font-weight: 600;
+  font-family: 'Sora', sans-serif;
+  animation: insightIn .4s ease both;
+}
+
+@keyframes insightIn {
+  from { opacity:0; transform:translateX(-10px); }
+  to   { opacity:1; transform:translateX(0); }
+}
+
+.insight-item:last-child { margin-bottom: 0; }
+
+.insight-positive { background: #f0fdf4; color: #15803d; border-left: 4px solid #22c55e; }
+.insight-warning  { background: #fefce8; color: #92400e; border-left: 4px solid #f59e0b; }
+.insight-danger   { background: #fef2f2; color: #991b1b; border-left: 4px solid #ef4444; }
+.insight-info     { background: #eff6ff; color: #1e40af; border-left: 4px solid #3b82f6; }
+.insight-star     { background: #fdf4ff; color: #7e22ce; border-left: 4px solid #A855F7; }
+
+.insight-icon { font-size: 1.2rem; flex-shrink: 0; }
+
+/* Мини-бары предметов */
+.profile-subjects {
+  grid-column: 1 / -1;
+  background: #fff;
+  border: 2px solid #f0eef8;
+  border-radius: 18px;
+  padding: 22px 26px;
+}
+
+.subject-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.subject-row:last-child { margin-bottom: 0; }
+
+.subject-name {
+  width: 130px;
+  flex-shrink: 0;
+  font-size: .85rem;
+  font-weight: 700;
+  color: #374151;
+  font-family: 'Sora', sans-serif;
+}
+
+.subject-bar-wrap {
+  flex: 1;
+  height: 10px;
+  background: #f0f0f0;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.subject-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width .9s cubic-bezier(.4,0,.2,1);
+}
+
+.subject-score {
+  width: 32px;
+  text-align: right;
+  font-size: .9rem;
+  font-weight: 800;
+  font-family: 'Fredoka One', cursive;
+}
+
+/* ══════════════════════════════════════════
+   ДОМАШНИЕ ЗАДАНИЯ
+══════════════════════════════════════════ */
+#homework { margin-bottom: 64px; }
+
+.hw-wrapper {
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 8px 30px rgba(0,0,0,.10);
+  overflow: hidden;
+}
+
+.hw-topbar {
+  background: linear-gradient(135deg, #064e3b, #065f46);
+  padding: 24px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.hw-topbar h3 {
+  color: #fff;
+  font-family: 'Fredoka One', cursive;
+  font-size: 1.5rem;
+  margin: 0;
+}
+
+.hw-stats { display: flex; gap: 10px; flex-wrap: wrap; }
+
+.hw-stat-chip {
+  background: rgba(255,255,255,.15);
+  border: 1px solid rgba(255,255,255,.25);
+  color: #fff;
+  border-radius: 999px;
+  padding: 6px 16px;
+  font-size: .82rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.hw-form-bar {
+  padding: 20px 28px;
+  background: #f0fdf4;
+  border-bottom: 1px solid #d1fae5;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: flex-end;
+}
+
+.hw-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  flex: 1 1 160px;
+}
+
+.hw-input-group label {
+  font-size: .75rem;
+  font-weight: 800;
+  letter-spacing: .5px;
+  text-transform: uppercase;
+  color: #059669;
+  font-family: 'Sora', sans-serif;
+}
+
+.hw-input {
+  padding: 11px 14px;
+  border-radius: 12px;
+  border: 2px solid #a7f3d0;
+  font-size: .9rem;
+  font-family: 'Nunito', sans-serif;
+  outline: none;
+  transition: border-color .2s;
+  background: #fff;
+}
+
+.hw-input:focus {
+  border-color: #10b981;
+  box-shadow: 0 0 0 3px rgba(16,185,129,.12);
+}
+
+.hw-add-btn {
+  padding: 11px 22px;
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: .9rem;
+  font-weight: 800;
+  font-family: 'Nunito', sans-serif;
+  cursor: pointer;
+  transition: transform .15s, box-shadow .15s;
+  white-space: nowrap;
+  align-self: flex-end;
+}
+
+.hw-add-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(16,185,129,.35); }
+
+.hw-filter-bar {
+  padding: 12px 28px;
+  background: #fafafa;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.hw-filter-btn {
+  padding: 6px 16px;
+  border-radius: 999px;
+  border: 2px solid #e2e8f0;
+  background: #fff;
+  font-size: .8rem;
+  font-weight: 800;
+  font-family: 'Nunito', sans-serif;
+  cursor: pointer;
+  color: #64748b;
+  transition: all .15s;
+}
+
+.hw-filter-btn.active, .hw-filter-btn:hover {
+  border-color: #10b981;
+  background: #10b981;
+  color: #fff;
+}
+
+.hw-list {
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 80px;
+}
+
+.hw-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 18px;
+  border-radius: 14px;
+  border: 2px solid #e2e8f0;
+  background: #f8fafc;
+  transition: transform .15s, box-shadow .15s, border-color .3s, background .3s;
+  animation: hwSlideIn .35s ease both;
+}
+
+@keyframes hwSlideIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.hw-item:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,.08); }
+
+/* Просроченное ДЗ */
+.hw-item.overdue {
+  border-color: #fca5a5;
+  background: #fff5f5;
+  animation: hwSlideIn .35s ease both, hwPulse 2.5s ease-in-out infinite;
+}
+
+@keyframes hwPulse {
+  0%, 100% { border-color: #fca5a5; }
+  50%       { border-color: #ef4444; }
+}
+
+/* Выполненное ДЗ */
+.hw-item.done {
+  opacity: .6;
+  border-color: #d1fae5;
+  background: #f0fdf4;
+}
+
+.hw-item.done .hw-title { text-decoration: line-through; color: #9ca3af; }
+
+/* Скоро дедлайн (≤ 1 день) */
+.hw-item.soon {
+  border-color: #fde68a;
+  background: #fffbeb;
+}
+
+.hw-checkbox {
+  width: 22px; height: 22px;
+  border-radius: 7px;
+  border: 2.5px solid #d1d5db;
+  cursor: pointer;
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: .9rem;
+  transition: all .2s;
+  background: #fff;
+}
+
+.hw-checkbox:hover { border-color: #10b981; background: #f0fdf4; }
+.hw-item.done .hw-checkbox { background: #10b981; border-color: #10b981; color: #fff; }
+
+.hw-item-body { flex: 1; min-width: 0; }
+
+.hw-subject-tag {
+  display: inline-block;
+  background: #ede9fe;
+  color: #6d28d9;
+  border-radius: 999px;
+  padding: 2px 10px;
+  font-size: .72rem;
+  font-weight: 800;
+  font-family: 'Sora', sans-serif;
+  margin-bottom: 4px;
+  letter-spacing: .3px;
+}
+
+.hw-item.overdue .hw-subject-tag { background: #fee2e2; color: #b91c1c; }
+.hw-item.soon    .hw-subject-tag { background: #fef3c7; color: #b45309; }
+.hw-item.done    .hw-subject-tag { background: #f3f4f6; color: #9ca3af; }
+
+.hw-title {
+  font-size: .95rem;
+  font-weight: 700;
+  color: #1e293b;
+  font-family: 'Sora', sans-serif;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.hw-deadline-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 3px;
+  font-size: .78rem;
+  font-weight: 700;
+  font-family: 'Nunito', sans-serif;
+  color: #94a3b8;
+}
+
+.hw-item.overdue .hw-deadline-row { color: #dc2626; }
+.hw-item.soon    .hw-deadline-row { color: #d97706; }
+
+.hw-badge-overdue {
+  background: #dc2626;
+  color: #fff;
+  border-radius: 999px;
+  padding: 2px 9px;
+  font-size: .7rem;
+  font-weight: 800;
+  font-family: 'Sora', sans-serif;
+  flex-shrink: 0;
+}
+
+.hw-badge-soon {
+  background: #f59e0b;
+  color: #fff;
+  border-radius: 999px;
+  padding: 2px 9px;
+  font-size: .7rem;
+  font-weight: 800;
+  font-family: 'Sora', sans-serif;
+  flex-shrink: 0;
+}
+
+.hw-delete-btn {
+  width: 30px; height: 30px;
+  border: none;
+  border-radius: 8px;
+  background: #fee2e2;
+  color: #ef4444;
+  font-size: .95rem;
+  cursor: pointer;
+  transition: transform .15s, background .15s;
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+
+.hw-delete-btn:hover { transform: scale(1.15); background: #ef4444; color: #fff; }
+
+.hw-empty {
+  text-align: center;
+  padding: 36px 20px;
+  color: #aaa;
+  font-size: .95rem;
+  font-family: 'Nunito', sans-serif;
+}
+
+.hw-footer {
+  padding: 12px 28px;
+  background: #f0fdf4;
+  border-top: 1px solid #d1fae5;
+  font-size: .78rem;
+  color: #6ee7b7;
+  font-weight: 700;
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+/* ══════════════════════════════════════════
+   ПРЕДСКАЗАНИЕ ОЦЕНКИ
+══════════════════════════════════════════ */
+#grade-predictor { margin-bottom: 64px; }
+
+.pred-wrapper {
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 8px 30px rgba(0,0,0,.10);
+  overflow: hidden;
+}
+
+.pred-topbar {
+  background: linear-gradient(135deg, #1e1b4b, #4338ca, #7c3aed);
+  padding: 24px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  position: relative;
+  overflow: hidden;
+}
+
+.pred-topbar::before {
+  content: '';
+  position: absolute;
+  width: 220px; height: 220px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.06);
+  top: -80px; right: -60px;
+}
+
+.pred-topbar h3 {
+  color: #fff;
+  font-family: 'Fredoka One', cursive;
+  font-size: 1.5rem;
+  margin: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.pred-topbar p {
+  color: rgba(255,255,255,.75);
+  font-size: .85rem;
+  font-family: 'Sora', sans-serif;
+  margin: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.pred-body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+}
+
+@media (max-width: 680px) { .pred-body { grid-template-columns: 1fr; } }
+
+.pred-left {
+  padding: 28px 32px;
+  border-right: 1px solid #f0f0f0;
+}
+
+.pred-right {
+  padding: 28px 32px;
+  background: #fafbff;
+}
+
+.pred-section-title {
+  font-family: 'Fredoka One', cursive;
+  font-size: 1rem;
+  color: #4338ca;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pred-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.pred-row label {
+  font-size: .75rem;
+  font-weight: 800;
+  letter-spacing: .6px;
+  text-transform: uppercase;
+  color: #6366f1;
+  font-family: 'Sora', sans-serif;
+}
+
+.pred-select, .pred-input {
+  padding: 11px 14px;
+  border-radius: 12px;
+  border: 2px solid #e0e7ff;
+  font-size: .92rem;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 700;
+  color: #1e1b4b;
+  background: #fff;
+  outline: none;
+  transition: border-color .2s, box-shadow .2s;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.pred-select:focus, .pred-input:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99,102,241,.12);
+}
+
+.pred-grade-slider-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.pred-slider {
+  flex: 1;
+  height: 6px;
+  border-radius: 999px;
+  background: #e0e7ff;
+  outline: none;
+  cursor: pointer;
+}
+
+.pred-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #6366f1, #7c3aed);
+  box-shadow: 0 2px 8px rgba(99,102,241,.4);
+  cursor: pointer;
+  transition: transform .15s;
+}
+
+.pred-slider::-webkit-slider-thumb:hover { transform: scale(1.2); }
+
+.pred-grade-badge {
+  width: 48px; height: 48px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #6366f1, #7c3aed);
+  color: #fff;
+  font-family: 'Fredoka One', cursive;
+  font-size: 1.4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 4px 14px rgba(99,102,241,.35);
+  transition: background .3s;
+}
+
+.pred-calc-btn {
+  width: 100%;
+  padding: 13px;
+  background: linear-gradient(135deg, #4338ca, #7c3aed);
+  color: #fff;
+  border: none;
+  border-radius: 14px;
+  font-size: 1rem;
+  font-weight: 800;
+  font-family: 'Fredoka One', cursive;
+  cursor: pointer;
+  transition: transform .15s, box-shadow .15s;
+  margin-top: 4px;
+  letter-spacing: .3px;
+}
+
+.pred-calc-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(99,102,241,.4);
+}
+
+/* Результат */
+.pred-result {
+  display: none;
+}
+
+.pred-result.show { display: block; }
+
+.pred-result-main {
+  background: linear-gradient(135deg, #ede9fe, #e0e7ff);
+  border-radius: 16px;
+  padding: 20px 22px;
+  margin-bottom: 14px;
+  border: 2px solid #c7d2fe;
+}
+
+.pred-result-label {
+  font-size: .75rem;
+  font-weight: 800;
+  letter-spacing: .6px;
+  text-transform: uppercase;
+  color: #4338ca;
+  font-family: 'Sora', sans-serif;
+  margin-bottom: 6px;
+}
+
+.pred-result-value {
+  font-family: 'Fredoka One', cursive;
+  font-size: 2.2rem;
+  color: #1e1b4b;
+  line-height: 1;
+}
+
+.pred-result-value span {
+  font-size: 1rem;
+  color: #94a3b8;
+}
+
+.pred-delta {
+  font-family: 'Sora', sans-serif;
+  font-size: .88rem;
+  font-weight: 700;
+  margin-top: 6px;
+}
+
+.pred-delta.up   { color: #15803d; }
+.pred-delta.down { color: #dc2626; }
+.pred-delta.same { color: #6366f1; }
+
+.pred-breakdown {
+  background: #fff;
+  border: 2px solid #e0e7ff;
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.pred-breakdown-title {
+  background: #eef2ff;
+  padding: 10px 16px;
+  font-size: .78rem;
+  font-weight: 800;
+  color: #4338ca;
+  font-family: 'Sora', sans-serif;
+  letter-spacing: .4px;
+  text-transform: uppercase;
+}
+
+.pred-breakdown-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 16px;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: .88rem;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 700;
+  color: #374151;
+}
+
+.pred-breakdown-row:last-child { border-bottom: none; }
+.pred-breakdown-row.highlight { background: #ede9fe; font-weight: 800; color: #4338ca; }
+
+.pred-score-pill {
+  background: #e0e7ff;
+  color: #4338ca;
+  border-radius: 999px;
+  padding: 2px 12px;
+  font-size: .82rem;
+  font-weight: 800;
+}
+
+.pred-score-pill.new-grade {
+  background: linear-gradient(135deg, #6366f1, #7c3aed);
+  color: #fff;
+}
+
+.pred-tip {
+  margin-top: 14px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-size: .85rem;
+  font-weight: 700;
+  font-family: 'Sora', sans-serif;
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.pred-tip.good   { background: #f0fdf4; color: #15803d; border-left: 4px solid #22c55e; }
+.pred-tip.warn   { background: #fefce8; color: #92400e; border-left: 4px solid #f59e0b; }
+.pred-tip.bad    { background: #fef2f2; color: #991b1b; border-left: 4px solid #ef4444; }
+.pred-tip.neutral{ background: #eff6ff; color: #1e40af; border-left: 4px solid #3b82f6; }
+
+.pred-rank-change {
+  margin-top: 10px;
+  padding: 10px 14px;
+  background: #f8f7ff;
+  border-radius: 12px;
+  border: 1px solid #e0d8f8;
+  font-size: .83rem;
+  font-weight: 700;
+  font-family: 'Nunito', sans-serif;
+  color: #6366f1;
+}
+
+.pred-placeholder {
+  text-align: center;
+  padding: 50px 20px;
+  color: #c4b8f0;
+  font-family: 'Fredoka One', cursive;
+  font-size: 1rem;
+}
+
+/* Нет профиля */
+.profile-placeholder {
+  text-align: center;
+  padding: 60px 20px;
+  color: #c4b8f0;
+  font-family: 'Fredoka One', cursive;
+  font-size: 1.1rem;
+  background: #f8f7ff;
+  border-radius: 20px;
+  border: 2px dashed #ddd5f8;
+}
+
+.profile-placeholder .ph-icon { font-size: 3rem; margin-bottom: 12px; }
+
+
+
+/* ══════════════════════════════════════════
+   MOBILE RESPONSIVE — дополнения
+══════════════════════════════════════════ */
+
+/* NAV — мобильная прокрутка */
+@media (max-width: 768px) {
+  nav {
+    justify-content: flex-start;
+    padding: 0 4px;
+  }
+  nav a {
+    padding: 12px 14px;
+    font-size: 0.8rem;
+  }
+
+  /* HEADER */
+  .header-inner {
+    padding: 18px 16px 22px;
+    gap: 14px;
+  }
+  .header-tape {
+    padding: 5px 14px;
+    font-size: 10px;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .header-badges {
+    gap: 8px;
+  }
+  .badge {
+    padding: 6px 12px;
+    font-size: 0.75rem;
+  }
+
+  /* MAIN */
+  main {
+    padding: 24px 14px 60px;
+  }
+  section {
+    margin-bottom: 40px;
+  }
+  .section-label {
+    font-size: 1.35rem;
+    margin-bottom: 16px;
+  }
+
+  /* WELCOME */
+  .welcome-card {
+    flex-direction: column;
+    text-align: center;
+    padding: 24px 20px;
+    gap: 16px;
+  }
+  .welcome-emoji { font-size: 56px; }
+  .welcome-card h2 { font-size: 1.6rem; }
+  .welcome-card p { font-size: 0.95rem; }
+
+  /* ANNOUNCEMENTS */
+  .announce-card {
+    padding: 14px 16px;
+    gap: 12px;
+  }
+  .announce-icon {
+    width: 38px; height: 38px;
+    font-size: 18px;
+  }
+
+  /* SCHEDULE */
+  #schedule .week-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+  .day-header { padding: 14px 18px; font-size: 1rem; }
+  .period { font-size: 0.82rem; padding: 6px 0; }
+
+  /* TODAY CARD */
+  .today-card { padding: 20px 18px; }
+  .today-day-name { font-size: 1.5rem; }
+  .today-lessons-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* STUDENT LIST */
+  #work .day-card 
+  #work .period {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+    padding: 8px 0;
+  }
+  #work .period-time {
+    font-size: 0.76rem;
+  }
+
+  /* STUDENT CARDS */
+  .cards-container {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .card { height: 280px; }
+  /* Make overlay always visible on mobile (no hover) */
+  .overlay {
+    opacity: 1;
+    transform: translateY(0);
+    background: linear-gradient(to top, rgba(0,0,0,0.85), rgba(0,0,0,0.1) 60%, transparent 100%);
+  }
+
+  /* GRADES TABLE */
+  .grades-container {
+    overflow-x: auto;
+    border-radius: 16px;
+  }
+  .grades-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 0 0 10px 0;
+  }
+  #gradesTable {
+    min-width: 520px;
+  }
+  th, td { padding: 9px 8px; font-size: 0.82rem; }
+
+  /* HOMEWORK */
+  .hw-topbar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 18px 18px;
+  }
+  .hw-topbar h3 { font-size: 1.2rem; }
+  .hw-form-bar {
+    flex-direction: column;
+    padding: 16px 16px;
+    gap: 12px;
+  }
+  .hw-input-group { flex: unset; width: 100%; }
+  .hw-add-btn { width: 100%; padding: 13px; font-size: 1rem; }
+  .hw-filter-bar { padding: 10px 14px; gap: 6px; }
+  .hw-filter-btn { padding: 5px 12px; font-size: 0.76rem; }
+  .hw-list { padding: 14px 14px; }
+  .hw-item { padding: 12px 14px; gap: 10px; }
+  .hw-footer { padding: 10px 16px; font-size: 0.74rem; }
+  .hw-stats { flex-wrap: wrap; gap: 6px; }
+  .hw-stat-chip { font-size: 0.75rem; padding: 4px 12px; }
+
+  /* ATTENDANCE */
+  .att-topbar {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 16px 16px;
+    gap: 10px;
+  }
+  .att-topbar h3 { font-size: 1.2rem; }
+  .att-stats { flex-wrap: wrap; gap: 6px; }
+  .att-stat-chip { font-size: 0.74rem; padding: 4px 10px; }
+  .att-controls { padding: 14px 14px; }
+  .att-search { min-width: 0; }
+  .att-legend { padding: 10px 14px; gap: 8px; }
+  .att-table-wrap { overflow-x: auto; }
+  .att-table { min-width: 480px; }
+  .att-table thead th { padding: 10px 10px; font-size: 0.75rem; }
+  .att-table td { padding: 10px 10px; font-size: 0.82rem; }
+  .att-footer { padding: 10px 14px; }
+
+  /* PROFILE */
+  .profile-hero {
+    flex-direction: column;
+    padding: 24px 20px;
+    gap: 16px;
+    text-align: center;
+    align-items: center;
+  }
+  .profile-rank-badge { position: static; margin: 0 auto; }
+  .profile-name { font-size: 1.5rem; }
+  .profile-body { padding: 18px 16px; gap: 14px; grid-template-columns: 1fr 1fr; }
+  .profile-stat-block { padding: 14px 14px; }
+  .profile-subjects, .profile-insights { grid-column: 1 / -1; padding: 16px 16px; }
+  .subject-name { width: 100px; font-size: 0.78rem; }
+  .profile-selector-wrap { gap: 10px; }
+  .profile-select { font-size: 0.9rem; padding: 12px 14px; }
+
+  /* GRADE PREDICTOR */
+  .pred-topbar { padding: 18px 18px; }
+  .pred-topbar h3 { font-size: 1.2rem; }
+  .pred-body { grid-template-columns: 1fr; }
+  .pred-left, .pred-right { padding: 20px 18px; border-right: none; }
+  .pred-left { border-bottom: 1px solid #f0f0f0; }
+
+  /* LOGIN */
+  #login { padding: 24px 0 40px; }
+  .login-wrap { flex-direction: column; gap: 20px; }
+  .login-side { padding: 28px 20px; border-radius: 20px; }
+  .login-side-title { font-size: 1.4rem; }
+  .login-card { padding: 24px 20px; border-radius: 20px; }
+  .login-title { font-size: 1.3rem; }
+  .lf-submit, .lf-pin-btn { padding: 12px; }
+
+  /* FOOTER */
+  footer { font-size: 0.78rem; padding: 20px 16px; }
+
+  /* PIN OVERLAY */
+  #pin-box { padding: 36px 24px 32px; }
+  .pin-cell { width: 40px; height: 50px; font-size: 1.3rem; }
+  #pin-inputs { gap: 7px; }
+}
+
+@media (max-width: 420px) {
+  .class-title h1 { font-size: 1.6rem; }
+  .header-badges { flex-direction: column; gap: 6px; }
+  .badge { font-size: 0.72rem; padding: 5px 10px; }
+
+  .profile-body { grid-template-columns: 1fr; }
+
+  nav a { padding: 11px 10px; font-size: 0.75rem; }
+
+  .pin-cell { width: 36px; height: 46px; font-size: 1.2rem; }
+  #pin-inputs { gap: 6px; }
+
+  .grades-container { font-size: 0.8rem; }
+  th, td { padding: 7px 6px; }
+
+  .today-card { padding: 16px 14px; }
+}
+
+</style>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&family=Sora:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+
+</head>
+<body>
+
+
+
+
+
+
+<!-- ══════════════════════════════════
+     PIN LOCK SCREEN
+══════════════════════════════════ -->
+<div id="pin-overlay">
+  <div id="pin-box">
+    <div id="pin-icon">🔐</div>
+    <h2 id="pin-title">Введите код доступа</h2>
+    <p id="pin-subtitle">10"А" класс · Гимназия №4</p>
+
+    <div id="pin-inputs">
+      <input class="pin-cell" type="password" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="off"/>
+      <input class="pin-cell" type="password" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="off"/>
+      <input class="pin-cell" type="password" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="off"/>
+      <input class="pin-cell" type="password" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="off"/>
+      <input class="pin-cell" type="password" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="off"/>
+      <input class="pin-cell" type="password" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="off"/>
+    </div>
+
+    <div id="pin-toggle-wrap">
+      <button id="pin-toggle-btn" onclick="togglePinVisibility()">👁 Показать код</button>
+    </div>
+
+    <div id="pin-error"></div>
+    <div id="pin-attempts-info"></div>
+    <div id="pin-lockout-msg" style="display:none"></div>
+  </div>
+</div>
+
+<style>
+/* ── PIN OVERLAY ── */
+#pin-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background: linear-gradient(135deg, #17174d 0%, #2d225e 50%, #1a1a5e 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Nunito', sans-serif;
+}
+
+#pin-box {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.15);
+  backdrop-filter: blur(20px);
+  border-radius: 28px;
+  padding: 48px 40px 40px;
+  text-align: center;
+  width: 360px;
+  max-width: 94vw;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+}
+
+#pin-icon {
+  font-size: 3rem;
+  margin-bottom: 12px;
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-8px); }
+}
+
+#pin-title {
+  color: #fff;
+  font-size: 1.4rem;
+  font-weight: 800;
+  margin-bottom: 4px;
+}
+
+#pin-subtitle {
+  color: rgba(255,255,255,0.55);
+  font-size: 0.85rem;
+  margin-bottom: 32px;
+}
+
+#pin-inputs {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.pin-cell {
+  width: 46px;
+  height: 56px;
+  border-radius: 14px;
+  border: 2px solid rgba(255,255,255,0.25);
+  background: rgba(255,255,255,0.1);
+  color: #fff;
+  font-size: 1.5rem;
+  font-weight: 800;
+  text-align: center;
+  outline: none;
+  transition: border-color 0.2s, background 0.2s, transform 0.15s;
+  caret-color: transparent;
+}
+
+.pin-cell:focus {
+  border-color: #4ECDC4;
+  background: rgba(78,205,196,0.15);
+  transform: scale(1.08);
+}
+
+.pin-cell.filled {
+  border-color: rgba(255,255,255,0.5);
+  background: rgba(255,255,255,0.18);
+}
+
+/* Shake animation */
+@keyframes shake {
+  0%  { transform: translateX(0); }
+  15% { transform: translateX(-8px); }
+  30% { transform: translateX(8px); }
+  45% { transform: translateX(-6px); }
+  60% { transform: translateX(6px); }
+  75% { transform: translateX(-3px); }
+  90% { transform: translateX(3px); }
+  100%{ transform: translateX(0); }
+}
+
+#pin-inputs.shake {
+  animation: shake 0.5s ease;
+}
+
+.pin-cell.error {
+  border-color: #ef4444 !important;
+  background: rgba(239,68,68,0.18) !important;
+}
+
+/* Success animation */
+@keyframes successPulse {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.06); }
+  100% { transform: scale(1); }
+}
+
+.pin-cell.success {
+  border-color: #6BCB77 !important;
+  background: rgba(107,203,119,0.25) !important;
+  animation: successPulse 0.4s ease;
+}
+
+#pin-toggle-wrap {
+  margin-bottom: 12px;
+}
+
+#pin-toggle-btn {
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.2);
+  color: rgba(255,255,255,0.75);
+  border-radius: 999px;
+  padding: 6px 18px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+#pin-toggle-btn:hover { background: rgba(255,255,255,0.18); }
+
+#pin-error {
+  color: #ff7f7f;
+  font-size: 0.88rem;
+  font-weight: 700;
+  min-height: 22px;
+  margin-bottom: 4px;
+}
+
+#pin-attempts-info {
+  color: rgba(255,255,255,0.45);
+  font-size: 0.78rem;
+  min-height: 18px;
+}
+
+#pin-lockout-msg {
+  margin-top: 14px;
+  background: rgba(239,68,68,0.15);
+  border: 1px solid rgba(239,68,68,0.4);
+  border-radius: 12px;
+  padding: 14px 18px;
+  color: #ffaaaa;
+  font-size: 0.88rem;
+  font-weight: 700;
+}
+
+/* Fade-out overlay */
+@keyframes fadeOutOverlay {
+  0%   { opacity: 1; }
+  100% { opacity: 0; pointer-events: none; }
+}
+
+#pin-overlay.unlocking {
+  animation: fadeOutOverlay 0.7s ease forwards;
+}
+</style>
+
+<script>
+(function() {
+  /* ── НАСТРОЙКИ ── */
+  const CORRECT_PIN = '102030';   // ← ВАШ КОД ЗДЕСЬ
+  const MAX_ATTEMPTS = 3;
+  const LOCKOUT_MS   = 30 * 1000; // 30 секунд блокировки
+
+  /* ── СОСТОЯНИЕ ── */
+  let attempts = 0;
+  let locked   = false;
+  let pinVisible = false;
+  let lockTimer  = null;
+
+  const overlay    = document.getElementById('pin-overlay');
+  const inputs     = Array.from(document.querySelectorAll('.pin-cell'));
+  const errEl      = document.getElementById('pin-error');
+  const attEl      = document.getElementById('pin-attempts-info');
+  const lockMsg    = document.getElementById('pin-lockout-msg');
+  const toggleBtn  = document.getElementById('pin-toggle-btn');
+
+  /* ── Проверить сохранённый доступ ── */
+  if (sessionStorage.getItem('site_unlocked') === '1') {
+    overlay.style.display = 'none';
+    return;
+  }
+
+  /* ── Проверить блокировку ── */
+  const savedLock = localStorage.getItem('pin_locked_until');
+  if (savedLock && Date.now() < parseInt(savedLock)) {
+    applyLockout(parseInt(savedLock) - Date.now());
+  } else {
+    inputs[0].focus();
+  }
+
+  /* ── Навигация между ячейками ── */
+  inputs.forEach((input, i) => {
+    input.addEventListener('input', function () {
+      const val = this.value.replace(/\D/g, '');
+      this.value = val ? val[val.length - 1] : '';
+
+      if (this.value) {
+        this.classList.add('filled');
+        if (i < inputs.length - 1) {
+          inputs[i + 1].focus();
+        } else {
+          checkPin();
+        }
+      } else {
+        this.classList.remove('filled');
+      }
+    });
+
+    input.addEventListener('keydown', function (e) {
+      if (e.key === 'Backspace' && !this.value && i > 0) {
+        inputs[i - 1].value = '';
+        inputs[i - 1].classList.remove('filled');
+        inputs[i - 1].focus();
+      }
+    });
+
+    input.addEventListener('paste', function (e) {
+      e.preventDefault();
+      const pasted = (e.clipboardData || window.clipboardData).getData('text').replace(/\D/g,'');
+      pasted.split('').forEach((ch, j) => {
+        if (inputs[i + j]) {
+          inputs[i + j].value = ch;
+          inputs[i + j].classList.add('filled');
+        }
+      });
+      const nextEmpty = inputs.find(inp => !inp.value);
+      if (nextEmpty) nextEmpty.focus();
+      else checkPin();
+    });
+  });
+
+  /* ── Показать/скрыть ── */
+  window.togglePinVisibility = function () {
+    pinVisible = !pinVisible;
+    inputs.forEach(inp => inp.type = pinVisible ? 'text' : 'password');
+    toggleBtn.textContent = pinVisible ? '🙈 Скрыть код' : '👁 Показать код';
+  };
+
+  /* ── Проверка PIN ── */
+  function checkPin() {
+    if (locked) return;
+    const entered = inputs.map(i => i.value).join('');
+    if (entered.length < 6) return;
+
+    if (entered === CORRECT_PIN) {
+      /* УСПЕХ */
+      inputs.forEach(inp => inp.classList.add('success'));
+      errEl.textContent = '✅ Доступ открыт!';
+      errEl.style.color = '#6BCB77';
+      sessionStorage.setItem('site_unlocked', '1');
+      setTimeout(() => {
+        overlay.classList.add('unlocking');
+        setTimeout(() => overlay.style.display = 'none', 700);
+      }, 600);
+    } else {
+      /* ОШИБКА */
+      attempts++;
+      const left = MAX_ATTEMPTS - attempts;
+      inputs.forEach(inp => inp.classList.add('error'));
+      const inputWrap = document.getElementById('pin-inputs');
+      inputWrap.classList.add('shake');
+      setTimeout(() => {
+        inputWrap.classList.remove('shake');
+        inputs.forEach(inp => { inp.classList.remove('error','filled'); inp.value = ''; });
+        inputs[0].focus();
+      }, 600);
+
+      if (attempts >= MAX_ATTEMPTS) {
+        /* БЛОКИРОВКА */
+        const until = Date.now() + LOCKOUT_MS;
+        localStorage.setItem('pin_locked_until', until);
+        applyLockout(LOCKOUT_MS);
+        errEl.textContent = '';
+        attEl.textContent = '';
+      } else {
+        errEl.textContent = '❌ Неверный код!';
+        attEl.textContent = `Осталось попыток: ${left}`;
+      }
+    }
+  }
+
+  /* ── Блокировка ── */
+  function applyLockout(msLeft) {
+    locked = true;
+    inputs.forEach(inp => { inp.disabled = true; inp.value = ''; inp.classList.remove('filled'); });
+    lockMsg.style.display = 'block';
+    errEl.textContent = '';
+    attEl.textContent = '';
+    updateLockTimer(msLeft);
+  }
+
+  function updateLockTimer(msLeft) {
+    const sec = Math.ceil(msLeft / 1000);
+    lockMsg.innerHTML = `🔒 Слишком много попыток!<br>Подождите <strong id="countdownSec">${sec}</strong> сек.`;
+    if (msLeft > 0) {
+      setTimeout(() => updateLockTimer(msLeft - 1000), 1000);
+    } else {
+      /* Разблокировать */
+      localStorage.removeItem('pin_locked_until');
+      locked = false;
+      attempts = 0;
+      lockMsg.style.display = 'none';
+      inputs.forEach(inp => inp.disabled = false);
+      inputs[0].focus();
+      attEl.textContent = 'Можете попробовать снова.';
+    }
+  }
+})();
+</script>
+
+<header>
+  <div class="header-tape">
+    <span>📅 2025–2026 Учебный год</span>
+    <span>✏️ Английский класс</span>
+  </div>
+  <div class="header-inner">
+    <div class="class-title">
+      <h1>Добро пожаловать на наш сайт!</h1>
+      <p>10"А" класс-Гимназии №4</p>
+    </div>
+    <div class="header-badges">
+      <span class="badge">📧 juraevaskar01@gmail.com</span>
+      <span class="badge">📞 +992 00 377 4011</span>
+      <span class="badge">🕐 П–С · 8:00–13:00</span>
+    </div>
+  </div>
+</header>
+
+<nav>
+  <a href="#welcome">Домой</a>
+  <a href="#announcements">Объявления</a>
+  <a href="#today">Сегодня</a>
+  <a href="#schedule">Расписание</a>
+  <a href="#work">Список учеников</a>
+  <a href="#homework">Домашние задания</a>
+  <a href="#attendance">Прогулы</a>
+  <a href="#profile-section">Профиль</a>
+  <!-- <a href="#guestbook">Гостевая книга</a> -->
+  <a href="#login">Войти</a>
+</nav>
+
+<main>
+
+  <!-- WELCOME -->
+  <section id="welcome">
+    <div class="welcome-card">
+      <div class="welcome-emoji">👋</div>
+      <div>
+        <h2>Добро пожаловать!</h2>
+        <p>Мы очень рады что вы здесь! Этот сайт-ваш главный помощник, где можно найти новости класса, еженедельное расписание, лучшие работы учеников и полезные ресурсы для учёбы. Давайте проведем этот год отлично!</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ANNOUNCEMENTS -->
+  <section id="announcements">
+    <div class="section-label">
+      <span class="dot" style="background:var(--coral)"></span>
+      Объявления
+    </div>
+    <div class="cards">
+      <div class="announce-card">
+        <div class="announce-icon">🔢</div>
+        <div>
+          <div class="announce-meta">📅 3 июня 2020 г. в 8:00</div>
+          <h3>Алгебра-письменная работа</h3>
+          <p>Экзаменационная работа по алгебре пройдет в письменной форме и начнется ровно в восемь утра. Пожалуйста, принесите с собой все необходимые чертежные инструменты и калькуляторы, разрешенные правилами. Мы рекомендуем прийти за 15 минут до начала.</p>
+        </div>
+      </div>
+      <div class="announce-card">
+        <div class="announce-icon">📖</div>
+        <div>
+          <div class="announce-meta">📅 6 июня 2026 г. в 8:00</div>
+          <h3>Литература — эссе</h3>
+          <p>В субботу учащимся предстоит написать итоговое эссе по курсу литературы. Не забудьте взять с собой несколько запасных ручек с синей пастой.</p>
+        </div>
+      </div>
+      <div class="announce-card">
+        <div class="announce-icon">⚖️</div>
+        <div>
+          <div class="announce-meta">📅 9 июня 2026 г. в 8:00</div>
+          <h3>Право — устный экзамен</h3>
+          <p>Завершающим этапом станет устный экзамен по праву в формате ответов по билетам. Порядок входа определен согласно алфавитному списку.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- СЕГОДНЯШНИЙ ДЕНЬ -->
+  <section id="today">
+    <div class="section-label">
+      <span class="dot" style="background:var(--teal,#4ECDC4)"></span>
+      Сегодняшний день
+    </div>
+    <div id="today-card" class="today-card">
+      <!-- Заполняется скриптом -->
+    </div>
+  </section>
+
+  <style>
+  .today-card {
+    background: linear-gradient(135deg, #17174d 0%, #2d225e 60%, #1a3a5e 100%);
+    border-radius: 22px;
+    padding: 28px 32px;
+    color: #fff;
+    box-shadow: 0 12px 40px rgba(23,23,77,0.18);
+    margin-bottom: 10px;
+    position: relative;
+    overflow: hidden;
+  }
+  .today-card::before {
+    content: '';
+    position: absolute;
+    top: -40px; right: -40px;
+    width: 180px; height: 180px;
+    background: rgba(78,205,196,0.08);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+  .today-top {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    margin-bottom: 22px;
+    flex-wrap: wrap;
+  }
+  .today-emoji-big {
+    font-size: 2.8rem;
+    line-height: 1;
+    filter: drop-shadow(0 2px 8px rgba(78,205,196,0.35));
+  }
+  .today-day-name {
+    font-family: 'Fredoka One', cursive;
+    font-size: 2rem;
+    color: #4ECDC4;
+    line-height: 1;
+  }
+  .today-date-sub {
+    font-size: 0.85rem;
+    color: rgba(255,255,255,0.55);
+    margin-top: 4px;
+  }
+  .today-weekend-msg {
+    font-size: 1.15rem;
+    color: rgba(255,255,255,0.7);
+    font-style: italic;
+  }
+  .today-lessons-title {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.05rem;
+    color: rgba(255,255,255,0.6);
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .today-lessons-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+    gap: 10px;
+  }
+  .today-lesson-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 14px;
+    padding: 12px 16px;
+    transition: background 0.2s, transform 0.2s;
+  }
+  .today-lesson-item:hover {
+    background: rgba(78,205,196,0.13);
+    transform: translateY(-2px);
+  }
+  .today-lesson-item.current {
+    border-color: #4ECDC4;
+    background: rgba(78,205,196,0.18);
+    box-shadow: 0 0 0 2px rgba(78,205,196,0.25);
+  }
+  .today-lesson-num {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.12);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.8rem;
+    font-weight: 800;
+    flex-shrink: 0;
+    color: #4ECDC4;
+  }
+  .today-lesson-item.current .today-lesson-num {
+    background: #4ECDC4;
+    color: #17174d;
+  }
+  .today-lesson-name {
+    font-weight: 700;
+    font-size: 0.95rem;
+  }
+  .today-lesson-time {
+    font-size: 0.78rem;
+    color: rgba(255,255,255,0.5);
+    margin-top: 2px;
+  }
+  .today-now-badge {
+    display: inline-block;
+    background: #4ECDC4;
+    color: #17174d;
+    font-size: 0.65rem;
+    font-weight: 900;
+    border-radius: 999px;
+    padding: 1px 8px;
+    margin-left: 6px;
+    vertical-align: middle;
+    letter-spacing: 0.05em;
+  }
+  </style>
+
+  <script>
+  (function() {
+    const SCHEDULE = {
+      1: [ // Понедельник
+        { name: 'Алгебра',         time: '8:00–8:45'   },
+        { name: 'Русский язык',    time: '8:50–9:35'   },
+        { name: 'Химия',           time: '9:40–10:25'  },
+        { name: 'Геометрия',       time: '10:40–11:25' },
+        { name: 'Английский язык', time: '11:30–12:15' },
+        { name: 'Биология',        time: '12:20–13:05' },
+      ],
+      2: [ // Вторник
+        { name: 'Военный урок',    time: '8:00–8:45'   },
+        { name: 'История',         time: '8:50–9:35'   },
+        { name: 'Спорт',           time: '9:40–10:25'  },
+        { name: 'Спорт',           time: '10:40–11:25' },
+        { name: 'Английский язык', time: '11:30–12:15' },
+        { name: 'Информатика',     time: '12:20–13:05' },
+      ],
+      3: [ // Среда
+        { name: 'Физика',          time: '8:00–8:45'   },
+        { name: 'Химия',           time: '8:50–9:35'   },
+        { name: 'Таджикский язык', time: '9:40–10:25'  },
+        { name: 'Английский язык', time: '10:40–11:25' },
+        { name: 'Литература',      time: '11:30–12:15' },
+        { name: 'Информатика',     time: '12:20–13:05' },
+      ],
+      4: [ // Четверг
+        { name: 'Биология',        time: '8:00–8:45'   },
+        { name: 'Физика',          time: '8:50–9:35'   },
+        { name: 'Право',           time: '9:40–10:25'  },
+        { name: 'Алгебра',         time: '10:40–11:25' },
+        { name: 'Таджикский язык', time: '11:30–12:15' },
+        { name: 'История',         time: '12:20–13:05' },
+      ],
+      5: [ // Пятница
+        { name: 'Литература',      time: '8:00–8:45'   },
+        { name: 'География',       time: '8:50–9:35'   },
+        { name: 'Русский язык',    time: '9:35–10:25'  },
+        { name: 'Семья',           time: '10:40–11:25' },
+        { name: 'Английский язык', time: '11:30–12:15' },
+      ],
+      6: [ // Суббота
+        { name: 'Труд',            time: '8:00–8:45'   },
+        { name: 'Право',           time: '8:50–9:35'   },
+        { name: 'Русский язык',    time: '9:35–10:25'  },
+        { name: 'История',         time: '10:40–11:25' },
+        { name: 'Литература',      time: '11:30–12:15' },
+      ],
+    };
+
+    const DAY_NAMES = ['', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота'];
+    const DAY_EMOJIS = ['', '📐', '⚔️', '🧪', '📖', '🌍', '🔨'];
+
+    function getCurrentLesson(lessons) {
+      const now = new Date();
+      const hm = now.getHours() * 60 + now.getMinutes();
+      for (let i = 0; i < lessons.length; i++) {
+        const t = lessons[i].time.replace('–', '-');
+        const [start, end] = t.split('-').map(s => {
+          const [h, m] = s.trim().split(':').map(Number);
+          return h * 60 + m;
+        });
+        if (hm >= start && hm <= end) return i;
+      }
+      return -1;
+    }
+
+    function render() {
+      const card = document.getElementById('today-card');
+      if (!card) return;
+      const now = new Date();
+      const dow = now.getDay(); // 0=Вс, 1=Пн...
+      const dateStr = now.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
+
+      if (dow === 0) {
+        // Воскресенье — выходной
+        card.innerHTML = `
+          <div class="today-top">
+            <div class="today-emoji-big">☀️</div>
+            <div>
+              <div class="today-day-name">Воскресенье</div>
+              <div class="today-date-sub">${dateStr}</div>
+            </div>
+          </div>
+          <div class="today-weekend-msg">🎉 Сегодня выходной день — отдыхайте и набирайтесь сил!</div>`;
+        return;
+      }
+
+      const lessons = SCHEDULE[dow];
+      const currentIdx = getCurrentLesson(lessons);
+
+      const lessonsHTML = lessons.map((l, i) => {
+        const isCurrent = i === currentIdx;
+        return `<div class="today-lesson-item${isCurrent ? ' current' : ''}">
+          <div class="today-lesson-num">${i + 1}</div>
+          <div>
+            <div class="today-lesson-name">${l.name}${isCurrent ? '<span class="today-now-badge">СЕЙЧАС</span>' : ''}</div>
+            <div class="today-lesson-time">🕐 ${l.time}</div>
+          </div>
+        </div>`;
+      }).join('');
+
+      card.innerHTML = `
+        <div class="today-top">
+          <div class="today-emoji-big">${DAY_EMOJIS[dow]}</div>
+          <div>
+            <div class="today-day-name">${DAY_NAMES[dow]}</div>
+            <div class="today-date-sub">📅 ${dateStr}</div>
+          </div>
+        </div>
+        <div class="today-lessons-title">📚 Уроки сегодня — ${lessons.length} урок${lessons.length === 5 ? 'ов' : 'а'}</div>
+        <div class="today-lessons-grid">${lessonsHTML}</div>`;
+    }
+
+    render();
+    // Обновлять каждую минуту (для подсветки текущего урока)
+    setInterval(render, 60000);
+  })();
+  </script>
+
+  <!-- SCHEDULE -->
+  <section id="schedule">
+    <div class="section-label">
+      <span class="dot" style="background:var(--purple)"></span>
+      Расписание недели
+    </div>
+    <div class="week-grid">
+      <div class="day-card">
+        <div class="day-header">Понедельник</div>
+        <div class="day-body">
+          <div class="period"><span class="period-name">Алгебра</span><span class="period-time">8:00-8:45</span></div>
+          <div class="period"><span class="period-name">Русский язык</span><span class="period-time">8:50-9:35</span></div>
+          <div class="period"><span class="period-name">Химия</span><span class="period-time">9:40-10:25</span></div>
+          <div class="period"><span class="period-name">Геометрия</span><span class="period-time">10:40-11:25</span></div>
+          <div class="period"><span class="period-name">Английский язык</span><span class="period-time">11:30-12:15</span></div>
+          <div class="period"><span class="period-name">Биология</span><span class="period-time">12:20-13:05</span></div>
+        </div>
+      </div>
+      <div class="day-card">
+        <div class="day-header">Вторник</div>
+        <div class="day-body">
+          <div class="period"><span class="period-name">Военный урок</span><span class="period-time">8:00-8:45</span></div>
+          <div class="period"><span class="period-name">История</span><span class="period-time">8:50-9:35</span></div>
+          <div class="period"><span class="period-name">Спорт</span><span class="period-time">9:40-10:25</span></div>
+          <div class="period"><span class="period-name">Спорт</span><span class="period-time">10:40-11:25</span></div>
+          <div class="period"><span class="period-name">Английский язык</span><span class="period-time">11:30-12:15</span></div>
+          <div class="period"><span class="period-name">Информатика</span><span class="period-time">12:20-13:05</span></div>
+        </div>
+      </div>
+      <div class="day-card">
+        <div class="day-header">Среда</div>
+        <div class="day-body">
+          <div class="period"><span class="period-name">Физика</span><span class="period-time">8:00-8:45</span></div>
+          <div class="period"><span class="period-name">Химия</span><span class="period-time">8:50-9:35</span></div>
+          <div class="period"><span class="period-name">Таджикский язык</span><span class="period-time">9:40-10:25</span></div>
+          <div class="period"><span class="period-name">Английский язык</span><span class="period-time">10:40-11:25</span></div>
+          <div class="period"><span class="period-name">Литература</span><span class="period-time">11:30-12:15</span></div>
+          <div class="period"><span class="period-name">Информатика</span><span class="period-time">12:20-13:05</span></div>
+        </div>
+      </div>
+      <div class="day-card">
+        <div class="day-header">Четверг</div>
+        <div class="day-body">
+          <div class="period"><span class="period-name">Биология</span><span class="period-time">8:00-8:45</span></div>
+          <div class="period"><span class="period-name">Физика</span><span class="period-time">8:50-9:35</span></div>
+          <div class="period"><span class="period-name">Право</span><span class="period-time">9:40-10:25</span></div>
+          <div class="period"><span class="period-name">Алгебра</span><span class="period-time">10:40-11:25</span></div>
+          <div class="period"><span class="period-name">Таджикский язык</span><span class="period-time">11:30-12:15</span></div>
+          <div class="period"><span class="period-name">История</span><span class="period-time">12:20-13:05</span></div>
+        </div>
+      </div>
+      <div class="day-card">
+        <div class="day-header">Пятница</div>
+        <div class="day-body">
+          <div class="period"><span class="period-name">Литература</span><span class="period-time">8:00-8:45</span></div>
+          <div class="period"><span class="period-name">География</span><span class="period-time">8:50-9:35</span></div>
+          <div class="period"><span class="period-name">Русский язык</span><span class="period-time">9:35-10:25</span></div>
+          <div class="period"><span class="period-name">Семья</span><span class="period-time">10:40-11:25</span></div>
+          <div class="period"><span class="period-name">Английский язык</span><span class="period-time">11:30-12:15</span></div>
+        </div>
+      </div>
+      <div class="day-card">
+        <div class="day-header">Суббота</div>
+        <div class="day-body">
+          <div class="period"><span class="period-name">Труд</span><span class="period-time">8:00-8:45</span></div>
+          <div class="period"><span class="period-name">Право</span><span class="period-time">8:50-9:35</span></div>
+          <div class="period"><span class="period-name">Русский язык</span><span class="period-time">9:35-10:25</span></div>
+          <div class="period"><span class="period-name">История</span><span class="period-time">10:40-11:25</span></div>
+          <div class="period"><span class="period-name">Литература</span><span class="period-time">11:30-12:15</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- СПИСОК УЧЕНИКОВ -->
+  <section id="work">
+    <div class="section-label">
+      <span class="dot" style="background:var(--purple)"></span>
+      Список учеников
+    </div>
+    <div class="day-card">
+      <div class="day-header">Фамилия & Имя</div>
+      <div class="day-body">
+        <div class="period"><span class="period-name">Абдурахмонов Иброхим</span><span class="period-time">+992 55 749 0100</span></div>
+        <div class="period"><span class="period-name">Додоев Хушнуд</span><span class="period-time">+992 98 818 0084</span></div>
+        <div class="period"><span class="period-name">Зоиров Рауф</span><span class="period-time">+992 98 545 0036</span></div>
+        <div class="period"><span class="period-name">Имомов Шахром</span><span class="period-time">+992 07 277 6000</span></div>
+        <div class="period"><span class="period-name">Кобилов Шириншох</span><span class="period-time">+992 92 022 7334</span></div>
+        <div class="period"><span class="period-name">Кодиров Исроил</span><span class="period-time">+992 87 570 7029</span></div>
+        <div class="period"><span class="period-name">Косимов Мансур</span><span class="period-time">+992 80 880 1414</span></div>
+        <div class="period"><span class="period-name">Окилов Хусрав</span><span class="period-time">+992 98 509 5161</span></div>
+        <div class="period"><span class="period-name">Рахматуллоев Эхром</span><span class="period-time">+992 78 444 0033</span></div>
+        <div class="period"><span class="period-name">Файзуллоев Мухриддин</span><span class="period-time">+992 88 811 3439</span></div>
+        <div class="period"><span class="period-name">Файзуллоев Файзулло</span><span class="period-time">+992 94 390 0002</span></div>
+        <div class="period"><span class="period-name">Хакимов Хасан</span><span class="period-time">+992 97 225 6000</span></div>
+        <div class="period"><span class="period-name">Хакимов Хусейн</span><span class="period-time">+992 87 444 1333</span></div>
+        <div class="period"><span class="period-name">Чураев Аскар</span><span class="period-time">+992 00 377 4011</span></div>
+        <div class="period"><span class="period-name">Юсупов Юсуф</span><span class="period-time">+992 98 567 1911</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- КАРТОЧКИ С ФОТОГРАФИЯМИ -->
+  <section id="student-cards">
+    <div class="section-label">
+      <span class="dot" style="background:var(--coral)"></span>
+      Активные ученики класса
+    </div>
+    <div class="cards-container">
+      <div class="card">
+        <img src="Picsart_25-04-29_18-23-38-058.jpg" alt="Photo">
+        <div class="overlay">
+          <div class="content">
+            <h2 class="title">Рауф, Аскар, Файзулло</h2>
+            <div class="meta"><span class="author">Гимназии №4</span><span class="dot">.</span><span class="date">2025-2026</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <img src="IMG_20250527_145039_794.jpg" alt="Photo">
+        <div class="overlay">
+          <div class="content">
+            <h2 class="title">Хусрав, Рауф, Аскар, Файзулло</h2>
+            <div class="meta"><span class="author">Қасри фарҳанг</span><span class="dot">.</span><span class="date">2025-2026</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <img src="Picsart_25-09-04_20-08-08-141.jpg" alt="Photo">
+        <div class="overlay">
+          <div class="content">
+            <h2 class="title">Иброхим, Аскар, Рауф</h2>
+            <div class="meta"><span class="author">Гимназии №4</span><span class="dot">.</span><span class="date">2025-2026</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <img src="Picsart_25-05-31_07-04-18-278.jpg" alt="Photo">
+        <div class="overlay">
+          <div class="content">
+            <h2 class="title">Рауф & Аскар</h2>
+            <div class="meta"><span class="author">Қасри фарҳанг</span><span class="dot">.</span><span class="date">2025-2026</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <img src="Picsart_25-05-31_07-04-18-278.jpg" alt="Photo">
+        <div class="overlay">
+          <div class="content">
+            <h2 class="title">Рауф & Аскар</h2>
+            <div class="meta"><span class="author">Қасри фарҳанг</span><span class="dot">.</span><span class="date">2025-2026</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <img src="Picsart_25-05-31_07-04-18-278.jpg" alt="Photo">
+        <div class="overlay">
+          <div class="content">
+            <h2 class="title">Рауф & Аскар</h2>
+            <div class="meta"><span class="author">Қасри фарҳанг</span><span class="dot">.</span><span class="date">2025-2026</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- УСПЕВАЕМОСТЬ -->
+  <section id="grades">
+    <div class="section-label">
+      <span class="dot" style="background:var(--green)"></span>
+      Электронный журнал класса
+    </div>
+
+    <!-- ПАНЕЛЬ УЧИТЕЛЯ: вход -->
+    <div id="teacherLoginPanel" style="background:#fff;border-radius:20px;box-shadow:0 8px 30px rgba(0,0,0,.10);padding:28px 32px;margin-bottom:20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+      <span style="font-size:1.5rem;">🔐</span>
+      <div style="flex:1;min-width:200px;">
+        <div style="font-weight:800;font-size:1rem;color:#17174d;margin-bottom:4px;">Вход для учителя</div>
+        <div style="font-size:.85rem;color:#888;">Введите пароль чтобы редактировать оценки</div>
+      </div>
+      <input id="teacherPassInput" type="password" placeholder="Пароль учителя" style="padding:11px 16px;border-radius:12px;border:2px solid #e0d8f8;font-size:.95rem;outline:none;width:200px;" onkeydown="if(event.key==='Enter')jTeacherLogin()"/>
+      <button onclick="jTeacherLogin()" style="background:#A855F7;color:#fff;border:none;padding:12px 22px;border-radius:12px;font-weight:800;cursor:pointer;font-size:.95rem;white-space:nowrap;">Войти ✓</button>
+      <div id="teacherLoginError" style="display:none;color:#ef4444;font-weight:700;font-size:.85rem;width:100%;">❌ Неверный пароль</div>
+    </div>
+
+    <!-- ПАНЕЛЬ УЧИТЕЛЯ: управление -->
+    <div id="teacherToolbar" style="display:none;background:linear-gradient(135deg,#17174d,#2d225e);border-radius:20px;padding:20px 28px;margin-bottom:20px;flex-wrap:wrap;gap:14px;align-items:center;">
+      <span style="color:#fff;font-weight:800;font-size:1rem;">✅ Режим учителя</span>
+      <div style="flex:1;"></div>
+      <input id="jNewDate" type="date" style="padding:10px 14px;border-radius:10px;border:none;font-size:.9rem;font-weight:700;cursor:pointer;"/>
+      <button onclick="jAddDate()" style="background:#22c55e;color:#fff;border:none;padding:10px 18px;border-radius:10px;font-weight:800;cursor:pointer;white-space:nowrap;">+ Добавить дату</button>
+      <button onclick="jTeacherLogout()" style="background:rgba(255,255,255,.15);color:#fff;border:2px solid rgba(255,255,255,.3);padding:10px 18px;border-radius:10px;font-weight:800;cursor:pointer;">Выйти</button>
+    </div>
+
+    <!-- ВКЛАДКИ ПРЕДМЕТОВ -->
+    <div id="jSubjectTabs" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;overflow-x:auto;padding-bottom:4px;"></div>
+
+    <!-- ПАНЕЛЬ ДОБАВИТЬ ПРЕДМЕТ (только учитель) -->
+    <div id="jAddSubjectBar" style="display:none;background:#fff;border-radius:14px;padding:14px 20px;margin-bottom:16px;box-shadow:0 2px 10px rgba(0,0,0,.07);gap:10px;align-items:center;flex-wrap:wrap;">
+      <span style="font-weight:700;color:#17174d;font-size:.9rem;">📚 Новый предмет:</span>
+      <select id="jSubjectPreset" style="padding:9px 14px;border-radius:10px;border:2px solid #e0d8f8;font-weight:700;font-size:.88rem;color:#17174d;">
+        <option value="">— выбрать —</option>
+        <option>Математика</option><option>Английский</option><option>Русский</option>
+        <option>История</option><option>Информатика</option><option>Физика</option>
+        <option>Химия</option><option>Биология</option><option>Физкультура</option>
+        <option>Чертёж</option><option>Литература</option><option>География</option>
+      </select>
+      <input id="jSubjectCustom" placeholder="или введите сами..." style="padding:9px 14px;border-radius:10px;border:2px solid #e0d8f8;font-size:.88rem;width:170px;"/>
+      <button onclick="jAddSubject()" style="background:#A855F7;color:#fff;border:none;padding:10px 18px;border-radius:10px;font-weight:800;cursor:pointer;">Добавить</button>
+    </div>
+
+    <div class="grades-container">
+      <div class="grades-header" style="flex-wrap:wrap;gap:10px;margin-bottom:14px;">
+        <h3 id="jTableTitle">📊 Журнал · 10А</h3>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button onclick="jSortByAvg()" style="background:var(--purple);">🏆 По среднему</button>
+          <button onclick="jSortAlpha()" style="background:#64748b;">↩️ По алфавиту</button>
+        </div>
+      </div>
+
+      <div style="overflow-x:auto;border-radius:16px;box-shadow:0 2px 12px rgba(0,0,0,.08);">
+        <table id="jTable" style="width:100%;border-collapse:collapse;min-width:500px;font-family:sans-serif;">
+          <thead id="jHead"></thead>
+          <tbody id="jBody"></tbody>
+        </table>
+      </div>
+
+      <div id="jStats" style="display:flex;gap:12px;flex-wrap:wrap;margin-top:18px;"></div>
+    </div>
+  </section>
+
+  <script>
+  (function() {
+    const PASS      = "10a2025";
+
+    const STUDENTS = [
+      "Абдурахмонов Иброхим","Додоев Хушнуд","Зоиров Рауф","Имомов Шахром",
+      "Кобилов Шириншох","Кодиров Исроил","Косимов Мансур","Окилов Хусрав",
+      "Рахматуллоев Эхром","Файзуллоев Мухриддин","Файзуллоев Файзулло",
+      "Хакимов Хасан","Хакимов Хусейн","Чураев Аскар","Юсупов Юсуф"
+    ];
+
+    const DEFAULT_SUBJECTS = ["Математика","Английский","Русский","История","Информатика","Физика"];
+    let db, isTeacher = false, activeSubj = null, sortMode = "alpha";
+
+    function initDb() {
+      db = { subjects: [...DEFAULT_SUBJECTS], journal: {} };
+      DEFAULT_SUBJECTS.forEach(s => {
+        db.journal[s] = { dates: [], grades: {} };
+        STUDENTS.forEach(n => { db.journal[s].grades[n] = []; });
+      });
+    }
+
+    function loadDb() {
+      // Данные загружаются из Firebase, db уже установлен
+      if (!db) initDb();
+    }
+
+    function saveDb() {
+      // Сохраняем в Firebase
+      if (window.firebaseDB) {
+        window.firebaseDB.ref('journal').set(db).catch(e => console.error('Firebase save error:', e));
+      }
+    }
+
+    function ensureStudents(subj) {
+      const j = db.journal[subj];
+      STUDENTS.forEach(n => {
+        if (!j.grades[n]) j.grades[n] = [];
+        while (j.grades[n].length < j.dates.length) j.grades[n].push(null);
+      });
+    }
+
+    window.jTeacherLogin = function() {
+      const v = document.getElementById("teacherPassInput").value;
+      if (v === PASS) {
+        isTeacher = true;
+        document.getElementById("teacherLoginPanel").style.display = "none";
+        document.getElementById("teacherToolbar").style.display = "flex";
+        document.getElementById("jAddSubjectBar").style.display = "flex";
+        document.getElementById("jNewDate").value = new Date().toISOString().split("T")[0];
+        render();
+      } else {
+        const err = document.getElementById("teacherLoginError");
+        err.style.display = "block";
+        setTimeout(() => err.style.display = "none", 2500);
+        document.getElementById("teacherPassInput").value = "";
+      }
+    };
+
+    window.jTeacherLogout = function() {
+      isTeacher = false;
+      document.getElementById("teacherLoginPanel").style.display = "flex";
+      document.getElementById("teacherToolbar").style.display = "none";
+      document.getElementById("jAddSubjectBar").style.display = "none";
+      render();
+    };
+
+    window.jAddSubject = function() {
+      const custom = document.getElementById("jSubjectCustom").value.trim();
+      const preset = document.getElementById("jSubjectPreset").value;
+      const name   = custom || preset;
+      if (!name) return;
+      if (db.subjects.includes(name)) { alert("Такой предмет уже есть!"); return; }
+      db.subjects.push(name);
+      db.journal[name] = { dates: [], grades: {} };
+      STUDENTS.forEach(n => { db.journal[name].grades[n] = []; });
+      saveDb();
+      document.getElementById("jSubjectCustom").value = "";
+      document.getElementById("jSubjectPreset").value = "";
+      activeSubj = name;
+      render();
+    };
+
+    window.jRemoveSubject = function(subj) {
+      if (!confirm('Удалить предмет "' + subj + '" со всеми оценками?')) return;
+      db.subjects = db.subjects.filter(s => s !== subj);
+      delete db.journal[subj];
+      if (activeSubj === subj) activeSubj = db.subjects[0] || null;
+      saveDb(); render();
+    };
+
+    window.jAddDate = function() {
+      if (!activeSubj) { alert("Сначала выберите предмет!"); return; }
+      const d = document.getElementById("jNewDate").value;
+      if (!d) return;
+      const j = db.journal[activeSubj];
+      if (j.dates.includes(d)) { alert("Эта дата уже есть!"); return; }
+      j.dates.push(d);
+      j.dates.sort();
+      ensureStudents(activeSubj);
+      saveDb(); render();
+    };
+
+    window.jRemoveDate = function(dateStr) {
+      if (!activeSubj) return;
+      if (!confirm('Удалить столбец "' + fmtDate(dateStr) + '"?')) return;
+      const j = db.journal[activeSubj];
+      const idx = j.dates.indexOf(dateStr);
+      if (idx === -1) return;
+      j.dates.splice(idx, 1);
+      STUDENTS.forEach(n => { if (j.grades[n]) j.grades[n].splice(idx, 1); });
+      saveDb(); render();
+    };
+
+    window.jEditGrade = function(studentName, dateIdx, cell) {
+      if (!isTeacher || !activeSubj) return;
+      const j = db.journal[activeSubj];
+      const cur = j.grades[studentName] ? j.grades[studentName][dateIdx] : null;
+      const inp = document.createElement("input");
+      inp.type = "number"; inp.min = 1; inp.max = 10;
+      inp.value = cur != null ? cur : "";
+      inp.style.cssText = "width:46px;text-align:center;font-size:1rem;font-weight:800;border:2px solid #A855F7;border-radius:8px;padding:4px 2px;outline:none;background:#f5edff;";
+      cell.innerHTML = ""; cell.appendChild(inp);
+      inp.focus(); inp.select();
+      const commit = () => {
+        const v = parseInt(inp.value);
+        if (!j.grades[studentName]) j.grades[studentName] = Array(j.dates.length).fill(null);
+        j.grades[studentName][dateIdx] = (v >= 1 && v <= 10) ? v : null;
+        saveDb(); render();
+      };
+      inp.addEventListener("blur", commit);
+      inp.addEventListener("keydown", e => { if (e.key === "Enter") inp.blur(); if (e.key === "Escape") render(); });
+    };
+
+    function fmtDate(d) {
+      if (!d) return "";
+      const dt = new Date(d + "T00:00:00");
+      return dt.toLocaleDateString("ru-RU", { day:"numeric", month:"short" });
+    }
+    function gColor(v) {
+      if (v == null) return "#bbb";
+      if (v >= 9) return "#16a34a"; if (v >= 7) return "#0ea5e9";
+      if (v >= 5) return "#f59e0b"; return "#ef4444";
+    }
+    function gBg(v) {
+      if (v == null) return "transparent";
+      if (v >= 9) return "#f0fdf4"; if (v >= 7) return "#eff6ff";
+      if (v >= 5) return "#fffbeb"; return "#fef2f2";
+    }
+    function studentAvg(name, subj) {
+      const vals = (db.journal[subj] && db.journal[subj].grades[name] || []).filter(v => v != null);
+      return vals.length ? vals.reduce((a,b)=>a+b,0)/vals.length : null;
+    }
+
+    window.jSortByAvg = function() { sortMode = "avg"; render(); };
+    window.jSortAlpha = function() { sortMode = "alpha"; render(); };
+    window.jSetSubject = function(s) { activeSubj = s; render(); };
+
+    function renderTabs() {
+      const bar = document.getElementById("jSubjectTabs");
+      if (!db.subjects.length) { bar.innerHTML = "<span style=\'color:#aaa;font-size:.9rem;\'>Добавьте предмет выше.</span>"; return; }
+      bar.innerHTML = db.subjects.map(s => {
+        const active = activeSubj === s;
+        const del = isTeacher ? ` <span onclick="event.stopPropagation();jRemoveSubject('${s}')" style="margin-left:6px;opacity:.5;font-size:.72rem;cursor:pointer;" title="Удалить предмет">✕</span>` : "";
+        return `<button onclick="jSetSubject('${s}')" style="padding:9px 18px;border-radius:20px;border:none;cursor:pointer;font-weight:700;font-size:.88rem;white-space:nowrap;transition:.2s;background:${active?"#17174d":"#f0eeff"};color:${active?"#fff":"#17174d"};box-shadow:${active?"0 4px 12px rgba(23,23,77,.25)":"none"};">${s}${del}</button>`;
+      }).join("");
+    }
+
+    function render() {
+      loadDb();
+      if (!activeSubj && db.subjects.length) activeSubj = db.subjects[0];
+      renderTabs();
+
+      const title = document.getElementById("jTableTitle");
+      if (!activeSubj) {
+        title.textContent = "📊 Журнал · 10А";
+        document.getElementById("jHead").innerHTML = "";
+        document.getElementById("jBody").innerHTML = "<tr><td style=\'padding:30px;text-align:center;color:#aaa;\'>Добавьте предмет чтобы начать</td></tr>";
+        document.getElementById("jStats").innerHTML = "";
+        return;
+      }
+
+      const j = db.journal[activeSubj];
+      if (!j) return;
+      ensureStudents(activeSubj);
+      title.textContent = "📊 " + activeSubj + " · 10А";
+
+      let names = [...STUDENTS];
+      if (sortMode === "avg") names.sort((a,b) => (studentAvg(b,activeSubj)||0)-(studentAvg(a,activeSubj)||0));
+      else names.sort((a,b) => a.localeCompare(b,"ru"));
+
+      const topNames = [...STUDENTS].sort((a,b) => (studentAvg(b,activeSubj)||0)-(studentAvg(a,activeSubj)||0));
+
+      // ШАПКА
+      const head = document.getElementById("jHead");
+      const delBtns = j.dates.map(d => isTeacher
+        ? `<div onclick="jRemoveDate('${d}')" title="Удалить столбец" style="font-size:.62rem;color:rgba(255,255,255,.45);cursor:pointer;margin-top:2px;text-align:center;">✕</div>`
+        : "");
+      head.innerHTML = "<tr style=\"background:#17174d;color:#fff;\">" +
+        "<th style=\"padding:12px 8px;font-size:.78rem;width:32px;text-align:center;\">#</th>" +
+        "<th style=\"padding:12px 16px;text-align:left;font-size:.85rem;min-width:180px;\">Ученик</th>" +
+        j.dates.map((d,i) => `<th style="padding:10px 8px;text-align:center;min-width:64px;font-size:.78rem;white-space:nowrap;">${fmtDate(d)}${delBtns[i]}</th>`).join("") +
+        "<th style=\"padding:12px 10px;text-align:center;font-size:.82rem;min-width:80px;\">⭐ Среднее</th>" +
+        "</tr>";
+
+      // ТЕЛО
+      const body = document.getElementById("jBody");
+      body.innerHTML = names.map((name, i) => {
+        const rank = topNames.indexOf(name);
+        const rowBg = rank===0?"#fffde7":rank===1?"#f1f8e9":rank===2?"#e3f2fd":"#fff";
+        const avg = studentAvg(name, activeSubj);
+        const avgTxt = avg != null ? avg.toFixed(1) : "—";
+        const medal = rank===0?"🥇":rank===1?"🥈":rank===2?"🥉":"";
+        const gradeCells = j.dates.map((d, di) => {
+          const v = j.grades[name] != null ? j.grades[name][di] : null;
+          const click = isTeacher ? `onclick="jEditGrade('${name}',${di},this)" title="Изменить" style="cursor:pointer;"` : "";
+          return `<td ${click} style="text-align:center;padding:8px 4px;border-bottom:1px solid #f0f0f0;background:${gBg(v)};transition:.15s;"><span style="font-size:1rem;font-weight:800;color:${gColor(v)};">${v != null ? v : "·"}</span></td>`;
+        }).join("");
+        return `<tr style="background:${rowBg};" onmouseover="this.style.background='#f5f3ff'" onmouseout="this.style.background='${rowBg}'">
+          <td style="padding:10px 8px;text-align:center;color:#aaa;font-weight:700;font-size:.8rem;border-bottom:1px solid #f0f0f0;">${i+1}</td>
+          <td style="padding:10px 16px;font-weight:700;font-size:.9rem;border-bottom:1px solid #f0f0f0;white-space:nowrap;">${medal} ${name}</td>
+          ${gradeCells}
+          <td style="text-align:center;padding:10px 8px;border-bottom:1px solid #f0f0f0;"><span style="font-size:1rem;font-weight:900;color:${gColor(avg)};background:${gBg(avg)};padding:4px 10px;border-radius:8px;">${avgTxt}</span></td>
+        </tr>`;
+      }).join("");
+
+      if (isTeacher && j.dates.length > 0) {
+        const hint = body.insertRow();
+        hint.innerHTML = `<td colspan="${j.dates.length+3}" style="padding:8px;text-align:center;font-size:.8rem;color:#A855F7;font-weight:700;border-top:2px dashed #e0d8f8;background:#faf8ff;">✏️ Нажмите на · чтобы поставить оценку</td>`;
+      }
+      if (isTeacher && j.dates.length === 0) {
+        const hint = body.insertRow();
+        hint.innerHTML = `<td colspan="3" style="padding:24px;text-align:center;font-size:.9rem;color:#aaa;">👆 Добавьте дату урока кнопкой выше</td>`;
+      }
+
+      // СТАТИСТИКА
+      const allVals = STUDENTS.flatMap(n => (j.grades[n]||[]).filter(v => v != null));
+      const subjAvg = allVals.length ? (allVals.reduce((a,b)=>a+b,0)/allVals.length).toFixed(1) : "—";
+      const exc  = STUDENTS.filter(n => { const a=studentAvg(n,activeSubj); return a!=null&&a>=9; }).length;
+      const good = STUDENTS.filter(n => { const a=studentAvg(n,activeSubj); return a!=null&&a>=7&&a<9; }).length;
+      const low  = STUDENTS.filter(n => { const a=studentAvg(n,activeSubj); return a!=null&&a<5; }).length;
+      document.getElementById("jStats").innerHTML = [
+        ["📊 Средний балл", subjAvg, "#A855F7"],
+        ["🏆 Отличников", exc, "#16a34a"],
+        ["👍 Хорошистов", good, "#0ea5e9"],
+        ["⚠️ Слабых", low, "#ef4444"],
+        ["📅 Уроков", j.dates.length, "#17174d"],
+        ["👥 Учеников", STUDENTS.length, "#f59e0b"],
+      ].map(([label,val,color]) =>
+        `<div style="background:#fff;border-radius:14px;padding:14px 18px;box-shadow:0 2px 10px rgba(0,0,0,.07);display:flex;flex-direction:column;align-items:center;gap:4px;flex:1;min-width:100px;">
+          <div style="font-size:.72rem;font-weight:700;color:#aaa;text-align:center;">${label}</div>
+          <div style="font-size:1.5rem;font-weight:900;color:${color};">${val}</div>
+        </div>`
+      ).join("");
+    }
+
+    // Ждём Firebase, затем загружаем данные
+    function initJournal() {
+      if (window.firebaseDB) {
+        window.firebaseDB.ref('journal').on('value', snap => {
+          const val = snap.val();
+          if (val) {
+            db = val;
+            if (db.subjects) {
+              db.subjects.forEach(s => {
+                if (!db.journal[s]) db.journal[s] = { dates: [], grades: {} };
+                STUDENTS.forEach(n => { if (!db.journal[s].grades[n]) db.journal[s].grades[n] = []; });
+              });
+            }
+          } else {
+            initDb();
+          }
+          render();
+        });
+      } else {
+        setTimeout(initJournal, 500);
+      }
+    }
+    initJournal();
+  })();
+  </script>
+  <section id="homework">
+    <div class="section-label">
+      <span class="dot" style="background:#10b981"></span>
+      Домашние задания
+    </div>
+
+    <div class="hw-wrapper">
+      <!-- Шапка -->
+      <div class="hw-topbar">
+        <h3>📝 Трекер домашних заданий</h3>
+        <div class="hw-stats">
+          <span class="hw-stat-chip" id="hwStatAll">Всего: 0</span>
+          <span class="hw-stat-chip" id="hwStatActive">Активных: 0</span>
+          <span class="hw-stat-chip" id="hwStatOverdue">⚠️ Просрочено: 0</span>
+        </div>
+      </div>
+
+      <!-- Форма добавления -->
+      <div class="hw-form-bar">
+        <div class="hw-input-group" style="flex:2 1 220px">
+          <label>Задание</label>
+          <input class="hw-input" id="hwTitle" type="text" placeholder="Напр.: Параграф 12, задачи 1–5" maxlength="120"/>
+        </div>
+        <div class="hw-input-group">
+          <label>Предмет</label>
+          <select class="hw-input" id="hwSubject">
+            <option value="Алгебра">Алгебра</option>
+            <option value="Русский язык">Русский язык</option>
+            <option value="Английский язык">Английский язык</option>
+            <option value="История">История</option>
+            <option value="Физика">Физика</option>
+            <option value="Химия">Химия</option>
+            <option value="Биология">Биология</option>
+            <option value="Литература">Литература</option>
+            <option value="Геометрия">Геометрия</option>
+            <option value="Информатика">Информатика</option>
+            <option value="Таджикский язык">Таджикский язык</option>
+            <option value="Право">Право</option>
+            <option value="География">География</option>
+            <option value="Другое">Другое</option>
+          </select>
+        </div>
+        <div class="hw-input-group">
+          <label>Срок сдачи</label>
+          <input class="hw-input" id="hwDue" type="date"/>
+        </div>
+        <button class="hw-add-btn" onclick="hwAdd()">+ Добавить</button>
+      </div>
+
+      <!-- Фильтры -->
+      <div class="hw-filter-bar">
+        <span style="font-size:.78rem;font-weight:800;color:#aaa;text-transform:uppercase;letter-spacing:.5px;margin-right:4px">Показать:</span>
+        <button class="hw-filter-btn active" onclick="hwFilter('all',this)">Все</button>
+        <button class="hw-filter-btn" onclick="hwFilter('active',this)">Активные</button>
+        <button class="hw-filter-btn" onclick="hwFilter('overdue',this)">Просроченные</button>
+        <button class="hw-filter-btn" onclick="hwFilter('done',this)">Выполненные</button>
+      </div>
+
+      <!-- Список -->
+      <div class="hw-list" id="hwList">
+        <div class="hw-empty">📭 Пока нет заданий. Добавьте первое ДЗ!</div>
+      </div>
+
+      <!-- Футер -->
+      <div class="hw-footer">
+        <span id="hwFooterText">Задания автоматически краснеют при истечении срока</span>
+        <span id="hwLastUpdated"></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ТРЕКЕР ПРОГУЛОВ -->
+  <section id="attendance">
+    <div class="section-label">
+      <span class="dot" style="background:#ef4444"></span>
+      Трекер прогулов
+    </div>
+    <div class="attendance-wrapper">
+      <div class="att-topbar">
+        <h3>📋 Журнал посещаемости</h3>
+        <div class="att-stats">
+          <span class="att-stat-chip" id="statTotal">👥 Всего: 15</span>
+          <span class="att-stat-chip" id="statClean">🟢 Без прогулов: —</span>
+          <span class="att-stat-chip" id="statCritical">🔴 Критично: —</span>
+          <span class="att-stat-chip" id="statAvg">📊 Среднее: —</span>
+        </div>
+      </div>
+      <div class="att-controls">
+        <input type="text" class="att-search" id="attSearch" placeholder="🔍 Поиск по имени или номеру телефона..." oninput="filterAttendance()"/>
+        <button class="att-btn att-btn-reset" id="attResetBtn" onclick="resetAllAbsences()" style="display:none">🔄 Сбросить все данные</button>
+      </div>
+      <div class="att-teacher-badge" id="attTeacherBadge" style="display:none">
+        🎓 Режим учителя — редактирование разрешено
+      </div>
+      <div class="att-student-notice" id="attStudentNotice">
+        🔒 Только учитель может изменять прогулы
+      </div>
+      <div class="att-legend">
+        <span class="att-legend-label">Статусы:</span>
+        <span class="status-chip status-good">🟢 Хорошо — 0 прогулов</span>
+        <span class="status-chip status-warning">🟡 Начало — 1 прогул</span>
+        <span class="status-chip status-alert">🟠 Внимание — 2–3 прогула</span>
+        <span class="status-chip status-critical">🔴 Критично — 4+ прогула</span>
+      </div>
+      <div class="att-table-wrap">
+        <table class="att-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Имя и фамилия</th>
+              <th>Номер телефона</th>
+              <th style="text-align:center">Прогулы</th>
+              <th style="text-align:center">Статус</th>
+              <th style="text-align:center">Действия</th>
+            </tr>
+          </thead>
+          <tbody id="attBody"></tbody>
+        </table>
+        <div class="att-empty" id="attEmpty" style="display:none">😔 Ничего не найдено</div>
+      </div>
+      <div class="att-footer">
+        <span class="att-footer-text">💾 Данные сохраняются автоматически в браузере</span>
+        <span class="att-footer-text" id="attLastUpdate"></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════
+       УМНЫЙ ПРОФИЛЬ УЧЕНИКА
+  ══════════════════════════════════════════ -->
+  <section id="profile-section">
+    <div class="section-label">
+      <span class="dot" style="background:linear-gradient(135deg,#A855F7,#6366f1)"></span>
+      🧠 Умный профиль ученика
+    </div>
+
+    <div class="profile-selector-wrap">
+      <select class="profile-select" id="profileSelect" onchange="renderProfile()">
+        <option value="">— Выберите ученика —</option>
+      </select>
+    </div>
+
+    <div id="profilePlaceholder" class="profile-placeholder">
+      <div class="ph-icon">👤</div>
+      Выберите ученика выше, чтобы увидеть его персональный профиль
+    </div>
+
+    <div class="profile-card" id="profileCard"></div>
+  </section>
+
+      
+
+  <section id="login">
+    <div class="section-label">
+      <span class="dot"></span>
+      
+    </div>
+
+    <div class="login-wrap">
+      <!-- Левая панель — иллюстрация -->
+      <div class="login-side">
+        <div class="login-side-emoji">🏫</div>
+        <h2 class="login-side-title">Добро пожаловать!</h2>
+        <p class="login-side-sub">Войдите, чтобы получить доступ к личным оценкам, заданиям и профилю ученика.</p>
+        <ul class="login-features">
+          <li><span class="lf-icon">📊</span>Личный профиль с оценками</li>
+          <li><span class="lf-icon">📝</span>Трекер домашних заданий</li>
+          <li><span class="lf-icon">📅</span>Журнал посещаемости</li>
+          <li><span class="lf-icon">🏆</span>Рейтинг в классе</li>
+        </ul>
+      </div>
+
+      <!-- Правая панель — форма -->
+      <div class="login-card">
+        <div class="login-avatar">👤</div>
+        <h3 class="login-title">Вход в систему</h3>
+        <p class="login-subtitle">10"А" класс · Гимназия №4</p>
+
+        <!-- Вкладки -->
+        <div class="login-tabs">
+          <button class="ltab active" onclick="switchLoginTab('student', this)">🎒 Ученик</button>
+          <button class="ltab" onclick="switchLoginTab('teacher', this)">🎓 Учитель</button>
+        </div>
+
+        <div id="login-form-area">
+          <!-- Имя (только для ученика) -->
+          <div class="lf-group" id="name-group">
+            <label class="lf-label">Имя ученика</label>
+            <div class="lf-input-wrap">
+              <span class="lf-prefix">👤</span>
+              <select class="lf-input" id="loginName">
+                <option value="">— Выберите имя —</option>
+                <option>Абдурахмонов Иброхим</option>
+                <option>Додоев Хушнуд</option>
+                <option>Зоиров Рауф</option>
+                <option>Имомов Шахром</option>
+                <option>Кобилов Шириншох</option>
+                <option>Кодиров Исроил</option>
+                <option>Косимов Мансур</option>
+                <option>Окилов Хусрав</option>
+                <option>Рахматуллоев Эхром</option>
+                <option>Файзуллоев Мухриддин</option>
+                <option>Файзуллоев Файзулло</option>
+                <option>Хакимов Хасан</option>
+                <option>Хакимов Хусейн</option>
+                <option>Чураев Аскар</option>
+                <option>Юсупов Юсуф</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Email -->
+          <div class="lf-group">
+            <label class="lf-label">Email / Логин</label>
+            <div class="lf-input-wrap">
+              <span class="lf-prefix">✉️</span>
+              <input class="lf-input" id="loginEmail" type="email" placeholder="email@gymnasium4.tj" autocomplete="username"/>
+            </div>
+          </div>
+
+          <!-- Пароль -->
+          <div class="lf-group">
+            <label class="lf-label">Пароль</label>
+            <div class="lf-input-wrap">
+              <span class="lf-prefix">🔑</span>
+              <input class="lf-input" id="loginPassword" type="password" placeholder="Введите пароль" autocomplete="current-password"/>
+              <button class="lf-eye" onclick="toggleLoginPwd()" type="button" title="Показать/скрыть">👁</button>
+            </div>
+          </div>
+
+          <!-- Запомнить / забыл -->
+          <div class="lf-row">
+            <label class="lf-remember">
+              <input type="checkbox" id="rememberMe"/> Запомнить меня
+            </label>
+            <button class="lf-forgot" onclick="showForgotMsg()" type="button">Забыли пароль?</button>
+          </div>
+
+          <!-- Кнопка входа -->
+          <button class="lf-submit" onclick="doLogin()" type="button">
+            <span id="loginBtnText">Войти →</span>
+          </button>
+
+          <!-- Сообщение об ошибке/успехе -->
+          <div id="login-msg" class="lf-msg"></div>
+        </div>
+
+        <!-- Разделитель -->
+        <div class="lf-divider"><span>или</span></div>
+
+        <!-- Вход через PIN -->
+        <button class="lf-pin-btn" onclick="showPinFromLogin()" type="button">
+          🔐 Войти через PIN-код
+        </button>
+
+        <p class="lf-footer-note">Данные защищены · Только для учеников и учителей Гимназии №4</p>
+      </div>
+    </div>
+  </section>
+
+  <style>
+  .att-teacher-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(135deg, #2d225e, var(--navy));
+    color: #fff;
+    font-size: 0.82rem;
+    font-weight: 800;
+    border-radius: 10px;
+    padding: 8px 16px;
+    margin-bottom: 12px;
+  }
+
+  .att-student-notice {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #f1f5f9;
+    color: #64748b;
+    font-size: 0.82rem;
+    font-weight: 700;
+    border-radius: 10px;
+    padding: 8px 16px;
+    margin-bottom: 12px;
+    border: 1.5px dashed #cbd5e1;
+  }
+
+  /* ══════════════════════════════
+     LOGIN SECTION STYLES
+  ══════════════════════════════ */
+  #login {
+    padding: 48px 24px 64px;
+  }
+
+  .login-wrap {
+    display: flex;
+    gap: 32px;
+    max-width: 7000px;
+    margin: 0 auto;
+    align-items: stretch;
+    flex-wrap: wrap;
+  }
+
+  /* ── Left panel ── */
+  .login-side {
+    flex: 1 1 280px;
+    background: linear-gradient(135deg, var(--navy) 0%, #2d225e 100%);
+    border-radius: 28px;
+    padding: 48px 36px;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    box-shadow: 0 20px 60px rgba(23,23,77,0.3);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .login-side::before {
+    content: '';
+    position: absolute;
+    width: 200px; height: 200px;
+    border-radius: 50%;
+    background: rgba(78,205,196,0.1);
+    top: -60px; right: -60px;
+  }
+
+  .login-side::after {
+    content: '';
+    position: absolute;
+    width: 140px; height: 140px;
+    border-radius: 50%;
+    background: rgba(168,85,247,0.1);
+    bottom: -40px; left: -40px;
+  }
+
+  .login-side-emoji {
+    font-size: 3.5rem;
+    line-height: 1;
+    position: relative;
+    z-index: 1;
+  }
+
+  .login-side-title {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.8rem;
+    color: #fff;
+    position: relative; z-index: 1;
+  }
+
+  .login-side-sub {
+    color: rgba(255,255,255,0.65);
+    font-size: 0.9rem;
+    line-height: 1.6;
+    position: relative; z-index: 1;
+  }
+
+  .login-features {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 8px;
+    position: relative; z-index: 1;
+  }
+
+  .login-features li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: rgba(255,255,255,0.85);
+  }
+
+  .lf-icon {
+    width: 32px; height: 32px;
+    background: rgba(255,255,255,0.12);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1rem;
+    flex-shrink: 0;
+  }
+
+  /* ── Card ── */
+  .login-card {
+    flex: 1 1 320px;
+    background: #fff;
+    border-radius: 28px;
+    padding: 40px 36px 36px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .login-avatar {
+    width: 64px; height: 64px;
+    background: linear-gradient(135deg, var(--teal), var(--purple));
+    border-radius: 20px;
+    font-size: 2rem;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 16px;
+    box-shadow: 0 8px 20px rgba(78,205,196,0.35);
+  }
+
+  .login-title {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.6rem;
+    color: var(--navy);
+    margin-bottom: 4px;
+  }
+
+  .login-subtitle {
+    color: #888;
+    font-size: 0.82rem;
+    font-weight: 600;
+    margin-bottom: 20px;
+  }
+
+  /* Tabs */
+  .login-tabs {
+    display: flex;
+    gap: 8px;
+    background: #f3f4f6;
+    border-radius: 12px;
+    padding: 4px;
+    margin-bottom: 24px;
+  }
+
+  .ltab {
+    flex: 1;
+    padding: 8px;
+    border: none;
+    border-radius: 9px;
+    background: transparent;
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: #888;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'Nunito', sans-serif;
+  }
+
+  .ltab.active {
+    background: #fff;
+    color: var(--navy);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
+
+  /* Form groups */
+  .lf-group {
+    margin-bottom: 16px;
+  }
+
+  .lf-label {
+    display: block;
+    font-size: 0.78rem;
+    font-weight: 800;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+  }
+
+  .lf-input-wrap {
+    display: flex;
+    align-items: center;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    background: #f9fafb;
+    transition: border-color 0.2s, background 0.2s;
+    overflow: hidden;
+  }
+
+  .lf-input-wrap:focus-within {
+    border-color: var(--teal);
+    background: #fff;
+  }
+
+  .lf-prefix {
+    padding: 0 10px 0 14px;
+    font-size: 1rem;
+    flex-shrink: 0;
+  }
+
+  .lf-input {
+    flex: 1;
+    border: none;
+    outline: none;
+    background: transparent;
+    padding: 12px 8px 12px 0;
+    font-size: 0.92rem;
+    color: var(--navy);
+    font-family: 'Nunito', sans-serif;
+    font-weight: 600;
+  }
+
+  .lf-input option { color: var(--navy); }
+
+  .lf-eye {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0 12px;
+    font-size: 1rem;
+    opacity: 0.6;
+    transition: opacity 0.2s;
+  }
+  .lf-eye:hover { opacity: 1; }
+
+  /* Row */
+  .lf-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    margin-top: 4px;
+  }
+
+  .lf-remember {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #555;
+    cursor: pointer;
+  }
+
+  .lf-forgot {
+    background: none;
+    border: none;
+    color: var(--teal);
+    font-size: 0.82rem;
+    font-weight: 800;
+    cursor: pointer;
+    font-family: 'Nunito', sans-serif;
+  }
+  .lf-forgot:hover { text-decoration: underline; }
+
+  /* Submit */
+  .lf-submit {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, var(--navy), #2d225e);
+    color: #fff;
+    border: none;
+    border-radius: 14px;
+    font-size: 1rem;
+    font-weight: 800;
+    font-family: 'Nunito', sans-serif;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.2s;
+    box-shadow: 0 6px 20px rgba(23,23,77,0.3);
+  }
+
+  .lf-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 28px rgba(23,23,77,0.35);
+  }
+
+  .lf-submit:active { transform: translateY(0); }
+
+  /* Message */
+  .lf-msg {
+    min-height: 20px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-align: center;
+    margin-top: 10px;
+    border-radius: 8px;
+    padding: 0;
+    transition: all 0.3s;
+  }
+
+  .lf-msg.success {
+    color: #16a34a;
+    background: #dcfce7;
+    padding: 8px 14px;
+  }
+
+  .lf-msg.error {
+    color: #dc2626;
+    background: #fee2e2;
+    padding: 8px 14px;
+  }
+
+  .lf-msg.info {
+    color: #0369a1;
+    background: #e0f2fe;
+    padding: 8px 14px;
+  }
+
+  /* Divider */
+  .lf-divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 18px 0 14px;
+    color: #ccc;
+    font-size: 0.78rem;
+    font-weight: 700;
+  }
+  .lf-divider::before,
+  .lf-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: #e5e7eb;
+  }
+
+  /* PIN button */
+  .lf-pin-btn {
+    width: 100%;
+    padding: 12px;
+    background: rgba(78,205,196,0.08);
+    border: 2px solid rgba(78,205,196,0.3);
+    border-radius: 14px;
+    color: var(--navy);
+    font-size: 0.9rem;
+    font-weight: 800;
+    font-family: 'Nunito', sans-serif;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+  }
+  .lf-pin-btn:hover {
+    background: rgba(78,205,196,0.18);
+    border-color: var(--teal);
+  }
+
+  .lf-footer-note {
+    text-align: center;
+    color: #bbb;
+    font-size: 0.72rem;
+    font-weight: 700;
+    margin-top: 16px;
+  }
+
+  /* ── Logged-in state ── */
+  .login-success-card {
+    text-align: center;
+    padding: 40px 24px;
+    background: #fff;
+    border-radius: 28px;
+    max-width: 400px;
+    margin: 0 auto;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+  }
+  .lsc-avatar {
+    width: 80px; height: 80px;
+    background: linear-gradient(135deg, var(--teal), var(--purple));
+    border-radius: 50%;
+    font-size: 2.5rem;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 16px;
+    box-shadow: 0 8px 24px rgba(78,205,196,0.35);
+  }
+  .lsc-name {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.5rem;
+    color: var(--navy);
+    margin-bottom: 6px;
+  }
+  .lsc-role {
+    font-size: 0.85rem;
+    color: #888;
+    font-weight: 700;
+    margin-bottom: 24px;
+  }
+  .lsc-logout {
+    padding: 10px 28px;
+    background: #fee2e2;
+    color: #dc2626;
+    border: none;
+    border-radius: 999px;
+    font-size: 0.88rem;
+    font-weight: 800;
+    cursor: pointer;
+    font-family: 'Nunito', sans-serif;
+    transition: background 0.2s;
+  }
+  .lsc-logout:hover { background: #fecaca; }
+
+  @media (max-width: 620px) {
+    .login-wrap { flex-direction: column; }
+    .login-side { padding: 36px 24px; }
+    .login-card { padding: 32px 24px; }
+  }
+  </style>
+
+  <script>
+  /* ── LOGIN LOGIC ── */
+  (function() {
+    // Demo accounts (в реальном проекте — серверная авторизация)
+    const ACCOUNTS = {
+      student: [
+        { name: 'Абдурахмонов Иброхим', email: 'ibrohim@gym4.tj',    password: '1234' },
+        { name: 'Додоев Хушнуд',        email: 'khushnud@gym4.tj',    password: '1234' },
+        { name: 'Зоиров Рауф',          email: 'rauf@gym4.tj',    password: '1234' },
+        { name: 'Имомов Шахром',        email: 'shahrom@gym4.tj', password: '1234' },
+        { name: 'Кобилов Шириншох',     email: 'shirinshoh@gym4.tj',  password: '1234' },
+        { name: 'Кодиров Исроил',       email: 'isroil@gym4.tj',  password: '1234' },
+        { name: 'Косимов Мансур',       email: 'mansur@gym4.tj',  password: '1234' },
+        { name: 'Окилов Хусрав',        email: 'husrav@gym4.tj',  password: '1234' },
+        { name: 'Рахматуллоев Эхром',   email: 'ehrom@gym4.tj',   password: '1234' },
+        { name: 'Файзуллоев Мухриддин', email: 'muhriddin@gym4.tj',    password: '1234' },
+        { name: 'Файзуллоев Файзулло',  email: 'fayzullo@gym4.tj',    password: '1234' },
+        { name: 'Хакимов Хасан',        email: 'hasan@gym4.tj',   password: '1234' },
+        { name: 'Хакимов Хусейн',       email: 'husein@gym4.tj',  password: '1234' },
+        { name: 'Чураев Аскар',         email: 'askar@gym4.tj',   password: '1234' },
+        { name: 'Юсупов Юсуф',          email: 'yusuf@gym4.tj',   password: '1234' },
+      ],
+      teacher: [
+        { name: 'Учитель (Администратор)', email: 'juraevaskar01@gmail.com', password: '09askar26' }
+      ]
+    };
+
+    let currentTab = 'student';
+    let loggedIn = sessionStorage.getItem('login_user');
+
+    // Check if already logged in
+    if (loggedIn) renderLoggedIn(JSON.parse(loggedIn));
+
+    window.switchLoginTab = function(tab, btn) {
+      currentTab = tab;
+      document.querySelectorAll('.ltab').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('name-group').style.display = tab === 'student' ? 'block' : 'none';
+      document.getElementById('login-msg').className = 'lf-msg';
+      document.getElementById('login-msg').textContent = '';
+    };
+
+    window.toggleLoginPwd = function() {
+      const inp = document.getElementById('loginPassword');
+      inp.type = inp.type === 'password' ? 'text' : 'password';
+    };
+
+    window.showForgotMsg = function() {
+      const msg = document.getElementById('login-msg');
+      msg.className = 'lf-msg info';
+      msg.textContent = '📧 Обратитесь к учителю для сброса пароля.';
+    };
+
+    window.showPinFromLogin = function() {
+      const overlay = document.getElementById('pin-overlay');
+      if (overlay) {
+        overlay.style.display = 'flex';
+        sessionStorage.removeItem('site_unlocked');
+      }
+    };
+
+    window.doLogin = function() {
+      const email    = document.getElementById('loginEmail').value.trim();
+      const password = document.getElementById('loginPassword').value;
+      const nameEl   = document.getElementById('loginName');
+      const msg      = document.getElementById('login-msg');
+      const btn      = document.getElementById('loginBtnText');
+
+      if (!email || !password) {
+        msg.className = 'lf-msg error';
+        msg.textContent = '⚠️ Заполните все поля.';
+        return;
+      }
+
+      btn.textContent = '⏳ Вход...';
+
+      setTimeout(() => {
+        const pool = ACCOUNTS[currentTab] || [];
+        let user = pool.find(u => u.email === email && u.password === password);
+
+        // If student tab — also match by selected name
+        if (currentTab === 'student' && user && nameEl.value && user.name !== nameEl.value) {
+          user = null;
+        }
+
+        if (user) {
+          const userData = { name: user.name, role: currentTab === 'teacher' ? 'Учитель' : 'Ученик', email: user.email };
+          sessionStorage.setItem('login_user', JSON.stringify(userData));
+          if (document.getElementById('rememberMe').checked) {
+            localStorage.setItem('login_user', JSON.stringify(userData));
+          }
+          msg.className = 'lf-msg success';
+          msg.textContent = '✅ Успешный вход!';
+          setTimeout(() => {
+            renderLoggedIn(userData);
+            if (typeof renderTable === 'function') renderTable();
+          }, 700);
+        } else {
+          msg.className = 'lf-msg error';
+          msg.textContent = '❌ Неверный email или пароль.';
+          btn.textContent = 'Войти →';
+          // Shake the card
+          const card = document.querySelector('.login-card');
+          card.style.animation = 'none';
+          card.offsetHeight; // reflow
+          card.style.animation = 'shake 0.4s ease';
+        }
+        btn.textContent = 'Войти →';
+      }, 600);
+    };
+
+    function renderLoggedIn(user) {
+      const wrap = document.querySelector('.login-wrap');
+      wrap.innerHTML = `
+        <div class="login-success-card">
+          <div class="lsc-avatar">🎉</div>
+          <div class="lsc-name">${user.name}</div>
+          <div class="lsc-role">${user.role} · Гимназия №4</div>
+          <p style="color:#666;font-size:.85rem;margin-bottom:20px;line-height:1.5">
+            Вы успешно вошли в систему. Перейдите в раздел <strong>Профиль</strong>, чтобы увидеть свои данные.
+          </p>
+          <a href="#profile-section" style="display:inline-block;padding:10px 24px;background:linear-gradient(135deg,var(--navy),#2d225e);color:#fff;border-radius:999px;font-weight:800;font-size:.88rem;text-decoration:none;margin-bottom:12px;">
+            📊 Перейти к профилю
+          </a><br>
+          <button class="lsc-logout" onclick="doLogout()">🚪 Выйти</button>
+        </div>
+      `;
+    }
+
+    window.doLogout = function() {
+      sessionStorage.removeItem('login_user');
+      localStorage.removeItem('login_user');
+      location.reload();
+    };
+
+    // Check localStorage
+    const stored = localStorage.getItem('login_user');
+    if (stored && !loggedIn) {
+      try { renderLoggedIn(JSON.parse(stored)); } catch(e) {}
+    }
+  })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+  <!-- ══════════════════════════════════
+       ГОСТЕВАЯ КНИГА
+  ══════════════════════════════════ -->
+  <section id="guestbook">
+    <div class="section-label">
+      <span class="dot" style="background:var(--teal)"></span>
+      💬 Гостевая книга
+    </div>
+
+    <style>
+    .gb-wrapper {
+      background: #fff;
+      border-radius: 24px;
+      box-shadow: var(--card-shadow);
+      overflow: hidden;
+    }
+
+    /* Форма добавления */
+    .gb-form-area {
+      background: linear-gradient(135deg, #17174d 0%, #2d225e 100%);
+      padding: 28px 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .gb-form-title {
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.2rem;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+
+    .gb-form-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .gb-input, .gb-textarea {
+      background: rgba(255,255,255,0.1);
+      border: 2px solid rgba(255,255,255,0.18);
+      border-radius: 14px;
+      color: #fff;
+      font-family: 'Nunito', sans-serif;
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.2s, background 0.2s;
+    }
+
+    .gb-input::placeholder, .gb-textarea::placeholder { color: rgba(255,255,255,0.45); }
+    .gb-input:focus, .gb-textarea:focus {
+      border-color: #4ECDC4;
+      background: rgba(78,205,196,0.15);
+    }
+
+    .gb-input {
+      padding: 12px 18px;
+      flex: 1;
+      min-width: 160px;
+    }
+
+    .gb-textarea {
+      width: 100%;
+      padding: 14px 18px;
+      resize: vertical;
+      min-height: 90px;
+      line-height: 1.5;
+    }
+
+    .gb-emoji-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .gb-emoji-label {
+      color: rgba(255,255,255,0.6);
+      font-size: 0.82rem;
+      font-weight: 700;
+    }
+
+    .gb-emoji-btn {
+      background: rgba(255,255,255,0.1);
+      border: 2px solid transparent;
+      border-radius: 10px;
+      font-size: 1.35rem;
+      cursor: pointer;
+      padding: 4px 8px;
+      transition: background 0.15s, border-color 0.15s, transform 0.15s;
+      line-height: 1;
+    }
+
+    .gb-emoji-btn:hover { background: rgba(255,255,255,0.2); transform: scale(1.15); }
+    .gb-emoji-btn.selected { border-color: #4ECDC4; background: rgba(78,205,196,0.25); }
+
+    .gb-submit-btn {
+      align-self: flex-end;
+      background: #4ECDC4;
+      color: #17174d;
+      border: none;
+      border-radius: 14px;
+      padding: 13px 28px;
+      font-weight: 800;
+      font-size: 0.95rem;
+      cursor: pointer;
+      font-family: 'Nunito', sans-serif;
+      transition: background 0.2s, transform 0.15s;
+    }
+
+    .gb-submit-btn:hover { background: #38b2ac; transform: translateY(-2px); }
+    .gb-submit-btn:active { transform: translateY(0); }
+
+    /* Список сообщений */
+    .gb-list {
+      padding: 24px 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      max-height: 560px;
+      overflow-y: auto;
+    }
+
+    .gb-list::-webkit-scrollbar { width: 6px; }
+    .gb-list::-webkit-scrollbar-thumb { background: #ddd; border-radius: 999px; }
+
+    .gb-empty {
+      text-align: center;
+      color: #bbb;
+      padding: 40px 20px;
+      font-size: 1rem;
+    }
+
+    .gb-msg {
+      background: #f8f9ff;
+      border-radius: 18px;
+      padding: 18px 20px;
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      animation: fadeUp 0.4s ease both;
+      position: relative;
+      border: 1.5px solid #eef0ff;
+      transition: box-shadow 0.2s;
+    }
+
+    .gb-msg:hover { box-shadow: 0 6px 20px rgba(78,205,196,0.13); }
+
+    .gb-avatar {
+      width: 46px; height: 46px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #4ECDC4, #A855F7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      flex-shrink: 0;
+      font-weight: 800;
+      color: #fff;
+      font-family: 'Fredoka One', cursive;
+    }
+
+    .gb-msg-body { flex: 1; min-width: 0; }
+
+    .gb-msg-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 6px;
+    }
+
+    .gb-msg-name {
+      font-weight: 800;
+      font-size: 0.95rem;
+      color: var(--navy);
+    }
+
+    .gb-msg-time {
+      font-size: 0.76rem;
+      color: #aaa;
+      font-weight: 600;
+    }
+
+    .gb-msg-mood {
+      font-size: 1.2rem;
+      margin-left: auto;
+    }
+
+    .gb-msg-text {
+      font-size: 0.92rem;
+      color: #444;
+      line-height: 1.6;
+      word-break: break-word;
+    }
+
+    .gb-delete-btn {
+      position: absolute;
+      top: 10px; right: 12px;
+      background: none;
+      border: none;
+      color: #ddd;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: color 0.2s;
+      padding: 2px 6px;
+      border-radius: 6px;
+    }
+    .gb-delete-btn:hover { color: #ef4444; background: #fff0f0; }
+
+    /* Футер книги */
+    .gb-footer {
+      padding: 12px 28px;
+      border-top: 1px solid #f0f0f0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.8rem;
+      color: #aaa;
+      font-weight: 700;
+    }
+
+    @media (max-width: 600px) {
+      .gb-form-area { padding: 20px 16px; gap: 12px; }
+      .gb-list { padding: 16px 14px; }
+      .gb-submit-btn { width: 100%; text-align: center; }
+    }
+    </style>
+
+    <div class="gb-wrapper">
+
+      <!-- Форма -->
+      <div class="gb-form-area">
+        <div class="gb-form-title">✍️ Оставьте сообщение</div>
+        <div class="gb-form-row">
+          <input class="gb-input" id="gbName" placeholder="Ваше имя" maxlength="40"/>
+        </div>
+        <textarea class="gb-textarea" id="gbText" placeholder="Напишите что-нибудь классу... 🌟" maxlength="300"></textarea>
+        <div class="gb-emoji-row">
+          <span class="gb-emoji-label">Настроение:</span>
+          <button class="gb-emoji-btn selected" data-mood="😊" onclick="gbSelectMood(this)">😊</button>
+          <button class="gb-emoji-btn" data-mood="🔥" onclick="gbSelectMood(this)">🔥</button>
+          <button class="gb-emoji-btn" data-mood="❤️" onclick="gbSelectMood(this)">❤️</button>
+          <button class="gb-emoji-btn" data-mood="🎉" onclick="gbSelectMood(this)">🎉</button>
+          <button class="gb-emoji-btn" data-mood="🤔" onclick="gbSelectMood(this)">🤔</button>
+          <button class="gb-emoji-btn" data-mood="😴" onclick="gbSelectMood(this)">😴</button>
+          <button class="gb-emoji-btn" data-mood="💪" onclick="gbSelectMood(this)">💪</button>
+          <button class="gb-emoji-btn" data-mood="👏" onclick="gbSelectMood(this)">👏</button>
+        </div>
+        <button class="gb-submit-btn" onclick="gbAdd()">📨 Отправить сообщение</button>
+      </div>
+
+      <!-- Список -->
+      <div class="gb-list" id="gbList">
+        <div class="gb-empty">💬 Пока нет сообщений. Будьте первым!</div>
+      </div>
+
+      <!-- Нижняя строка -->
+      <div class="gb-footer">
+        <span id="gbCount">0 сообщений</span>
+        <span id="gbLastTime"></span>
+      </div>
+    </div>
+  </section>
+
+  <script>
+  /* ══════════════════════════════════
+     ГОСТЕВАЯ КНИГА — логика
+  ══════════════════════════════════ */
+  (function() {
+    let messages = [];
+    let selectedMood = '😊';
+
+    function save() {
+      if (window.firebaseDB) {
+        window.firebaseDB.ref('guestbook').set(messages).catch(e => console.error(e));
+      }
+    }
+
+    function formatTime(ts) {
+      const d = new Date(ts);
+      return d.toLocaleString('ru-RU', { day:'numeric', month:'long', hour:'2-digit', minute:'2-digit' });
+    }
+
+    function getInitials(name) {
+      const parts = name.trim().split(' ');
+      if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+      return name[0].toUpperCase();
+    }
+
+    function avatarColor(name) {
+      const colors = [
+        'linear-gradient(135deg,#4ECDC4,#A855F7)',
+        'linear-gradient(135deg,#FF6B6B,#F59E0B)',
+        'linear-gradient(135deg,#6BCB77,#4ECDC4)',
+        'linear-gradient(135deg,#A855F7,#FF6B6B)',
+        'linear-gradient(135deg,#F59E0B,#6BCB77)',
+        'linear-gradient(135deg,#17174d,#4ECDC4)',
+      ];
+      let h = 0;
+      for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) % colors.length;
+      return colors[h];
+    }
+
+    function render() {
+      const list = document.getElementById('gbList');
+      if (!list) return;
+
+      if (messages.length === 0) {
+        list.innerHTML = '<div class="gb-empty">💬 Пока нет сообщений. Будьте первым!</div>';
+      } else {
+        list.innerHTML = messages.slice().reverse().map((m, vi) => {
+          const realIdx = messages.length - 1 - vi;
+          return `<div class="gb-msg" style="animation-delay:${vi * 0.05}s">
+            <div class="gb-avatar" style="background:${avatarColor(m.name)}">${getInitials(m.name)}</div>
+            <div class="gb-msg-body">
+              <div class="gb-msg-header">
+                <span class="gb-msg-name">${escHtml(m.name)}</span>
+                <span class="gb-msg-time">${formatTime(m.ts)}</span>
+                <span class="gb-msg-mood">${m.mood}</span>
+              </div>
+              <div class="gb-msg-text">${escHtml(m.text)}</div>
+            </div>
+            <button class="gb-delete-btn" onclick="gbDelete(${realIdx})" title="Удалить">✕</button>
+          </div>`;
+        }).join('');
+      }
+
+      document.getElementById('gbCount').textContent = messages.length + ' ' +
+        (messages.length === 1 ? 'сообщение' : messages.length < 5 ? 'сообщения' : 'сообщений');
+
+      if (messages.length > 0) {
+        document.getElementById('gbLastTime').textContent =
+          'Последнее: ' + formatTime(messages[messages.length - 1].ts);
+      } else {
+        document.getElementById('gbLastTime').textContent = '';
+      }
+    }
+
+    function escHtml(s) {
+      return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+
+    window.gbSelectMood = function(btn) {
+      document.querySelectorAll('.gb-emoji-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      selectedMood = btn.dataset.mood;
+    };
+
+    window.gbAdd = function() {
+      const nameEl = document.getElementById('gbName');
+      const textEl = document.getElementById('gbText');
+      const name = nameEl.value.trim();
+      const text = textEl.value.trim();
+
+      if (!name) {
+        nameEl.focus();
+        nameEl.style.borderColor = '#ef4444';
+        setTimeout(() => nameEl.style.borderColor = '', 1200);
+        return;
+      }
+      if (!text) {
+        textEl.focus();
+        textEl.style.borderColor = '#ef4444';
+        setTimeout(() => textEl.style.borderColor = '', 1200);
+        return;
+      }
+
+      messages.push({ name, text, mood: selectedMood, ts: Date.now() });
+      save();
+      render();
+
+      textEl.value = '';
+      nameEl.value = '';
+
+      // Scroll to list
+      document.getElementById('gbList').scrollTop = 0;
+    };
+
+    window.gbDelete = function(idx) {
+      if (!messages[idx]) return;
+      messages.splice(idx, 1);
+      save();
+      render();
+    };
+
+    function initGuestbook() {
+      if (window.firebaseDB) {
+        window.firebaseDB.ref('guestbook').on('value', snap => {
+          messages = snap.val() || [];
+          render();
+        });
+      } else {
+        setTimeout(initGuestbook, 500);
+      }
+    }
+    initGuestbook();
+  })();
+  </script>
+
+</main>
+
+<footer>
+  Made by <strong>Juraev Askar</strong> · Gymnazium №4 · English classroom
+</footer>
+
+<!-- ══════════════════════════════════════
+     ОБЩИЕ СКРИПТЫ
+══════════════════════════════════════ -->
+
+<!-- ══════════════════════════════════════
+     ТРЕКЕР ПРОГУЛОВ — JS
+══════════════════════════════════════ -->
+<script>
+const STUDENTS_DEFAULT = [
+  { name:"Абдурахмонов Иброхим",  phone:"+992 55 749 0100", absences:0 },
+  { name:"Додоев Хушнуд",         phone:"+992 98 818 0084", absences:0 },
+  { name:"Зоиров Рауф",           phone:"+992 98 545 0036", absences:0 },
+  { name:"Имомов Шахром",         phone:"+992 07 277 6000", absences:0 },
+  { name:"Кобилов Шириншох",      phone:"+992 92 022 7334", absences:0 },
+  { name:"Кодиров Исроил",        phone:"+992 87 570 7029", absences:0 },
+  { name:"Косимов Мансур",        phone:"+992 80 880 1414", absences:0 },
+  { name:"Окилов Хусрав",         phone:"+992 98 509 5161", absences:0 },
+  { name:"Рахматуллоев Эхром",    phone:"+992 78 444 0033", absences:0 },
+  { name:"Файзуллоев Мухриддин",  phone:"+992 88 811 3439", absences:0 },
+  { name:"Файзуллоев Файзулло",   phone:"+992 94 390 0002", absences:0 },
+  { name:"Хакимов Хасан",         phone:"+992 97 225 6000", absences:0 },
+  { name:"Хакимов Хусейн",        phone:"+992 87 444 1333", absences:0 },
+  { name:"Чураев Аскар",          phone:"+992 00 377 4011", absences:0 },
+  { name:"Юсупов Юсуф",           phone:"+992 98 567 1911", absences:0 },
+];
+const ATT_KEY = "att_data_10a"; // оставим для резерва
+
+function loadAttData() {
+  return JSON.parse(JSON.stringify(STUDENTS_DEFAULT));
+}
+function saveAttData() {
+  if (window.firebaseDB) {
+    window.firebaseDB.ref('attendance').set(students).catch(e => console.error(e));
+  }
+  updateLastSaved();
+}
+
+let students = loadAttData();
+
+function getStatus(n) {
+  if (n===0) return { cls:"status-good",     icon:"🟢", label:"Хорошо"   };
+  if (n===1) return { cls:"status-warning",  icon:"🟡", label:"Начало"   };
+  if (n<=3)  return { cls:"status-alert",    icon:"🟠", label:"Внимание" };
+              return { cls:"status-critical", icon:"🔴", label:"Критично" };
+}
+
+function isTeacher() {
+  try {
+    const u = JSON.parse(sessionStorage.getItem('login_user') || localStorage.getItem('login_user') || 'null');
+    return u && u.role === 'Учитель';
+  } catch(e) { return false; }
+}
+
+function applyAttendanceRole() {
+  const teacher = isTeacher();
+  document.getElementById('attResetBtn').style.display   = teacher ? '' : 'none';
+  document.getElementById('attTeacherBadge').style.display = teacher ? 'flex' : 'none';
+  document.getElementById('attStudentNotice').style.display = teacher ? 'none' : 'flex';
+  // Показать/скрыть колонку "Действия" в шапке
+  const actionTh = document.querySelector('.att-table thead th:last-child');
+  if (actionTh) actionTh.style.display = teacher ? '' : 'none';
+}
+
+function renderTable() {
+  const teacher = isTeacher();
+  const query = document.getElementById("attSearch").value.toLowerCase().trim();
+  const tbody = document.getElementById("attBody");
+  const empty = document.getElementById("attEmpty");
+  tbody.innerHTML = "";
+  let vis = 0;
+  students.forEach((s, i) => {
+    const ok = !query || s.name.toLowerCase().includes(query) || s.phone.toLowerCase().includes(query);
+    const st = getStatus(s.absences);
+    const tr = document.createElement("tr");
+    if (!ok) tr.classList.add("att-row-hidden"); else vis++;
+    const col = s.absences===0?"#15803d":s.absences===1?"#a16207":s.absences<=3?"#c2410c":"#b91c1c";
+    tr.innerHTML = `
+      <td>${i+1}</td>
+      <td style="font-weight:700">${s.name}</td>
+      <td style="color:#666">${s.phone}</td>
+      <td class="att-num-cell" style="color:${col}">${s.absences}</td>
+      <td style="text-align:center"><span class="status-chip ${st.cls}">${st.icon} ${st.label}</span></td>
+      <td style="display:${teacher?'':'none'}"><div class="att-actions">
+        <button class="att-action-btn att-plus"  onclick="changeAbsence(${i},1)"  title="Добавить прогул">➕</button>
+        <button class="att-action-btn att-minus" onclick="changeAbsence(${i},-1)" title="Убрать прогул">➖</button>
+        ${s.absences > 0 ? `<button class="att-action-btn att-wa" onclick="sendWhatsApp(${i})" title="Написать в WhatsApp">📲</button>` : ''}
+      </div></td>`;
+    tbody.appendChild(tr);
+  });
+  empty.style.display = (vis===0 && query) ? "block" : "none";
+  updateAttStats();
+  applyAttendanceRole();
+  // Обновляем профиль если открыт
+  if (document.getElementById("profileSelect").value) renderProfile();
+}
+
+function changeAbsence(idx, delta) {
+  students[idx].absences = Math.max(0, students[idx].absences + delta);
+  saveAttData();
+  renderTable();
+}
+
+function sendWhatsApp(idx) {
+  const s = students[idx];
+  // Убираем пробелы и заменяем + на код страны
+  const rawPhone = s.phone.replace(/\s+/g, '').replace(/^\+/, '');
+  const firstName = s.name.split(' ')[1] || s.name.split(' ')[0]; // Второе слово = имя
+  const text = encodeURIComponent(
+    `Здравствуйте! Ваш ребёнок ${firstName} сегодня отсутствовал на уроках. Пожалуйста, сообщите причину. — 10"А", Гимназия №4`
+  );
+  window.open(`https://wa.me/${rawPhone}?text=${text}`, '_blank');
+}
+
+function resetAllAbsences() {
+  if (!confirm("Вы уверены? Все прогулы будут сброшены до нуля.")) return;
+  students.forEach(s => s.absences = 0);
+  saveAttData();
+  document.getElementById("attSearch").value = "";
+  renderTable();
+}
+
+function filterAttendance() { renderTable(); }
+
+function updateAttStats() {
+  const total    = students.length;
+  const clean    = students.filter(s=>s.absences===0).length;
+  const critical = students.filter(s=>s.absences>=4).length;
+  const avg      = (students.reduce((a,s)=>a+s.absences,0)/total).toFixed(1);
+  document.getElementById("statTotal").textContent    = `👥 Всего: ${total}`;
+  document.getElementById("statClean").textContent    = `🟢 Без прогулов: ${clean}`;
+  document.getElementById("statCritical").textContent = `🔴 Критично: ${critical}`;
+  document.getElementById("statAvg").textContent      = `📊 Среднее: ${avg}`;
+}
+
+function updateLastSaved() {
+  const t = new Date().toLocaleTimeString("ru-RU",{hour:"2-digit",minute:"2-digit"});
+  const el = document.getElementById("attLastUpdate");
+  if (el) el.textContent = `Последнее обновление: ${t}`;
+}
+
+function initAttendance() {
+  if (window.firebaseDB) {
+    window.firebaseDB.ref('attendance').on('value', snap => {
+      const val = snap.val();
+      if (val && Array.isArray(val) && val.length > 0) {
+        students = val;
+      } else {
+        students = loadAttData();
+      }
+      renderTable();
+      updateLastSaved();
+    });
+  } else {
+    setTimeout(initAttendance, 500);
+  }
+}
+initAttendance();
+</script>
+
+<!-- ══════════════════════════════════════
+     УМНЫЙ ПРОФИЛЬ — JS
+══════════════════════════════════════ -->
+<script>
+// Данные оценок (синхронизированы с таблицей)
+const GRADES_DATA = [
+  { name:"Абдурахмонов Иброхим",  scores:{ "Математика":8,"Английский":10,"История":8,"Информатика":10 } },
+  { name:"Додоев Хушнуд",         scores:{ "Математика":7,"Английский":7,"История":9,"Информатика":8 } },
+  { name:"Зоиров Рауф",           scores:{ "Математика":8,"Английский":9,"История":9,"Информатика":9 } },
+  { name:"Имомов Шахром",         scores:{ "Математика":7,"Английский":9,"История":7,"Информатика":8 } },
+  { name:"Кобилов Шириншох",      scores:{ "Математика":6,"Английский":9,"История":7,"Информатика":9 } },
+  { name:"Кодиров Исроил",        scores:{ "Математика":8,"Английский":8,"История":8,"Информатика":8 } },
+  { name:"Косимов Мансур",        scores:{ "Математика":6,"Английский":7,"История":6,"Информатика":6 } },
+  { name:"Окилов Хусрав",         scores:{ "Математика":8,"Английский":9,"История":8,"Информатика":9 } },
+  { name:"Рахматуллоев Эхром",    scores:{ "Математика":7,"Английский":8,"История":7,"Информатика":8 } },
+  { name:"Файзуллоев Мухриддин",  scores:{ "Математика":5,"Английский":7,"История":8,"Информатика":6 } },
+  { name:"Файзуллоев Файзулло",   scores:{ "Математика":9,"Английский":10,"История":10,"Информатика":10 } },
+  { name:"Хакимов Хасан",         scores:{ "Математика":7,"Английский":8,"История":8,"Информатика":8 } },
+  { name:"Хакимов Хусейн",        scores:{ "Математика":7,"Английский":8,"История":8,"Информатика":8 } },
+  { name:"Чураев Аскар",          scores:{ "Математика":10,"Английский":10,"История":10,"Информатика":10 } },
+  { name:"Юсупов Юсуф",           scores:{ "Математика":6,"Английский":9,"История":8,"Информатика":9 } },
+];
+
+// Заполняем select
+(function fillSelect() {
+  const sel = document.getElementById("profileSelect");
+  GRADES_DATA.forEach((s, i) => {
+    const opt = document.createElement("option");
+    opt.value = i;
+    opt.textContent = s.name;
+    sel.appendChild(opt);
+  });
+})();
+
+// Аватар-инициалы
+function getInitials(name) {
+  const parts = name.trim().split(" ");
+  if (parts.length >= 2) return parts[0][0] + parts[1][0];
+  return parts[0][0];
+}
+
+// Цвет полосы по баллу
+function barColor(score) {
+  if (score >= 9) return "linear-gradient(90deg,#22c55e,#16a34a)";
+  if (score >= 7) return "linear-gradient(90deg,#3b82f6,#2563eb)";
+  if (score >= 5) return "linear-gradient(90deg,#f59e0b,#d97706)";
+  return "linear-gradient(90deg,#ef4444,#dc2626)";
+}
+
+// Генерация умных рекомендаций
+function generateInsights(data) {
+  const { name, scores, avg, absences, rank, total } = data;
+  const subjects = Object.entries(scores);
+  const bestSubj = subjects.reduce((a,b) => b[1]>a[1]?b:a);
+  const weakSubj = subjects.reduce((a,b) => b[1]<a[1]?b:a);
+  const firstName = name.split(" ")[1] || name.split(" ")[0];
+
+  const insights = [];
+
+  // Рейтинг
+  if (rank === 1) {
+    insights.push({ type:"star", icon:"🏆", text:`${firstName}, ты лучший в классе! Держи планку — ты вдохновляешь остальных!` });
+  } else if (rank <= 3) {
+    insights.push({ type:"star", icon:"🥇", text:`Ты входишь в топ 3 класса (место #${rank} из ${total}). Отличный результат!` });
+  } else if (rank <= 7) {
+    insights.push({ type:"info", icon:"📈", text:`Ты на ${rank}-м месте из ${total}. Немного усилий — и попадёшь в топ!` });
+  } else {
+    insights.push({ type:"warning", icon:"💪", text:`Сейчас ты на ${rank}-м месте. Не сдавайся — прогресс всегда виден!` });
+  }
+
+  // Средний балл
+  if (avg >= 9.5) {
+    insights.push({ type:"positive", icon:"⭐", text:`Средний балл ${avg} — исключительный результат. Ты явно стараешься!` });
+  } else if (avg >= 8) {
+    insights.push({ type:"positive", icon:"✅", text:`Хороший средний балл — ${avg}. Ты на правильном пути.` });
+  } else if (avg >= 6.5) {
+    insights.push({ type:"warning", icon:"📚", text:`Средний балл ${avg}. Стоит немного поднажать, потенциал есть!` });
+  } else {
+    insights.push({ type:"danger", icon:"🚨", text:`Средний балл ${avg} — нужно срочно улучшить успеваемость. Попроси помощи!` });
+  }
+
+  // Лучший предмет
+  insights.push({ type:"positive", icon:"🌟", text:`Твой сильный предмет — ${bestSubj[0]} (${bestSubj[1]}/10). Молодец, продолжай!` });
+
+  // Слабый предмет
+  if (weakSubj[1] < 7) {
+    insights.push({ type:"warning", icon:"📉", text:`Стоит уделить больше времени ${weakSubj[0]} (${weakSubj[1]}/10). Небольшое усилие — и оценка вырастет!` });
+  }
+
+  // Посещаемость
+  if (absences === 0) {
+    insights.push({ type:"positive", icon:"🗓️", text:`Отличная посещаемость — ни одного прогула! Так держать!` });
+  } else if (absences === 1) {
+    insights.push({ type:"info", icon:"📅", text:`${absences} прогул — пока некритично, но старайся не пропускать.` });
+  } else if (absences <= 3) {
+    insights.push({ type:"warning", icon:"⚠️", text:`${absences} прогула — это начинает влиять на успеваемость. Будь внимательнее!` });
+  } else {
+    insights.push({ type:"danger", icon:"🔴", text:`${absences} прогула — это критично! Нужно срочно исправить ситуацию с посещаемостью.` });
+  }
+
+  return insights;
+}
+
+// Основной рендер профиля
+function renderProfile() {
+  const sel = document.getElementById("profileSelect");
+  const card = document.getElementById("profileCard");
+  const placeholder = document.getElementById("profilePlaceholder");
+  const idx = sel.value;
+
+  if (idx === "") {
+    card.classList.remove("visible");
+    placeholder.style.display = "block";
+    return;
+  }
+
+  placeholder.style.display = "none";
+
+  const gd = GRADES_DATA[idx];
+  const att = students.find(s => s.name === gd.name) || { absences: 0 };
+  const subjects = Object.entries(gd.scores);
+  const avg = (subjects.reduce((a,[,v])=>a+v,0)/subjects.length).toFixed(1);
+
+  // Вычисляем рейтинг среди всех
+  const allAvgs = GRADES_DATA.map(s => {
+    const vals = Object.values(s.scores);
+    return vals.reduce((a,b)=>a+b,0)/vals.length;
+  });
+  const sortedAvgs = [...allAvgs].sort((a,b)=>b-a);
+  const rank = sortedAvgs.indexOf(allAvgs[idx]) + 1;
+  const total = GRADES_DATA.length;
+
+  const best = subjects.reduce((a,b)=>b[1]>a[1]?b:a);
+  const weak = subjects.reduce((a,b)=>b[1]<a[1]?b:a);
+
+  // Статус посещаемости
+  const attSt = att.absences===0
+    ? { cls:"status-good",     icon:"🟢", label:"Отличная посещаемость" }
+    : att.absences===1
+    ? { cls:"status-warning",  icon:"🟡", label:"1 прогул" }
+    : att.absences<=3
+    ? { cls:"status-alert",    icon:"🟠", label:`${att.absences} прогула` }
+    : { cls:"status-critical", icon:"🔴", label:`${att.absences} прогулов` };
+
+  // Умные выводы
+  const insights = generateInsights({ name:gd.name, scores:gd.scores, avg:parseFloat(avg), absences:att.absences, rank, total });
+
+  // Иконка рейтинга
+  const rankLabel = rank===1?"🥇 #1 в классе":rank<=3?`🥈 Топ-3 · #${rank}`:rank<=7?`📊 #${rank} из ${total}`:`#${rank} из ${total}`;
+
+  // Полосы предметов
+  const subjectBars = subjects.map(([subj, score]) => `
+    <div class="subject-row">
+      <div class="subject-name">${subj}</div>
+      <div class="subject-bar-wrap">
+        <div class="subject-bar-fill" style="width:${score*10}%;background:${barColor(score)}"></div>
+      </div>
+      <div class="subject-score" style="color:${score>=9?"#15803d":score>=7?"#1d4ed8":score>=5?"#d97706":"#dc2626"}">${score}</div>
+    </div>`).join("");
+
+  // Блоки вывода
+  const insightHTML = insights.map((ins, i) => `
+    <div class="insight-item insight-${ins.type}" style="animation-delay:${i*0.07}s">
+      <span class="insight-icon">${ins.icon}</span>
+      <span>${ins.text}</span>
+    </div>`).join("");
+
+  card.innerHTML = `
+    <!-- Шапка -->
+    <div class="profile-hero">
+      <div class="profile-avatar">${getInitials(gd.name)}</div>
+      <div class="profile-hero-info">
+        <div class="profile-name">${gd.name}</div>
+        <div class="profile-meta-row">
+          <span class="profile-meta-badge">10 «А» класс</span>
+          <span class="profile-meta-badge">Гимназия №4</span>
+          <span class="profile-meta-badge">2025–2026</span>
+        </div>
+      </div>
+      <div class="profile-rank-badge">${rankLabel}</div>
+    </div>
+
+    <!-- Тело -->
+    <div class="profile-body">
+
+      <!-- Средний балл -->
+      <div class="profile-stat-block">
+        <div class="profile-stat-icon">📊</div>
+        <div class="profile-stat-label">Средний балл</div>
+        <div class="profile-stat-value">${avg}<span style="font-size:.9rem;color:#aaa"> /10</span></div>
+        <div class="profile-stat-sub">${parseFloat(avg)>=9?"Превосходно":parseFloat(avg)>=7?"Хорошо":parseFloat(avg)>=5?"Удовлетворительно":"Нужно улучшить"}</div>
+        <div class="profile-progress-bar">
+          <div class="profile-progress-fill" style="width:${avg*10}%"></div>
+        </div>
+      </div>
+
+      <!-- Лучший предмет -->
+      <div class="profile-stat-block">
+        <div class="profile-stat-icon">🏆</div>
+        <div class="profile-stat-label">Лучший предмет</div>
+        <div class="profile-stat-value" style="font-size:1.3rem">${best[0]}</div>
+        <div class="profile-stat-sub">Оценка: ${best[1]}/10</div>
+        <div class="profile-progress-bar">
+          <div class="profile-progress-fill" style="width:${best[1]*10}%;background:linear-gradient(90deg,#22c55e,#16a34a)"></div>
+        </div>
+      </div>
+
+      <!-- Слабый предмет -->
+      <div class="profile-stat-block">
+        <div class="profile-stat-icon">📉</div>
+        <div class="profile-stat-label">Требует внимания</div>
+        <div class="profile-stat-value" style="font-size:1.3rem">${weak[0]}</div>
+        <div class="profile-stat-sub">Оценка: ${weak[1]}/10</div>
+        <div class="profile-progress-bar">
+          <div class="profile-progress-fill" style="width:${weak[1]*10}%;background:${barColor(weak[1])}"></div>
+        </div>
+      </div>
+
+      <!-- Прогулы -->
+      <div class="profile-stat-block">
+        <div class="profile-stat-icon">📅</div>
+        <div class="profile-stat-label">Посещаемость</div>
+        <div class="profile-stat-value">${att.absences}<span style="font-size:.9rem;color:#aaa"> прогулов</span></div>
+        <div class="profile-att-status ${attSt.cls}">${attSt.icon} ${attSt.label}</div>
+      </div>
+
+      <!-- Место в рейтинге -->
+      <div class="profile-stat-block">
+        <div class="profile-stat-icon">🎯</div>
+        <div class="profile-stat-label">Место в классе</div>
+        <div class="profile-stat-value">#${rank}<span style="font-size:.9rem;color:#aaa"> из ${total}</span></div>
+        <div class="profile-stat-sub">${rank===1?"Лучший в классе!":rank<=3?"Топ-3 🔥":rank<=7?"В первой половине":"Есть куда расти"}</div>
+        <div class="profile-progress-bar">
+          <div class="profile-progress-fill" style="width:${((total-rank+1)/total*100).toFixed(0)}%;background:linear-gradient(90deg,#f59e0b,#ef4444)"></div>
+        </div>
+      </div>
+
+      <!-- Оценка учителя -->
+      <div class="profile-stat-block">
+        <div class="profile-stat-icon">🎓</div>
+        <div class="profile-stat-label">Общая оценка</div>
+        <div class="profile-stat-value" style="font-size:1.2rem">${
+          parseFloat(avg)>=9.5 && att.absences===0 ? "Отличник" :
+          parseFloat(avg)>=8 && att.absences<=1    ? "Хорошист" :
+          parseFloat(avg)>=6.5                      ? "Старается" :
+          "Нужна помощь"
+        }</div>
+        <div class="profile-stat-sub">${
+          parseFloat(avg)>=9.5 && att.absences===0 ? "Образец для класса" :
+          parseFloat(avg)>=8                        ? "Уверенный прогресс" :
+          "Потенциал есть!"
+        }</div>
+      </div>
+
+      <!-- Мини-бары предметов -->
+      <div class="profile-subjects" style="grid-column:1/-1">
+        <div style="font-family:'Fredoka One',cursive;font-size:1.05rem;color:#17174d;margin-bottom:14px;">📚 Оценки по предметам</div>
+        ${subjectBars}
+      </div>
+
+      <!-- Умные выводы -->
+      <div class="profile-insights">
+        <div class="profile-insights-title">
+          🧠 Умные рекомендации
+        </div>
+        ${insightHTML}
+      </div>
+
+    </div>
+  `;
+
+  // Анимация появления
+  requestAnimationFrame(() => {
+    card.classList.add("visible");
+  });
+}
+</script>
+<script>
+/* ══════════════════════════════════
+   ДОМАШНИЕ ЗАДАНИЯ — логика
+══════════════════════════════════ */
+(function() {
+  let tasks = [];
+  let currentFilter = 'all';
+
+  function save() {
+    if (window.firebaseDB) {
+      window.firebaseDB.ref('homework').set(tasks).catch(e => console.error(e));
+    }
+  }
+
+  function initHW() {
+    if (window.firebaseDB) {
+      window.firebaseDB.ref('homework').on('value', snap => {
+        tasks = snap.val() || [];
+        render();
+      });
+    } else {
+      setTimeout(initHW, 500);
+    }
+  }
+
+  // Статус задания
+  function getStatus(task) {
+    if (task.done) return 'done';
+    if (!task.due) return 'active';
+    const now = new Date(); now.setHours(0,0,0,0);
+    const due = new Date(task.due); due.setHours(0,0,0,0);
+    const diff = (due - now) / 86400000;
+    if (diff < 0) return 'overdue';
+    if (diff <= 1) return 'soon';
+    return 'active';
+  }
+
+  function formatDate(dateStr) {
+    if (!dateStr) return '';
+    const d = new Date(dateStr + 'T00:00:00');
+    return d.toLocaleDateString('ru-RU', { day:'numeric', month:'long', year:'numeric' });
+  }
+
+  function daysLeft(dateStr) {
+    if (!dateStr) return null;
+    const now = new Date(); now.setHours(0,0,0,0);
+    const due = new Date(dateStr + 'T00:00:00');
+    return Math.round((due - now) / 86400000);
+  }
+
+  function render() {
+    const list = document.getElementById('hwList');
+    if (!list) return;
+
+    let visible = tasks.filter(t => {
+      const st = getStatus(t);
+      if (currentFilter === 'all') return true;
+      if (currentFilter === 'active') return st === 'active' || st === 'soon';
+      if (currentFilter === 'overdue') return st === 'overdue';
+      if (currentFilter === 'done') return st === 'done';
+      return true;
+    });
+
+    if (visible.length === 0) {
+      list.innerHTML = '<div class="hw-empty">📭 ' +
+        (currentFilter === 'all' ? 'Пока нет заданий. Добавьте первое ДЗ!' :
+         currentFilter === 'done' ? 'Нет выполненных заданий.' :
+         currentFilter === 'overdue' ? '🎉 Нет просроченных заданий!' :
+         'Нет активных заданий.') + '</div>';
+    } else {
+      list.innerHTML = visible.map((t, vi) => {
+        const st = getStatus(t);
+        const dl = daysLeft(t.due);
+        let badge = '';
+        if (st === 'overdue') badge = '<span class="hw-badge-overdue">ПРОСРОЧЕНО</span>';
+        else if (st === 'soon') badge = '<span class="hw-badge-soon">СЕГОДНЯ/ЗАВТРА</span>';
+
+        let deadlineText = '';
+        if (t.due) {
+          const prefix = st === 'overdue' ? '❌ Срок: ' : '📅 До: ';
+          const suffix = dl !== null && !t.done
+            ? (st === 'overdue' ? ` (${Math.abs(dl)} дн. назад)` : ` (через ${dl} дн.)`)
+            : '';
+          deadlineText = `<div class="hw-deadline-row">${prefix}${formatDate(t.due)}${suffix}</div>`;
+        }
+
+        const realIdx = tasks.indexOf(t);
+        return `<div class="hw-item ${st}" data-idx="${realIdx}">
+          <div class="hw-checkbox" onclick="hwToggle(${realIdx})">${t.done ? '✓' : ''}</div>
+          <div class="hw-item-body">
+            <div class="hw-subject-tag">${t.subject}</div>
+            <div class="hw-title">${t.title}</div>
+            ${deadlineText}
+          </div>
+          ${badge}
+          <button class="hw-delete-btn" onclick="hwDelete(${realIdx})" title="Удалить">✕</button>
+        </div>`;
+      }).join('');
+    }
+
+    // Статы
+    const total = tasks.length;
+    const active = tasks.filter(t => { const s = getStatus(t); return s === 'active' || s === 'soon'; }).length;
+    const overdue = tasks.filter(t => getStatus(t) === 'overdue').length;
+    document.getElementById('hwStatAll').textContent = `Всего: ${total}`;
+    document.getElementById('hwStatActive').textContent = `Активных: ${active}`;
+    document.getElementById('hwStatOverdue').textContent = `⚠️ Просрочено: ${overdue}`;
+    document.getElementById('hwLastUpdated').textContent =
+      'Обновлено: ' + new Date().toLocaleTimeString('ru-RU', {hour:'2-digit',minute:'2-digit'});
+  }
+
+  window.hwAdd = function() {
+    const titleEl = document.getElementById('hwTitle');
+    const subjectEl = document.getElementById('hwSubject');
+    const dueEl = document.getElementById('hwDue');
+    const title = titleEl.value.trim();
+    if (!title) { titleEl.focus(); titleEl.style.borderColor = '#ef4444'; setTimeout(()=>titleEl.style.borderColor='', 1200); return; }
+    tasks.unshift({ id: Date.now(), title, subject: subjectEl.value, due: dueEl.value, done: false });
+    save(); render();
+    titleEl.value = '';
+    titleEl.focus();
+  };
+
+  window.hwToggle = function(idx) {
+    if (!tasks[idx]) return;
+    tasks[idx].done = !tasks[idx].done;
+    save(); render();
+  };
+
+  window.hwDelete = function(idx) {
+    if (!tasks[idx]) return;
+    tasks.splice(idx, 1);
+    save(); render();
+  };
+
+  window.hwFilter = function(type, btn) {
+    currentFilter = type;
+    document.querySelectorAll('.hw-filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    render();
+  };
+
+  // Установить дефолтную дату (завтра)
+  const dueInput = document.getElementById('hwDue');
+  if (dueInput) {
+    const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate() + 1);
+    dueInput.value = tomorrow.toISOString().split('T')[0];
+  }
+
+  // Enter для добавления
+  document.getElementById('hwTitle')?.addEventListener('keydown', e => { if (e.key === 'Enter') hwAdd(); });
+
+  initHW();
+
+  // Авто-обновление каждую минуту (статусы меняются в полночь)
+  setInterval(() => render(), 60000);
+})();
+</script>
+
+</body>
+</html>
