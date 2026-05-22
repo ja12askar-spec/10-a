@@ -9,11 +9,8 @@
 <!-- ══ FIREBASE SDK ══ -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-messaging-compat.js"></script>
 <script>
-  // ══════════════════════════════════════════════════════
-  //  🔥 ВСТАВЬТЕ СЮДА СВОИ ДАННЫЕ ИЗ FIREBASE CONSOLE
-  //  (Firebase Console → Project Settings → Your apps → SDK setup)
-  // ══════════════════════════════════════════════════════
   const firebaseConfig = {
     apiKey:            "AIzaSyBn_T427SM0L3C8Wr6GRPqIkvwXQ42GAQk",
     authDomain:        "askar-3879e.firebaseapp.com",
@@ -28,10 +25,59 @@
   try {
     const app = firebase.initializeApp(firebaseConfig);
     window.firebaseDB = firebase.database(app);
+    window.firebaseMessaging = firebase.messaging(app);
     console.log('✅ Firebase подключён');
   } catch(e) {
     console.error('❌ Firebase ошибка:', e);
   }
+
+  const FCM_VAPID = 'BD97igrDv8ExFkWOo4aU51H9wwmOJI4m5sR1fC9ntawMd-P2TB1Bzrrb-r8B1ueMCSetYUpr6_52lBs4U7s92mU';
+
+  async function initFCM() {
+    if (!window.firebaseMessaging || !('serviceWorker' in navigator)) return;
+    try {
+      const swReg = await navigator.serviceWorker.register('./firebase-messaging-sw.js');
+      const permission = await Notification.requestPermission();
+      if (permission !== 'granted') return;
+      const token = await window.firebaseMessaging.getToken({ vapidKey: FCM_VAPID, serviceWorkerRegistration: swReg });
+      if (token) {
+        await window.firebaseDB.ref('fcm_tokens/' + token.slice(-20)).set({ token, ts: Date.now() });
+        console.log('✅ FCM токен сохранён');
+      }
+    } catch(e) { console.error('FCM ошибка:', e); }
+  }
+
+  window.addEventListener('load', () => {
+    initFCM();
+    if (window.firebaseMessaging) {
+      window.firebaseMessaging.onMessage((payload) => {
+        const { title, body } = payload.notification || {};
+        if (title && Notification.permission === 'granted') {
+          const n = new Notification(title, { body, icon: './Picsart_25-04-29_18-23-38-058.jpg' });
+          setTimeout(() => n.close(), 8000);
+          n.onclick = () => { window.focus(); document.getElementById('homework')?.scrollIntoView({ behavior: 'smooth' }); n.close(); };
+        }
+      });
+    }
+    // Слушаем триггер новых ДЗ из Firebase для уведомлений через Realtime DB
+    if (window.firebaseDB) {
+      let firstLoad = true;
+      window.firebaseDB.ref('notify_trigger').on('value', snap => {
+        if (firstLoad) { firstLoad = false; return; }
+        const d = snap.val();
+        if (!d) return;
+        if (Notification.permission === 'granted') {
+          const due = d.due ? new Date(d.due + 'T00:00:00').toLocaleDateString('ru-RU', {day:'numeric',month:'long'}) : 'без срока';
+          const n = new Notification('📚 Новое ДЗ — ' + d.subject, {
+            body: d.title + '\n📅 Срок: ' + due,
+            icon: './Picsart_25-04-29_18-23-38-058.jpg'
+          });
+          setTimeout(() => n.close(), 8000);
+          n.onclick = () => { window.focus(); document.getElementById('homework')?.scrollIntoView({ behavior: 'smooth' }); n.close(); };
+        }
+      });
+    }
+  });
 </script>
 <style>
 
@@ -5669,37 +5715,6 @@ function renderProfile() {
       'Обновлено: ' + new Date().toLocaleTimeString('ru-RU', {hour:'2-digit',minute:'2-digit'});
   }
 
-  // ── Push-уведомления ──
-  function requestNotifPermission() {
-    if (!('Notification' in window)) return;
-    if (Notification.permission === 'default') {
-      Notification.requestPermission();
-    }
-  }
-
-  function sendHWNotification(task) {
-    if (!('Notification' in window)) return;
-    if (Notification.permission !== 'granted') return;
-    const due = task.due ? formatDate(task.due) : 'без срока';
-    const notif = new Notification('📚 Новое ДЗ — ' + task.subject, {
-      body: task.title + '\n📅 Срок: ' + due,
-      icon: './Picsart_25-04-29_18-23-38-058.jpg',
-      badge: './Picsart_25-04-29_18-23-38-058.jpg',
-      tag: 'hw-' + task.id,
-      vibrate: [200, 100, 200]
-    });
-    notif.onclick = function() {
-      window.focus();
-      const hwSection = document.getElementById('homework');
-      if (hwSection) hwSection.scrollIntoView({ behavior: 'smooth' });
-      notif.close();
-    };
-    setTimeout(() => notif.close(), 8000);
-  }
-
-  // Запрашиваем разрешение при первом посещении
-  requestNotifPermission();
-
   window.hwAdd = function() {
     if (!window.hwIsTeacher) { alert('Только учитель может добавлять задания!'); return; }
     const titleEl = document.getElementById('hwTitle');
@@ -5710,12 +5725,13 @@ function renderProfile() {
     const newTask = { id: Date.now(), title, subject: subjectEl.value, due: dueEl.value, done: false };
     tasks.unshift(newTask);
     save(); render();
-    // Отправляем push-уведомление
-    if (Notification.permission === 'granted') {
-      sendHWNotification(newTask);
-    } else if (Notification.permission === 'default') {
-      Notification.requestPermission().then(perm => {
-        if (perm === 'granted') sendHWNotification(newTask);
+    // Отправляем push всем через notify_trigger
+    if (window.firebaseDB) {
+      window.firebaseDB.ref('notify_trigger').set({
+        subject: newTask.subject,
+        title: newTask.title,
+        due: newTask.due || '',
+        ts: Date.now()
       });
     }
     titleEl.value = '';
