@@ -5669,6 +5669,37 @@ function renderProfile() {
       'Обновлено: ' + new Date().toLocaleTimeString('ru-RU', {hour:'2-digit',minute:'2-digit'});
   }
 
+  // ── Push-уведомления ──
+  function requestNotifPermission() {
+    if (!('Notification' in window)) return;
+    if (Notification.permission === 'default') {
+      Notification.requestPermission();
+    }
+  }
+
+  function sendHWNotification(task) {
+    if (!('Notification' in window)) return;
+    if (Notification.permission !== 'granted') return;
+    const due = task.due ? formatDate(task.due) : 'без срока';
+    const notif = new Notification('📚 Новое ДЗ — ' + task.subject, {
+      body: task.title + '\n📅 Срок: ' + due,
+      icon: './Picsart_25-04-29_18-23-38-058.jpg',
+      badge: './Picsart_25-04-29_18-23-38-058.jpg',
+      tag: 'hw-' + task.id,
+      vibrate: [200, 100, 200]
+    });
+    notif.onclick = function() {
+      window.focus();
+      const hwSection = document.getElementById('homework');
+      if (hwSection) hwSection.scrollIntoView({ behavior: 'smooth' });
+      notif.close();
+    };
+    setTimeout(() => notif.close(), 8000);
+  }
+
+  // Запрашиваем разрешение при первом посещении
+  requestNotifPermission();
+
   window.hwAdd = function() {
     if (!window.hwIsTeacher) { alert('Только учитель может добавлять задания!'); return; }
     const titleEl = document.getElementById('hwTitle');
@@ -5676,8 +5707,17 @@ function renderProfile() {
     const dueEl = document.getElementById('hwDue');
     const title = titleEl.value.trim();
     if (!title) { titleEl.focus(); titleEl.style.borderColor = '#ef4444'; setTimeout(()=>titleEl.style.borderColor='', 1200); return; }
-    tasks.unshift({ id: Date.now(), title, subject: subjectEl.value, due: dueEl.value, done: false });
+    const newTask = { id: Date.now(), title, subject: subjectEl.value, due: dueEl.value, done: false };
+    tasks.unshift(newTask);
     save(); render();
+    // Отправляем push-уведомление
+    if (Notification.permission === 'granted') {
+      sendHWNotification(newTask);
+    } else if (Notification.permission === 'default') {
+      Notification.requestPermission().then(perm => {
+        if (perm === 'granted') sendHWNotification(newTask);
+      });
+    }
     titleEl.value = '';
     titleEl.focus();
   };
