@@ -143,39 +143,89 @@
     background: #fff;
     border-bottom: 3px solid var(--yellow);
     display: flex;
-    gap: 0;
-    overflow-x: auto;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
     position: sticky;
     top: 0;
-    z-index: 100;
+    z-index: 1000;
     box-shadow: 0 2px 12px rgba(0,0,0,0.07);
-    text-align: center;
-    justify-content: center;
     font-family: sans-serif;
-    animation: fadeUp 0.9s ease both;
-
+    min-height: 52px;
   }
 
-  nav a {
-    padding: 14px 22px;
-    text-decoration: none;
+  .nav-brand {
     font-weight: 800;
-    font-size: 0.9rem;
+    font-size: 1rem;
     color: var(--navy);
     white-space: nowrap;
-    border-bottom: 3px solid transparent;
-    margin-bottom: -3px;
-    transition: 0.5s;
-    letter-spacing: 0.3px;
   }
 
-  nav a:hover { 
-background-color: #1A1A2E;
-color: rgb(255, 255, 255);
-border-radius: 20px;
-transition: 0.5s;
+  .nav-hamburger {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    width: 40px;
+    height: 40px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 8px;
+    transition: background 0.2s;
+    flex-shrink: 0;
+  }
+  .nav-hamburger:hover { background: #f0eeff; }
+  .nav-hamburger span {
+    display: block;
+    height: 2.5px;
+    background: var(--navy);
+    border-radius: 2px;
+    transition: all 0.3s ease;
+    width: 100%;
+  }
+  .nav-hamburger.open span:nth-child(1) { transform: translateY(7.5px) rotate(45deg); }
+  .nav-hamburger.open span:nth-child(2) { opacity: 0; }
+  .nav-hamburger.open span:nth-child(3) { transform: translateY(-7.5px) rotate(-45deg); }
 
-}
+  .nav-links {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(23,23,77,0.55);
+    z-index: 999;
+    align-items: flex-start;
+    justify-content: flex-end;
+  }
+  .nav-links.open { display: flex; }
+
+  .nav-links-inner {
+    background: #fff;
+    width: 260px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 16px 0;
+    box-shadow: -4px 0 24px rgba(0,0,0,0.15);
+    overflow-y: auto;
+  }
+
+  .nav-links a {
+    padding: 14px 24px;
+    text-decoration: none;
+    font-weight: 800;
+    font-size: 0.95rem;
+    color: var(--navy);
+    border-left: 4px solid transparent;
+    transition: all 0.2s;
+    display: block;
+  }
+  .nav-links a:hover {
+    background: #f0eeff;
+    border-left-color: var(--purple);
+    color: var(--purple);
+  }
 
   /* ── MAIN LAYOUT ── */
   main {
@@ -1293,167 +1343,6 @@ tr:nth-child(even) {
 .att-footer-text { font-size:.8rem; color:#999; font-weight:600; }
 .att-row-hidden { display:none !important; }
 
-/* ══════════════════════════════════════════
-   УМНЫЙ ПРОФИЛЬ УЧЕНИКА
-══════════════════════════════════════════ */
-#profile-section { margin-bottom: 72px; }
-
-/* Выбор ученика */
-.profile-selector-wrap {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  margin-bottom: 28px;
-  flex-wrap: wrap;
-}
-
-.profile-select {
-  flex: 1 1 280px;
-  padding: 14px 20px;
-  border-radius: 16px;
-  border: 2.5px solid #e0d8f8;
-  background: #fff;
-  font-family: 'Sora', sans-serif;
-  font-size: 1rem;
-  font-weight: 600;
-  color: #17174d;
-  outline: none;
-  cursor: pointer;
-  transition: border-color .2s, box-shadow .2s;
-  appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23A855F7' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 16px center;
-  padding-right: 44px;
-}
-
-.profile-select:focus {
-  border-color: #A855F7;
-  box-shadow: 0 0 0 4px rgba(168,85,247,.14);
-}
-
-/* Карточка профиля */
-.profile-card {
-  background: #fff;
-  border-radius: 24px;
-  overflow: hidden;
-  box-shadow: 0 12px 48px rgba(23,23,77,.13);
-  opacity: 0;
-  transform: translateY(18px);
-  transition: opacity .4s ease, transform .4s ease;
-}
-
-.profile-card.visible {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-/* Шапка профиля */
-.profile-hero {
-  background: linear-gradient(135deg, #17174d 0%, #3b1fa8 60%, #7c3aed 100%);
-  padding: 36px 40px;
-  display: flex;
-  align-items: center;
-  gap: 28px;
-  position: relative;
-  overflow: hidden;
-}
-
-.profile-hero::before {
-  content: '';
-  position: absolute;
-  width: 300px; height: 300px;
-  border-radius: 50%;
-  background: rgba(255,255,255,.05);
-  top: -100px; right: -80px;
-  pointer-events: none;
-}
-
-.profile-hero::after {
-  content: '';
-  position: absolute;
-  width: 180px; height: 180px;
-  border-radius: 50%;
-  background: rgba(168,85,247,.18);
-  bottom: -60px; left: 200px;
-  pointer-events: none;
-}
-
-.profile-avatar {
-  width: 88px; height: 88px;
-  border-radius: 50%;
-  border: 4px solid rgba(255,255,255,.3);
-  background: linear-gradient(135deg, #A855F7, #6366f1);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 2.4rem;
-  flex-shrink: 0;
-  position: relative;
-  z-index: 1;
-  box-shadow: 0 8px 32px rgba(0,0,0,.25);
-}
-
-.profile-hero-info {
-  position: relative;
-  z-index: 1;
-}
-
-.profile-name {
-  font-family: 'Fredoka One', cursive;
-  font-size: 2rem;
-  color: #fff;
-  margin-bottom: 4px;
-  line-height: 1.1;
-}
-
-.profile-meta-row {
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
-  margin-top: 8px;
-}
-
-.profile-meta-badge {
-  background: rgba(255,255,255,.15);
-  border: 1px solid rgba(255,255,255,.25);
-  color: rgba(255,255,255,.92);
-  border-radius: 999px;
-  padding: 4px 14px;
-  font-size: .8rem;
-  font-weight: 700;
-  font-family: 'Sora', sans-serif;
-}
-
-.profile-rank-badge {
-  position: absolute;
-  top: 28px; right: 32px;
-  background: linear-gradient(135deg, #f59e0b, #ef4444);
-  color: #fff;
-  border-radius: 16px;
-  padding: 8px 18px;
-  font-family: 'Fredoka One', cursive;
-  font-size: 1rem;
-  box-shadow: 0 4px 16px rgba(0,0,0,.2);
-  z-index: 2;
-}
-
-/* Тело профиля */
-.profile-body {
-  padding: 32px 36px;
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 20px;
-}
-
-@media (max-width: 800px) {
-  .profile-body { grid-template-columns: 1fr 1fr; }
-}
-@media (max-width: 520px) {
-  .profile-body { grid-template-columns: 1fr; padding: 20px; }
-  .profile-hero { flex-direction: column; padding: 28px 24px; }
-  .profile-rank-badge { position: static; margin-top: 8px; align-self: flex-start; }
-}
 
 /* Stat-блоки */
 .profile-stat-block {
@@ -1702,6 +1591,9 @@ tr:nth-child(even) {
   outline: none;
   transition: border-color .2s;
   background: #fff;
+  height: 44px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .hw-input:focus {
@@ -1903,6 +1795,40 @@ tr:nth-child(even) {
 }
 
 .hw-delete-btn:hover { transform: scale(1.15); background: #ef4444; color: #fff; }
+
+.hw-wa-btn {
+  width: 30px; height: 30px;
+  border: none;
+  border-radius: 8px;
+  background: #dcfce7;
+  color: #25D366;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: transform .15s, background .15s;
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  text-decoration: none;
+}
+.hw-wa-btn:hover { transform: scale(1.15); background: #25D366; color: #fff; }
+
+/* WhatsApp кнопка — рассылка всем */
+.hw-wa-broadcast {
+  padding: 10px 20px;
+  background: #25D366;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: .88rem;
+  font-weight: 800;
+  font-family: 'Nunito', sans-serif;
+  cursor: pointer;
+  transition: transform .15s, box-shadow .15s;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  white-space: nowrap;
+}
+.hw-wa-broadcast:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(37,211,102,.4); }
 
 .hw-empty {
   text-align: center;
@@ -2252,228 +2178,335 @@ tr:nth-child(even) {
 
 
 /* ══════════════════════════════════════════
-   MOBILE RESPONSIVE — дополнения
+   HAMBURGER NAV — мобильное меню
 ══════════════════════════════════════════ */
+.nav-hamburger {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 10px 16px;
+  flex-direction: column;
+  gap: 5px;
+  align-self: stretch;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 200;
+}
+.nav-hamburger span {
+  display: block;
+  width: 22px;
+  height: 2.5px;
+  background: var(--navy);
+  border-radius: 2px;
+  transition: all 0.3s ease;
+  transform-origin: center;
+}
+.nav-hamburger.open span:nth-child(1) { transform: translateY(7.5px) rotate(45deg); }
+.nav-hamburger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+.nav-hamburger.open span:nth-child(3) { transform: translateY(-7.5px) rotate(-45deg); }
 
-/* NAV — мобильная прокрутка */
+.nav-links {
+  display: flex;
+  flex: 1;
+}
+
+.nav-brand { display: none; }
+
+/* ══════════════════════════════════════════
+   MOBILE RESPONSIVE — полная адаптация
+══════════════════════════════════════════ */
 @media (max-width: 768px) {
+
+  /* ── NAV / HAMBURGER ── */
+  .nav-hamburger { display: flex; }
+
   nav {
-    justify-content: flex-start;
-    padding: 0 4px;
-  }
-  nav a {
-    padding: 12px 14px;
-    font-size: 0.8rem;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+    padding: 0;
+    position: sticky;
+    top: 0;
+    z-index: 9000;
+    justify-content: space-between;
+    min-height: 48px;
   }
 
-  /* HEADER */
-  .header-inner {
-    padding: 18px 16px 22px;
-    gap: 14px;
+  .nav-brand {
+    padding: 0 16px;
+    font-weight: 800;
+    font-size: 0.9rem;
+    color: var(--navy);
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 6px;
   }
+
+  .nav-links {
+    display: none;
+    flex-direction: column;
+    position: fixed;
+    top: 0;
+    left: 0; right: 0;
+    background: #fff;
+    border-top: 3px solid var(--yellow);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+    z-index: 9001;
+    padding: 6px 0 14px;
+    max-height: 75vh;
+    overflow-y: auto;
+  }
+
+  .nav-links.open { display: flex; }
+
+  nav a {
+    padding: 14px 22px;
+    font-size: 1rem;
+    border-bottom: 1px solid #f3f4f6;
+    border-radius: 0;
+    margin: 0;
+    width: 100%;
+    text-align: left;
+    display: block;
+
+  }
+
+  nav a:last-child { border-bottom: none; }
+  nav a:hover { border-radius: 0; }
+
+  /* ── HEADER ── */
   .header-tape {
-    padding: 5px 14px;
-    font-size: 10px;
+    padding: 4px 12px;
+    font-size: 9px;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .header-inner {
+    padding: 16px 16px 20px;
+    gap: 12px;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .class-title h1 { font-size: 2rem; }
+  .class-title p { font-size: 0.88rem; }
+
+  .header-badges {
     gap: 8px;
     flex-wrap: wrap;
   }
-  .header-badges {
-    gap: 8px;
-  }
   .badge {
     padding: 6px 12px;
-    font-size: 0.75rem;
+    font-size: 0.72rem;
   }
 
-  /* MAIN */
-  main {
-    padding: 24px 14px 60px;
-  }
-  section {
-    margin-bottom: 40px;
-  }
-  .section-label {
-    font-size: 1.35rem;
-    margin-bottom: 16px;
-  }
+  /* ── MAIN ── */
+  main { padding: 20px 12px 60px; }
+  section { margin-bottom: 36px; }
+  .section-label { font-size: 1.25rem; margin-bottom: 14px; }
 
-  /* WELCOME */
+  /* ── WELCOME ── */
   .welcome-card {
     flex-direction: column;
     text-align: center;
-    padding: 24px 20px;
-    gap: 16px;
-  }
-  .welcome-emoji { font-size: 56px; }
-  .welcome-card h2 { font-size: 1.6rem; }
-  .welcome-card p { font-size: 0.95rem; }
-
-  /* ANNOUNCEMENTS */
-  .announce-card {
-    padding: 14px 16px;
+    padding: 20px 16px;
     gap: 12px;
   }
-  .announce-icon {
-    width: 38px; height: 38px;
-    font-size: 18px;
-  }
+  .welcome-emoji { font-size: 48px; }
+  .welcome-card h2 { font-size: 1.4rem; }
+  .welcome-card p { font-size: 0.9rem; }
 
-  /* SCHEDULE */
-  #schedule .week-grid {
-    grid-template-columns: 1fr;
-    gap: 14px;
-  }
-  .day-header { padding: 14px 18px; font-size: 1rem; }
+  /* ── ANNOUNCEMENTS ── */
+  .announce-card { padding: 12px 14px; gap: 10px; }
+  .announce-icon { width: 36px; height: 36px; font-size: 17px; }
+  .announce-card h3 { font-size: 0.95rem; }
+  .announce-card p { font-size: 0.85rem; }
+
+  /* ── SCHEDULE ── */
+  #schedule .week-grid { grid-template-columns: 1fr; gap: 12px; }
+  .day-header { padding: 13px 16px; font-size: 0.95rem; }
   .period { font-size: 0.82rem; padding: 6px 0; }
 
-  /* TODAY CARD */
-  .today-card { padding: 20px 18px; }
-  .today-day-name { font-size: 1.5rem; }
-  .today-lessons-grid {
-    grid-template-columns: 1fr;
-  }
+  /* ── TODAY CARD ── */
+  .today-card { padding: 18px 14px; }
+  .today-day-name { font-size: 1.4rem; }
+  .today-lessons-grid { grid-template-columns: 1fr; gap: 8px; }
+  .today-lesson-item { padding: 10px 12px; }
 
-  /* STUDENT LIST */
-  #work .day-card 
+  /* ── STUDENT LIST ── */
   #work .period {
     flex-direction: column;
     align-items: flex-start;
     gap: 2px;
     padding: 8px 0;
   }
-  #work .period-time {
-    font-size: 0.76rem;
-  }
+  #work .period-time { font-size: 0.78rem; color: #10b981; }
 
-  /* STUDENT CARDS */
-  .cards-container {
-    grid-template-columns: 1fr;
-    gap: 16px;
-  }
-  .card { height: 280px; }
-  /* Make overlay always visible on mobile (no hover) */
+  /* ── STUDENT CARDS ── */
+  .cards-container { grid-template-columns: 1fr; gap: 14px; }
+  .card { height: 260px; }
   .overlay {
     opacity: 1;
     transform: translateY(0);
     background: linear-gradient(to top, rgba(0,0,0,0.85), rgba(0,0,0,0.1) 60%, transparent 100%);
   }
 
-  /* GRADES TABLE */
-  .grades-container {
-    overflow-x: auto;
-    border-radius: 16px;
-  }
+  /* ── JOURNAL/GRADES ── */
+  .grades-container { overflow-x: auto; border-radius: 14px; }
   .grades-header {
     flex-direction: column;
     align-items: flex-start;
-    gap: 10px;
-    padding: 0 0 10px 0;
+    gap: 8px;
+    padding: 0 0 8px 0;
   }
-  #gradesTable {
-    min-width: 520px;
-  }
-  th, td { padding: 9px 8px; font-size: 0.82rem; }
+  .grades-header div { display: flex; gap: 6px; flex-wrap: wrap; }
+  #jTable { min-width: 480px; }
+  #jSubjectTabs { gap: 6px; padding-bottom: 2px; }
+  #jSubjectTabs button { padding: 7px 13px !important; font-size: 0.8rem !important; }
+  #teacherLoginPanel { padding: 18px 16px; gap: 10px; flex-direction: column; }
+  #teacherLoginPanel input { width: 100% !important; }
+  #teacherLoginPanel button { width: 100%; }
+  #teacherToolbar { padding: 14px 16px !important; }
+  #jAddSubjectBar { padding: 12px 14px !important; }
+  #jStats { gap: 8px; }
+  #jStats > div { min-width: 80px !important; padding: 10px 10px !important; }
 
-  /* HOMEWORK */
+  /* ── HOMEWORK ── */
   .hw-topbar {
     flex-direction: column;
     align-items: flex-start;
     gap: 10px;
-    padding: 18px 18px;
-  }
-  .hw-topbar h3 { font-size: 1.2rem; }
-  .hw-form-bar {
-    flex-direction: column;
     padding: 16px 16px;
-    gap: 12px;
   }
-  .hw-input-group { flex: unset; width: 100%; }
-  .hw-add-btn { width: 100%; padding: 13px; font-size: 1rem; }
-  .hw-filter-bar { padding: 10px 14px; gap: 6px; }
-  .hw-filter-btn { padding: 5px 12px; font-size: 0.76rem; }
-  .hw-list { padding: 14px 14px; }
-  .hw-item { padding: 12px 14px; gap: 10px; }
-  .hw-footer { padding: 10px 16px; font-size: 0.74rem; }
+  .hw-topbar h3 { font-size: 1.15rem; }
+  .hw-wa-broadcast { width: 100%; justify-content: center; padding: 10px; }
   .hw-stats { flex-wrap: wrap; gap: 6px; }
-  .hw-stat-chip { font-size: 0.75rem; padding: 4px 12px; }
-
-  /* ATTENDANCE */
-  .att-topbar {
-    flex-direction: column;
-    align-items: flex-start;
-    padding: 16px 16px;
+  .hw-stat-chip { font-size: 0.73rem; padding: 4px 10px; }
+  #hwTeacherNotice { flex-direction: column; align-items: flex-start; gap: 8px; padding: 12px 16px; }
+  #hwTeacherNotice button { width: 100%; margin-left: 0 !important; }
+  #hwTeacherLogin { flex-direction: column; padding: 12px 16px; }
+  #hwTeacherLogin input { width: 100% !important; }
+  #hwTeacherLogin button { width: 100%; }
+  #hwTeacherBadge { flex-direction: column; align-items: flex-start; gap: 8px; padding: 12px 16px; }
+  #hwTeacherBadge button { width: 100%; margin-left: 0 !important; }
+  .hw-form-bar {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      "title title"
+      "subject due"
+      "btn btn";
+    padding: 14px 16px;
     gap: 10px;
   }
-  .att-topbar h3 { font-size: 1.2rem; }
-  .att-stats { flex-wrap: wrap; gap: 6px; }
-  .att-stat-chip { font-size: 0.74rem; padding: 4px 10px; }
-  .att-controls { padding: 14px 14px; }
-  .att-search { min-width: 0; }
-  .att-legend { padding: 10px 14px; gap: 8px; }
-  .att-table-wrap { overflow-x: auto; }
-  .att-table { min-width: 480px; }
-  .att-table thead th { padding: 10px 10px; font-size: 0.75rem; }
-  .att-table td { padding: 10px 10px; font-size: 0.82rem; }
-  .att-footer { padding: 10px 14px; }
+  .hw-form-bar .hw-input-group:first-child { grid-area: title; }
+  .hw-form-bar .hw-input-group:nth-child(2) { grid-area: subject; }
+  .hw-form-bar .hw-input-group:nth-child(3) { grid-area: due; }
+  .hw-form-bar .hw-add-btn { grid-area: btn; }
+  .hw-input-group { flex: unset; width: 100%; }
+  .hw-add-btn { width: 100%; padding: 13px; font-size: 0.95rem; }
+  .hw-filter-bar { padding: 10px 12px; gap: 5px; flex-wrap: wrap; }
+  .hw-filter-btn { padding: 5px 11px; font-size: 0.75rem; }
+  .hw-list { padding: 12px 12px; gap: 8px; }
+  .hw-item { padding: 11px 12px; gap: 8px; flex-wrap: nowrap; }
+  .hw-title { font-size: 0.88rem; }
+  .hw-footer { padding: 10px 14px; flex-direction: column; gap: 4px; }
 
-  /* PROFILE */
-  .profile-hero {
-    flex-direction: column;
-    padding: 24px 20px;
-    gap: 16px;
-    text-align: center;
-    align-items: center;
-  }
-  .profile-rank-badge { position: static; margin: 0 auto; }
-  .profile-name { font-size: 1.5rem; }
-  .profile-body { padding: 18px 16px; gap: 14px; grid-template-columns: 1fr 1fr; }
-  .profile-stat-block { padding: 14px 14px; }
-  .profile-subjects, .profile-insights { grid-column: 1 / -1; padding: 16px 16px; }
-  .subject-name { width: 100px; font-size: 0.78rem; }
-  .profile-selector-wrap { gap: 10px; }
-  .profile-select { font-size: 0.9rem; padding: 12px 14px; }
+  /* ── ATTENDANCE ── */
+  .att-topbar { flex-direction: column; align-items: flex-start; padding: 14px 14px; gap: 8px; }
+  .att-topbar h3 { font-size: 1.15rem; }
+  .att-stats { flex-wrap: wrap; gap: 5px; }
+  .att-stat-chip { font-size: 0.72rem; padding: 4px 9px; }
+  .att-controls { padding: 12px 14px; flex-direction: row; flex-wrap: wrap; gap: 8px; }
+  .att-search { flex: 1 1 auto; min-width: 0; max-width: 100%; padding: 10px 12px; font-size: 0.85rem; }
+  .att-btn { flex-shrink: 0; padding: 10px 14px; font-size: 0.82rem; width: auto; }
+  .att-legend { padding: 8px 14px; gap: 6px; flex-wrap: wrap; }
+  .att-legend-label { display: none; }
+  .status-chip { font-size: 0.72rem; padding: 3px 10px; }
+  .att-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .att-table { min-width: 440px; }
+  .att-table thead th { padding: 10px 8px; font-size: 0.74rem; }
+  .att-table td { padding: 9px 8px; font-size: 0.82rem; }
+  .att-action-btn { width: 30px; height: 30px; font-size: 0.85rem; }
+  .att-footer { padding: 10px 14px; flex-direction: column; gap: 4px; }
+  .att-teacher-badge, .att-student-notice { padding: 8px 14px; font-size: 0.78rem; }
 
-  /* GRADE PREDICTOR */
-  .pred-topbar { padding: 18px 18px; }
-  .pred-topbar h3 { font-size: 1.2rem; }
+  /* ── PROFILE ── */
+  .profile-selector-wrap { gap: 8px; }
+  .profile-select { font-size: 0.88rem; padding: 11px 12px; }
+  .profile-hero { flex-direction: column; padding: 20px 16px; gap: 12px; text-align: center; align-items: center; }
+  .profile-rank-badge { position: static; margin: 0 auto; font-size: 0.88rem; padding: 6px 14px; }
+  .profile-name { font-size: 1.4rem; }
+  .profile-meta-row { justify-content: center; gap: 8px; }
+  .profile-meta-badge { font-size: 0.74rem; padding: 3px 10px; }
+  .profile-body { padding: 16px 14px; gap: 12px; grid-template-columns: 1fr 1fr; }
+  .profile-stat-block { padding: 12px 12px; }
+  .profile-stat-icon { font-size: 1.4rem; }
+  .profile-stat-value { font-size: 1.4rem; }
+  .profile-subjects, .profile-insights { grid-column: 1 / -1; padding: 14px 14px; }
+  .subject-name { width: 90px; font-size: 0.76rem; }
+  .profile-insights-title { font-size: 0.95rem; }
+  .insight-item { font-size: 0.82rem; padding: 8px 10px; }
+
+  /* ── GRADE PREDICTOR ── */
+  .pred-topbar { padding: 16px 16px; }
+  .pred-topbar h3 { font-size: 1.1rem; }
   .pred-body { grid-template-columns: 1fr; }
-  .pred-left, .pred-right { padding: 20px 18px; border-right: none; }
+  .pred-left, .pred-right { padding: 18px 16px; border-right: none; }
   .pred-left { border-bottom: 1px solid #f0f0f0; }
 
-  /* LOGIN */
-  #login { padding: 24px 0 40px; }
-  .login-wrap { flex-direction: column; gap: 20px; }
-  .login-side { padding: 28px 20px; border-radius: 20px; }
-  .login-side-title { font-size: 1.4rem; }
-  .login-card { padding: 24px 20px; border-radius: 20px; }
+  /* ── LOGIN ── */
+  #login { padding: 20px 0 36px; }
+  .login-wrap { flex-direction: column; gap: 16px; }
+  .login-side { padding: 24px 18px; border-radius: 18px; }
+  .login-side-emoji { font-size: 2.5rem; }
+  .login-side-title { font-size: 1.3rem; }
+  .login-side-sub { font-size: 0.85rem; }
+  .login-card { padding: 22px 18px; border-radius: 18px; }
   .login-title { font-size: 1.3rem; }
-  .lf-submit, .lf-pin-btn { padding: 12px; }
+  .lf-submit, .lf-pin-btn { padding: 13px; font-size: 0.95rem; }
+  .lf-input { font-size: 0.95rem; padding: 11px 14px 11px 38px; }
 
-  /* FOOTER */
-  footer { font-size: 0.78rem; padding: 20px 16px; }
+  /* ── GUESTBOOK ── */
+  .gb-form-area { padding: 18px 16px; }
+  .gb-form-row { flex-direction: column; }
+  .gb-form-row input, .gb-form-row textarea { width: 100%; }
 
-  /* PIN OVERLAY */
-  #pin-box { padding: 36px 24px 32px; }
+  /* ── FOOTER ── */
+  footer { font-size: 0.76rem; padding: 18px 14px; }
+
+  /* ── PIN OVERLAY ── */
+  #pin-box { padding: 32px 20px 28px; }
+  #pin-title { font-size: 1.2rem; }
   .pin-cell { width: 40px; height: 50px; font-size: 1.3rem; }
   #pin-inputs { gap: 7px; }
 }
 
 @media (max-width: 420px) {
   .class-title h1 { font-size: 1.6rem; }
-  .header-badges { flex-direction: column; gap: 6px; }
-  .badge { font-size: 0.72rem; padding: 5px 10px; }
+  .header-badges { flex-direction: row; flex-wrap: wrap; }
+  .badge { font-size: 0.68rem; padding: 4px 9px; }
 
   .profile-body { grid-template-columns: 1fr; }
-
-  nav a { padding: 11px 10px; font-size: 0.75rem; }
+  .profile-stat-value { font-size: 1.2rem; }
 
   .pin-cell { width: 36px; height: 46px; font-size: 1.2rem; }
-  #pin-inputs { gap: 6px; }
+  #pin-inputs { gap: 5px; }
 
-  .grades-container { font-size: 0.8rem; }
-  th, td { padding: 7px 6px; }
+  th, td { padding: 7px 5px; font-size: 0.78rem; }
+  .today-card { padding: 14px 12px; }
+  .today-day-name { font-size: 1.2rem; }
 
-  .today-card { padding: 16px 14px; }
+  .hw-item { gap: 6px; padding: 10px 10px; }
+  .hw-wa-btn, .hw-delete-btn { width: 26px; height: 26px; }
+
+  #jStats > div { min-width: 70px !important; font-size: 0.68rem; }
+  
+  .section-label { font-size: 1.1rem; }
 }
 
 </style>
@@ -2858,17 +2891,50 @@ tr:nth-child(even) {
 </header>
 
 <nav>
-  <a href="#welcome">Домой</a>
-  <a href="#announcements">Объявления</a>
-  <a href="#today">Сегодня</a>
-  <a href="#schedule">Расписание</a>
-  <a href="#work">Список учеников</a>
-  <a href="#homework">Домашние задания</a>
-  <a href="#attendance">Прогулы</a>
-  <a href="#profile-section">Профиль</a>
-  <!-- <a href="#guestbook">Гостевая книга</a> -->
-  <a href="#login">Войти</a>
+  <span class="nav-brand">🏫 10А</span>
+  <button class="nav-hamburger" id="navHamburger" onclick="toggleNav(event)" aria-label="Меню">
+    <span></span><span></span><span></span>
+  </button>
+  <div class="nav-links" id="navLinks" onclick="handleNavOverlay(event)">
+    <div class="nav-links-inner">
+      <a href="#welcome" onclick="closeNav()">🏠 Домой</a>
+      <a href="#announcements" onclick="closeNav()">📢 Объявления</a>
+      <a href="#today" onclick="closeNav()">📅 Сегодня</a>
+      <a href="#schedule" onclick="closeNav()">🗓 Расписание</a>
+      <a href="#work" onclick="closeNav()">👥 Список учеников</a>
+      <a href="#homework" onclick="closeNav()">📝 Домашние задания</a>
+      <a href="#attendance" onclick="closeNav()">📋 Прогулы</a>
+      <a href="#profile-section" onclick="closeNav()">🧠 Профиль</a>
+      <a href="#login" onclick="closeNav()">🔑 Войти</a>
+    </div>
+  </div>
 </nav>
+<script>
+function toggleNav(e) {
+  if (e) e.stopPropagation();
+  const links = document.getElementById('navLinks');
+  const btn = document.getElementById('navHamburger');
+  const isOpen = links.classList.contains('open');
+  if (isOpen) {
+    links.classList.remove('open');
+    btn.classList.remove('open');
+    document.body.style.overflow = '';
+  } else {
+    links.classList.add('open');
+    btn.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+}
+function closeNav() {
+  document.getElementById('navLinks').classList.remove('open');
+  document.getElementById('navHamburger').classList.remove('open');
+  document.body.style.overflow = '';
+}
+function handleNavOverlay(e) {
+  // Закрыть если тапнули на тёмный фон (не на панель)
+  if (e.target === document.getElementById('navLinks')) closeNav();
+}
+</script>
 
 <main>
 
@@ -3352,7 +3418,7 @@ tr:nth-child(even) {
     </div>
 
     <!-- ПАНЕЛЬ УЧИТЕЛЯ: управление -->
-    <div id="teacherToolbar" style="display:none;background:linear-gradient(135deg,#17174d,#2d225e);border-radius:20px;padding:20px 28px;margin-bottom:20px;flex-wrap:wrap;gap:14px;align-items:center;">
+    <div id="teacherToolbar" style="display:none;background:linear-gradient(135deg,#17174d,#2d225e);border-radius:20px;padding:20px 28px;margin-bottom:20px;flex-wrap:wrap;gap:14px;align-items:center;flex-direction:row;">
       <span style="color:#fff;font-weight:800;font-size:1rem;">✅ Режим учителя</span>
       <div style="flex:1;"></div>
       <input id="jNewDate" type="date" style="padding:10px 14px;border-radius:10px;border:none;font-size:.9rem;font-weight:700;cursor:pointer;"/>
@@ -3425,9 +3491,11 @@ tr:nth-child(even) {
     }
 
     function saveDb() {
-      // Сохраняем в Firebase
       if (window.firebaseDB) {
-        window.firebaseDB.ref('journal').set(db).catch(e => console.error('Firebase save error:', e));
+        // Убеждаемся что subjects — массив перед сохранением
+        const toSave = JSON.parse(JSON.stringify(db));
+        if (!Array.isArray(toSave.subjects)) toSave.subjects = Object.values(toSave.subjects || {});
+        window.firebaseDB.ref('journal').set(toSave).catch(e => console.error('Firebase save error:', e));
       }
     }
 
@@ -3443,9 +3511,18 @@ tr:nth-child(even) {
       const v = document.getElementById("teacherPassInput").value;
       if (v === PASS) {
         isTeacher = true;
+        // Также включить режим учителя для ДЗ
+        window.hwIsTeacher = true;
+        const hwNotice = document.getElementById('hwTeacherNotice');
+        const hwBadge = document.getElementById('hwTeacherBadge');
+        const hwForm = document.getElementById('hwFormBar');
+        if (hwNotice) hwNotice.style.display = 'none';
+        if (hwBadge) hwBadge.style.display = 'flex';
+        if (hwForm) hwForm.style.display = 'flex';
+        if (typeof render === 'function') render();
         document.getElementById("teacherLoginPanel").style.display = "none";
-        document.getElementById("teacherToolbar").style.display = "flex";
-        document.getElementById("jAddSubjectBar").style.display = "flex";
+        document.getElementById("teacherToolbar").style.cssText = "display:flex;background:linear-gradient(135deg,#17174d,#2d225e);border-radius:20px;padding:20px 28px;margin-bottom:20px;flex-wrap:wrap;gap:14px;align-items:center;flex-direction:row;";
+        document.getElementById("jAddSubjectBar").style.cssText = "display:flex;background:#fff;border-radius:14px;padding:14px 20px;margin-bottom:16px;box-shadow:0 2px 10px rgba(0,0,0,.07);gap:10px;align-items:center;flex-wrap:wrap;";
         document.getElementById("jNewDate").value = new Date().toISOString().split("T")[0];
         render();
       } else {
@@ -3660,12 +3737,27 @@ tr:nth-child(even) {
           const val = snap.val();
           if (val) {
             db = val;
-            if (db.subjects) {
-              db.subjects.forEach(s => {
-                if (!db.journal[s]) db.journal[s] = { dates: [], grades: {} };
-                STUDENTS.forEach(n => { if (!db.journal[s].grades[n]) db.journal[s].grades[n] = []; });
-              });
+            // Firebase может вернуть subjects как объект вместо массива
+            if (db.subjects && !Array.isArray(db.subjects)) {
+              db.subjects = Object.values(db.subjects);
             }
+            if (!db.subjects) db.subjects = [];
+            // Firebase может вернуть grades[name] как объект вместо массива
+            db.subjects.forEach(s => {
+              if (!db.journal) db.journal = {};
+              if (!db.journal[s]) db.journal[s] = { dates: [], grades: {} };
+              const j = db.journal[s];
+              // dates тоже может быть объектом
+              if (j.dates && !Array.isArray(j.dates)) j.dates = Object.values(j.dates);
+              if (!j.dates) j.dates = [];
+              if (!j.grades) j.grades = {};
+              STUDENTS.forEach(n => {
+                if (!j.grades[n]) j.grades[n] = [];
+                if (!Array.isArray(j.grades[n])) j.grades[n] = Object.values(j.grades[n]);
+                // Заполнить до длины dates
+                while (j.grades[n].length < j.dates.length) j.grades[n].push(null);
+              });
+            });
           } else {
             initDb();
           }
@@ -3693,10 +3785,35 @@ tr:nth-child(even) {
           <span class="hw-stat-chip" id="hwStatActive">Активных: 0</span>
           <span class="hw-stat-chip" id="hwStatOverdue">⚠️ Просрочено: 0</span>
         </div>
+        <button class="hw-wa-broadcast" onclick="hwSendAllWA()" title="Отправить все активные ДЗ в WhatsApp">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+          Отправить ДЗ
+        </button>
+      </div>
+
+      <!-- Уведомление для учеников (только для не-учителей) -->
+      <div id="hwTeacherNotice" style="padding:14px 28px;background:#f0fdf4;border-bottom:1px solid #d1fae5;display:flex;align-items:center;gap:10px;font-size:.88rem;font-weight:700;color:#059669;">
+        🔒 Только учитель может добавлять домашние задания.
+        <button onclick="hwShowTeacherLogin()" style="margin-left:auto;padding:8px 16px;background:#10b981;color:#fff;border:none;border-radius:10px;font-weight:800;cursor:pointer;font-size:.82rem;">🎓 Войти как учитель</button>
+      </div>
+
+      <!-- Панель входа учителя для ДЗ -->
+      <div id="hwTeacherLogin" style="display:none;padding:14px 28px;background:#f8f7ff;border-bottom:1px solid #e0d8f8;display:none;align-items:center;gap:10px;flex-wrap:wrap;">
+        <span style="font-weight:800;color:#17174d;">🔐 Пароль учителя:</span>
+        <input id="hwTeacherPass" type="password" placeholder="Введите пароль" style="padding:9px 14px;border-radius:10px;border:2px solid #e0d8f8;font-size:.88rem;width:180px;" onkeydown="if(event.key==='Enter')hwTeacherAuth()"/>
+        <button onclick="hwTeacherAuth()" style="padding:9px 18px;background:#A855F7;color:#fff;border:none;border-radius:10px;font-weight:800;cursor:pointer;">Войти ✓</button>
+        <button onclick="hwHideTeacherLogin()" style="padding:9px 16px;background:#f1f5f9;color:#64748b;border:2px solid #e2e8f0;border-radius:10px;font-weight:800;cursor:pointer;">Отмена</button>
+        <div id="hwTeacherPassError" style="display:none;color:#ef4444;font-weight:700;font-size:.82rem;width:100%;">❌ Неверный пароль</div>
+      </div>
+
+      <!-- Статус учителя в ДЗ -->
+      <div id="hwTeacherBadge" style="display:none;padding:10px 28px;background:linear-gradient(135deg,#064e3b,#065f46);color:#fff;font-weight:800;font-size:.85rem;align-items:center;gap:10px;">
+        ✅ Режим учителя — вы можете добавлять и удалять задания
+        <button onclick="hwTeacherLogout()" style="margin-left:auto;padding:6px 14px;background:rgba(255,255,255,.15);color:#fff;border:2px solid rgba(255,255,255,.3);border-radius:8px;font-weight:800;cursor:pointer;font-size:.8rem;">Выйти</button>
       </div>
 
       <!-- Форма добавления -->
-      <div class="hw-form-bar">
+      <div class="hw-form-bar" id="hwFormBar" style="display:none">
         <div class="hw-input-group" style="flex:2 1 220px">
           <label>Задание</label>
           <input class="hw-input" id="hwTitle" type="text" placeholder="Напр.: Параграф 12, задачи 1–5" maxlength="120"/>
@@ -4800,7 +4917,9 @@ tr:nth-child(even) {
 
     function save() {
       if (window.firebaseDB) {
-        window.firebaseDB.ref('guestbook').set(messages).catch(e => console.error(e));
+        const obj = {};
+        messages.forEach(m => { obj['msg_' + m.ts] = m; });
+        window.firebaseDB.ref('guestbook').set(obj).catch(e => console.error(e));
       }
     }
 
@@ -4914,7 +5033,14 @@ tr:nth-child(even) {
     function initGuestbook() {
       if (window.firebaseDB) {
         window.firebaseDB.ref('guestbook').on('value', snap => {
-          messages = snap.val() || [];
+          const val = snap.val();
+          if (!val) {
+            messages = [];
+          } else if (Array.isArray(val)) {
+            messages = val;
+          } else {
+            messages = Object.values(val).sort((a, b) => (a.ts || 0) - (b.ts || 0));
+          }
           render();
         });
       } else {
@@ -4963,7 +5089,10 @@ function loadAttData() {
 }
 function saveAttData() {
   if (window.firebaseDB) {
-    window.firebaseDB.ref('attendance').set(students).catch(e => console.error(e));
+    // Сохраняем как объект по ключу-имени, чтобы Firebase не конвертировал массив
+    const obj = {};
+    students.forEach(s => { obj[s.name.replace(/\s+/g,'_')] = s; });
+    window.firebaseDB.ref('attendance').set(obj).catch(e => console.error(e));
   }
   updateLastSaved();
 }
@@ -5075,8 +5204,17 @@ function initAttendance() {
   if (window.firebaseDB) {
     window.firebaseDB.ref('attendance').on('value', snap => {
       const val = snap.val();
-      if (val && Array.isArray(val) && val.length > 0) {
-        students = val;
+      if (val && typeof val === 'object') {
+        // Firebase может вернуть объект или массив — обрабатываем оба случая
+        const arr = Array.isArray(val) ? val : Object.values(val);
+        if (arr.length > 0) {
+          // Восстанавливаем порядок из STUDENTS_DEFAULT
+          const map = {};
+          arr.forEach(s => { if (s && s.name) map[s.name] = s; });
+          students = STUDENTS_DEFAULT.map(def => map[def.name] || def);
+        } else {
+          students = loadAttData();
+        }
       } else {
         students = loadAttData();
       }
@@ -5374,17 +5512,67 @@ function renderProfile() {
 (function() {
   let tasks = [];
   let currentFilter = 'all';
+  window.hwIsTeacher = false;
+
+  // ── Учитель для ДЗ ──
+  const HW_TEACHER_PASS = "10a2025"; // тот же пароль что и для журнала
+
+  window.hwShowTeacherLogin = function() {
+    document.getElementById('hwTeacherNotice').style.display = 'none';
+    const loginDiv = document.getElementById('hwTeacherLogin');
+    loginDiv.style.display = 'flex';
+  };
+  window.hwHideTeacherLogin = function() {
+    document.getElementById('hwTeacherLogin').style.display = 'none';
+    document.getElementById('hwTeacherNotice').style.display = 'flex';
+    document.getElementById('hwTeacherPassError').style.display = 'none';
+  };
+  window.hwTeacherAuth = function() {
+    const val = document.getElementById('hwTeacherPass').value;
+    if (val === HW_TEACHER_PASS) {
+      window.hwIsTeacher = true;
+      document.getElementById('hwTeacherLogin').style.display = 'none';
+      document.getElementById('hwTeacherNotice').style.display = 'none';
+      const badge = document.getElementById('hwTeacherBadge');
+      badge.style.display = 'flex';
+      document.getElementById('hwFormBar').style.display = 'flex';
+      document.getElementById('hwTeacherPass').value = '';
+      render();
+    } else {
+      document.getElementById('hwTeacherPassError').style.display = 'block';
+      document.getElementById('hwTeacherPass').value = '';
+      setTimeout(() => { document.getElementById('hwTeacherPassError').style.display = 'none'; }, 2500);
+    }
+  };
+  window.hwTeacherLogout = function() {
+    window.hwIsTeacher = false;
+    document.getElementById('hwTeacherBadge').style.display = 'none';
+    document.getElementById('hwFormBar').style.display = 'none';
+    document.getElementById('hwTeacherNotice').style.display = 'flex';
+    render();
+  };
 
   function save() {
     if (window.firebaseDB) {
-      window.firebaseDB.ref('homework').set(tasks).catch(e => console.error(e));
+      // Сохраняем как объект {id: task} чтобы Firebase не конвертировал массив
+      const obj = {};
+      tasks.forEach(t => { obj[t.id] = t; });
+      window.firebaseDB.ref('homework').set(obj).catch(e => console.error(e));
     }
   }
 
   function initHW() {
     if (window.firebaseDB) {
       window.firebaseDB.ref('homework').on('value', snap => {
-        tasks = snap.val() || [];
+        const val = snap.val();
+        // Firebase может вернуть объект вместо массива — конвертируем обратно
+        if (!val) {
+          tasks = [];
+        } else if (Array.isArray(val)) {
+          tasks = val;
+        } else {
+          tasks = Object.values(val);
+        }
         render();
       });
     } else {
@@ -5462,7 +5650,10 @@ function renderProfile() {
             ${deadlineText}
           </div>
           ${badge}
-          <button class="hw-delete-btn" onclick="hwDelete(${realIdx})" title="Удалить">✕</button>
+          <a class="hw-wa-btn" href="${hwBuildWALink(t)}" target="_blank" title="Отправить в WhatsApp" rel="noopener">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+          </a>
+          ${window.hwIsTeacher ? `<button class="hw-delete-btn" onclick="hwDelete(${realIdx})" title="Удалить">✕</button>` : ''}
         </div>`;
       }).join('');
     }
@@ -5479,6 +5670,7 @@ function renderProfile() {
   }
 
   window.hwAdd = function() {
+    if (!window.hwIsTeacher) { alert('Только учитель может добавлять задания!'); return; }
     const titleEl = document.getElementById('hwTitle');
     const subjectEl = document.getElementById('hwSubject');
     const dueEl = document.getElementById('hwDue');
@@ -5497,6 +5689,7 @@ function renderProfile() {
   };
 
   window.hwDelete = function(idx) {
+    if (!window.hwIsTeacher) return;
     if (!tasks[idx]) return;
     tasks.splice(idx, 1);
     save(); render();
@@ -5523,6 +5716,25 @@ function renderProfile() {
 
   // Авто-обновление каждую минуту (статусы меняются в полночь)
   setInterval(() => render(), 60000);
+
+  // ── WhatsApp helpers ──
+  function hwBuildWALink(task) {
+    const due = task.due ? formatDate(task.due) : 'без срока';
+    const msg = `📚 *ДЗ по ${task.subject}*\n${task.title}\n📅 Срок: ${due}`;
+    return 'https://wa.me/?text=' + encodeURIComponent(msg);
+  }
+  window.hwBuildWALink = hwBuildWALink;
+
+  window.hwSendAllWA = function() {
+    const active = tasks.filter(t => { const s = getStatus(t); return s === 'active' || s === 'soon'; });
+    if (!active.length) { alert('Нет активных заданий для отправки!'); return; }
+    const lines = active.map(t => {
+      const due = t.due ? formatDate(t.due) : 'без срока';
+      return `📚 *${t.subject}:* ${t.title} (до ${due})`;
+    });
+    const msg = `📝 *Домашние задания 10А*\n\n` + lines.join('\n');
+    window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
+  };
 })();
 </script>
 
