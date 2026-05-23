@@ -2935,9 +2935,12 @@ tr:nth-child(even) {
       <a href="#schedule" onclick="closeNav()">🗓 Расписание</a>
       <a href="#work" onclick="closeNav()">👥 Список учеников</a>
       <a href="#homework" onclick="closeNav()">📝 Домашние задания</a>
+      <a href="#chat-section" onclick="showSection('chat-section');closeNav()">💬 Чат класса</a>
       <a href="#attendance" onclick="closeNav()">📋 Прогулы</a>
       <a href="#profile-section" onclick="closeNav()">🧠 Профиль</a>
-      <a href="#login" onclick="closeNav()">🔑 Войти</a>
+      <a href="#my-profile" onclick="showSection('my-profile');closeNav()">👤 Мой профиль</a>
+      <a href="#settings-section" onclick="showSection('settings-section');closeNav()">⚙️ Настройки</a>
+      <a href="#login" onclick="showSection('login');closeNav()">🔑 Войти</a>
     </div>
   </div>
 </nav>
@@ -2966,6 +2969,21 @@ function handleNavOverlay(e) {
   // Закрыть если тапнули на тёмный фон (не на панель)
   if (e.target === document.getElementById('navLinks')) closeNav();
 }
+
+// Скрытые секции — показывать только по нажатию
+const HIDDEN_SECTIONS = ['my-profile', 'login', 'settings-section', 'chat-section'];
+function showSection(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.style.display = '';
+  setTimeout(() => el.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+}
+document.addEventListener('DOMContentLoaded', function() {
+  HIDDEN_SECTIONS.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = 'none';
+  });
+});
 </script>
 
 <main>
@@ -3897,6 +3915,780 @@ function handleNavOverlay(e) {
       </div>
     </div>
   </section>
+
+<!-- ══════════════════════════════════════════
+     МОЙ ПРОФИЛЬ — секция
+══════════════════════════════════════════ -->
+<style>
+#my-profile { margin-bottom: 64px; }
+
+.myp-wrap {
+  background: #fff;
+  border-radius: 24px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.10);
+  overflow: hidden;
+}
+
+/* Шапка профиля */
+.myp-header {
+  background: linear-gradient(135deg, #17174d 0%, #2d225e 60%, #A855F7 100%);
+  padding: 36px 32px 24px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+  position: relative;
+  overflow: hidden;
+}
+.myp-header::after {
+  content: '✨';
+  font-size: 100px;
+  position: absolute;
+  right: 24px; top: -10px;
+  opacity: 0.12;
+  pointer-events: none;
+}
+
+.myp-avatar-wrap { position: relative; flex-shrink: 0; }
+.myp-avatar {
+  width: 84px; height: 84px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #A855F7, #6366f1);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 2.2rem;
+  font-weight: 900;
+  color: #fff;
+  border: 4px solid rgba(255,255,255,0.3);
+  cursor: pointer;
+  transition: transform 0.2s;
+  user-select: none;
+}
+.myp-avatar:hover { transform: scale(1.07); }
+.myp-avatar-edit {
+  position: absolute;
+  bottom: 0; right: 0;
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  background: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+.myp-header-info { flex: 1; min-width: 200px; }
+.myp-name {
+  font-size: 1.6rem;
+  font-weight: 900;
+  color: #fff;
+  margin-bottom: 4px;
+}
+.myp-status-display {
+  color: rgba(255,255,255,0.8);
+  font-size: 0.9rem;
+  margin-bottom: 10px;
+  font-style: italic;
+}
+.myp-badges-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.myp-badge {
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.25);
+  color: #fff;
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+/* Вкладки */
+.myp-tabs {
+  display: flex;
+  border-bottom: 2px solid #f0eeff;
+  background: #fafafa;
+}
+.myp-tab {
+  flex: 1;
+  padding: 14px 8px;
+  background: none;
+  border: none;
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: #999;
+  cursor: pointer;
+  transition: all 0.2s;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+}
+.myp-tab.active { color: #A855F7; border-bottom-color: #A855F7; background: #fff; }
+.myp-tab:hover:not(.active) { background: #f5f0ff; color: #7c3aed; }
+
+.myp-panel { display: none; padding: 28px 28px 32px; }
+.myp-panel.active { display: block; }
+
+/* Поля формы */
+.myp-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+@media(max-width: 540px) { .myp-grid { grid-template-columns: 1fr; } }
+
+.myp-field { display: flex; flex-direction: column; gap: 6px; }
+.myp-field.full { grid-column: 1 / -1; }
+.myp-label {
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.myp-input, .myp-select, .myp-textarea {
+  border: 2px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 0.92rem;
+  font-family: sans-serif;
+  color: #17174d;
+  transition: border 0.2s;
+  background: #fafafa;
+  outline: none;
+  width: 100%;
+}
+.myp-input:focus, .myp-select:focus, .myp-textarea:focus {
+  border-color: #A855F7;
+  background: #fff;
+}
+.myp-textarea { resize: vertical; min-height: 72px; }
+
+/* Цветовой аватар */
+.myp-color-row {
+  display: flex; gap: 10px; flex-wrap: wrap; margin-top: 4px;
+}
+.myp-color-btn {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  border: 3px solid transparent;
+  cursor: pointer;
+  transition: transform 0.15s, border-color 0.15s;
+}
+.myp-color-btn:hover { transform: scale(1.15); }
+.myp-color-btn.selected { border-color: #17174d; transform: scale(1.18); }
+
+/* Настройки */
+.myp-setting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 0;
+  border-bottom: 1px solid #f0eeff;
+}
+.myp-setting-row:last-child { border-bottom: none; }
+.myp-setting-label { font-weight: 700; font-size: 0.92rem; }
+.myp-setting-sub { font-size: 0.78rem; color: #aaa; margin-top: 2px; }
+
+/* Toggle switch */
+.myp-toggle {
+  position: relative;
+  width: 44px; height: 24px;
+  flex-shrink: 0;
+}
+.myp-toggle input { opacity: 0; width: 0; height: 0; }
+.myp-toggle-slider {
+  position: absolute;
+  inset: 0;
+  background: #ddd;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.25s;
+}
+.myp-toggle-slider::before {
+  content: '';
+  position: absolute;
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  background: #fff;
+  top: 3px; left: 3px;
+  transition: transform 0.25s;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+}
+.myp-toggle input:checked + .myp-toggle-slider { background: #A855F7; }
+.myp-toggle input:checked + .myp-toggle-slider::before { transform: translateX(20px); }
+
+/* ══════════════════════════════════════════
+   ТЁМНАЯ ТЕМА — полная красивая версия
+══════════════════════════════════════════ */
+body.dark-mode {
+  background: #0d0d1a !important;
+  color: #e2e8f0 !important;
+}
+
+/* Навигация */
+body.dark-mode nav,
+body.dark-mode #navLinks { background: #13131f !important; border-bottom: 1px solid #1e1e35 !important; }
+body.dark-mode nav a { color: #c4b5fd !important; }
+body.dark-mode .hamburger span { background: #e2e8f0 !important; }
+
+/* Основной фон */
+body.dark-mode main { background: #0d0d1a !important; }
+body.dark-mode footer { background: #13131f !important; color: #6b7280 !important; }
+
+/* Карточки и блоки */
+body.dark-mode .hw-item,
+body.dark-mode .day-card,
+body.dark-mode .announce-card,
+body.dark-mode .res-card,
+body.dark-mode .work-card,
+body.dark-mode .student-card,
+body.dark-mode .grade-card,
+body.dark-mode .guestbook-item,
+body.dark-mode .attendance-row,
+body.dark-mode .schedule-day,
+body.dark-mode .profile-card {
+  background: #1a1a2e !important;
+  color: #e2e8f0 !important;
+  border-color: #2a2a45 !important;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.4) !important;
+}
+
+/* Заголовки секций */
+body.dark-mode .section-label { color: #c4b5fd !important; }
+body.dark-mode .section-label .dot { opacity: 0.9; }
+
+/* Тексты */
+body.dark-mode h1, body.dark-mode h2, body.dark-mode h3,
+body.dark-mode .hw-title, body.dark-mode .hw-subject,
+body.dark-mode .card-title, body.dark-mode .announce-title {
+  color: #f1f5f9 !important;
+}
+body.dark-mode p, body.dark-mode span, body.dark-mode div {
+  color: inherit;
+}
+body.dark-mode .hw-meta, body.dark-mode .text-muted,
+body.dark-mode .sub-text, body.dark-mode small {
+  color: #94a3b8 !important;
+}
+
+/* Инпуты и селекты */
+body.dark-mode input:not([type=checkbox]):not([type=radio]):not([type=range]),
+body.dark-mode select,
+body.dark-mode textarea {
+  background: #1e1e35 !important;
+  border-color: #2d2d50 !important;
+  color: #e2e8f0 !important;
+}
+body.dark-mode input::placeholder,
+body.dark-mode textarea::placeholder { color: #6b7280 !important; }
+
+/* Кнопки */
+body.dark-mode button:not(.myp-save-btn):not(.st-danger-btn):not(.st-font-btn):not(.myp-color-btn):not(.st-theme-btn):not(.myp-tab) {
+  background: #1e1e35 !important;
+  color: #e2e8f0 !important;
+  border-color: #2d2d50 !important;
+}
+
+/* Профиль */
+body.dark-mode .myp-wrap,
+body.dark-mode .st-wrap { background: #1a1a2e !important; }
+body.dark-mode .myp-input, body.dark-mode .myp-select, body.dark-mode .myp-textarea {
+  background: #1e1e35 !important;
+  border-color: #2d2d50 !important;
+  color: #e2e8f0 !important;
+}
+body.dark-mode .myp-tabs { background: #13131f !important; border-color: #2a2a45 !important; }
+body.dark-mode .myp-tab { color: #94a3b8 !important; }
+body.dark-mode .myp-tab.active { background: #1a1a2e !important; color: #c4b5fd !important; border-bottom-color: #A855F7 !important; }
+body.dark-mode .myp-panel { background: #1a1a2e !important; }
+body.dark-mode .myp-label { color: #94a3b8 !important; }
+body.dark-mode .myp-setting-row { border-color: #2a2a45 !important; }
+body.dark-mode .myp-setting-label { color: #e2e8f0 !important; }
+body.dark-mode .myp-classmate-card { background: #13131f !important; border-color: #2a2a45 !important; }
+body.dark-mode .myp-cm-name { color: #e2e8f0 !important; }
+body.dark-mode .myp-ach { background: #13131f !important; border-color: #2a2a45 !important; }
+body.dark-mode .myp-ach-name { color: #e2e8f0 !important; }
+
+/* Настройки */
+body.dark-mode .st-group { border-color: #2a2a45 !important; }
+body.dark-mode .st-row { border-color: #1e1e35 !important; }
+body.dark-mode .st-label { color: #e2e8f0 !important; }
+body.dark-mode .st-sub { color: #6b7280 !important; }
+body.dark-mode .st-icon { filter: brightness(0.85); }
+body.dark-mode .st-font-btn { background: #1e1e35 !important; border-color: #2d2d50 !important; color: #94a3b8 !important; }
+body.dark-mode .st-font-btn.selected { background: #2d1b69 !important; border-color: #A855F7 !important; color: #c4b5fd !important; }
+body.dark-mode .st-about-box { background: linear-gradient(135deg, #1e1535, #1a1535) !important; border-color: #2d1b69 !important; color: #c4b5fd !important; }
+
+/* Расписание */
+body.dark-mode .schedule-table th { background: #1e1e35 !important; color: #c4b5fd !important; }
+body.dark-mode .schedule-table td { background: #1a1a2e !important; color: #e2e8f0 !important; border-color: #2a2a45 !important; }
+body.dark-mode .schedule-table tr:hover td { background: #22223a !important; }
+
+/* Welcome блок */
+body.dark-mode #welcome { background: linear-gradient(135deg, #13131f, #1a1035) !important; }
+
+/* Разделители */
+body.dark-mode hr { border-color: #2a2a45 !important; }
+body.dark-mode .divider { background: #2a2a45 !important; }
+
+/* Кнопка сохранить */
+.myp-save-btn {
+  background: linear-gradient(135deg, #A855F7, #6366f1);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 28px;
+  font-size: 0.95rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.15s;
+  margin-top: 20px;
+  width: 100%;
+}
+.myp-save-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+.myp-save-btn:active { transform: translateY(0); }
+
+.myp-saved-msg {
+  text-align: center;
+  color: #6BCB77;
+  font-weight: 800;
+  font-size: 0.9rem;
+  margin-top: 10px;
+  height: 20px;
+  transition: opacity 0.4s;
+}
+
+/* Страница одноклассников */
+.myp-classmates-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 14px;
+  margin-top: 4px;
+}
+.myp-classmate-card {
+  background: #f8f6ff;
+  border-radius: 16px;
+  padding: 18px 12px;
+  text-align: center;
+  border: 2px solid #ede9fe;
+  transition: transform 0.2s, box-shadow 0.2s;
+  cursor: default;
+}
+.myp-classmate-card:hover { transform: translateY(-4px); box-shadow: 0 8px 20px rgba(168,85,247,0.15); }
+.myp-cm-avatar {
+  width: 54px; height: 54px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.4rem;
+  font-weight: 900;
+  color: #fff;
+  margin: 0 auto 10px;
+}
+.myp-cm-name { font-size: 0.82rem; font-weight: 800; color: #17174d; margin-bottom: 4px; }
+.myp-cm-status { font-size: 0.72rem; color: #999; font-style: italic; }
+.myp-cm-fav { font-size: 0.72rem; color: #A855F7; font-weight: 700; margin-top: 4px; }
+
+.myp-empty-cm {
+  text-align: center;
+  color: #bbb;
+  padding: 40px;
+  font-size: 0.95rem;
+}
+
+/* Достижения */
+.myp-achievements {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 12px;
+  margin-top: 8px;
+}
+.myp-ach {
+  background: #f8f6ff;
+  border-radius: 14px;
+  padding: 16px 10px;
+  text-align: center;
+  border: 2px solid #ede9fe;
+  opacity: 0.4;
+  transition: opacity 0.3s, transform 0.2s;
+}
+.myp-ach.earned { opacity: 1; border-color: #A855F7; }
+.myp-ach.earned:hover { transform: translateY(-3px); }
+.myp-ach-icon { font-size: 2rem; margin-bottom: 6px; }
+.myp-ach-name { font-size: 0.78rem; font-weight: 800; color: #17174d; }
+.myp-ach-desc { font-size: 0.7rem; color: #999; margin-top: 2px; }
+</style>
+
+<section id="my-profile">
+  <div class="section-label">
+    <span class="dot" style="background:linear-gradient(135deg,#A855F7,#6366f1)"></span>
+    👤 Мой профиль
+  </div>
+
+  <div class="myp-wrap">
+    <!-- Шапка -->
+    <div class="myp-header" id="mypHeader">
+      <div class="myp-avatar-wrap">
+        <div class="myp-avatar" id="mypAvatarBig" onclick="document.querySelector('.myp-tab[data-tab=edit]').click()">А</div>
+        <div class="myp-avatar-edit" onclick="document.querySelector('.myp-tab[data-tab=edit]').click()" title="Редактировать">✏️</div>
+      </div>
+      <div class="myp-header-info">
+        <div class="myp-name" id="mypHeaderName">Ваше имя</div>
+        <div class="myp-status-display" id="mypHeaderStatus">✨ Добавьте статус...</div>
+        <div class="myp-badges-row" id="mypHeaderBadges">
+          <span class="myp-badge" id="mypBadgeFav">📚 —</span>
+          <span class="myp-badge" id="mypBadgeBd">🎂 —</span>
+          <span class="myp-badge" id="mypBadgeCity">📍 —</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Вкладки -->
+    <div class="myp-tabs">
+      <button class="myp-tab active" data-tab="edit" onclick="mypSwitchTab('edit',this)">✏️ Профиль</button>
+      <button class="myp-tab" data-tab="settings" onclick="mypSwitchTab('settings',this)">⚙️ Настройки</button>
+      <button class="myp-tab" data-tab="classmates" onclick="mypSwitchTab('classmates',this)">👥 Класс</button>
+      <button class="myp-tab" data-tab="achievements" onclick="mypSwitchTab('achievements',this)">🏆 Достижения</button>
+    </div>
+
+    <!-- Панель: Редактирование профиля -->
+    <div class="myp-panel active" id="myp-panel-edit">
+      <div class="myp-grid">
+        <div class="myp-field">
+          <label class="myp-label">👤 Имя и фамилия</label>
+          <select class="myp-select" id="mypName">
+            <option value="">— Выберите —</option>
+            <option>Абдурахмонов Иброхим</option>
+            <option>Додоев Хушнуд</option>
+            <option>Зоиров Рауф</option>
+            <option>Имомов Шахром</option>
+            <option>Кобилов Шириншох</option>
+            <option>Кодиров Исроил</option>
+            <option>Косимов Мансур</option>
+            <option>Окилов Хусрав</option>
+            <option>Рахматуллоев Эхром</option>
+            <option>Файзуллоев Мухриддин</option>
+            <option>Файзуллоев Файзулло</option>
+            <option>Хакимов Хасан</option>
+            <option>Хакимов Хусейн</option>
+            <option>Чураев Аскар</option>
+            <option>Юсупов Юсуф</option>
+          </select>
+        </div>
+        <div class="myp-field">
+          <label class="myp-label">📅 Дата рождения</label>
+          <input class="myp-input" type="date" id="mypBirthday"/>
+        </div>
+        <div class="myp-field">
+          <label class="myp-label">📚 Любимый предмет</label>
+          <select class="myp-select" id="mypFavSubject">
+            <option value="">— Выберите —</option>
+            <option>Математика</option>
+            <option>Физика</option>
+            <option>Химия</option>
+            <option>Биология</option>
+            <option>История</option>
+            <option>Английский язык</option>
+            <option>Таджикский язык</option>
+            <option>Русский язык</option>
+            <option>Информатика</option>
+            <option>География</option>
+            <option>Литература</option>
+          </select>
+        </div>
+        <div class="myp-field">
+          <label class="myp-label">📍 Город / район</label>
+          <input class="myp-input" type="text" id="mypCity" placeholder="Душанбе"/>
+        </div>
+        <div class="myp-field full">
+          <label class="myp-label">💬 Статус</label>
+          <input class="myp-input" type="text" id="mypStatus" placeholder="Готовлюсь к ЕГЭ 🔥" maxlength="60"/>
+        </div>
+        <div class="myp-field full">
+          <label class="myp-label">📝 О себе</label>
+          <textarea class="myp-textarea" id="mypAbout" placeholder="Расскажите о себе..." maxlength="200"></textarea>
+        </div>
+        <div class="myp-field full">
+          <label class="myp-label">🎯 Цель на год</label>
+          <input class="myp-input" type="text" id="mypGoal" placeholder="Сдать ЕГЭ на 90+" maxlength="80"/>
+        </div>
+        <div class="myp-field full">
+          <label class="myp-label">🎨 Цвет аватарки</label>
+          <div class="myp-color-row" id="mypColorRow">
+            <div class="myp-color-btn selected" data-color="linear-gradient(135deg,#A855F7,#6366f1)" style="background:linear-gradient(135deg,#A855F7,#6366f1)" onclick="mypSelectColor(this)"></div>
+            <div class="myp-color-btn" data-color="linear-gradient(135deg,#FF6B6B,#f59e0b)" style="background:linear-gradient(135deg,#FF6B6B,#f59e0b)" onclick="mypSelectColor(this)"></div>
+            <div class="myp-color-btn" data-color="linear-gradient(135deg,#4ECDC4,#6BCB77)" style="background:linear-gradient(135deg,#4ECDC4,#6BCB77)" onclick="mypSelectColor(this)"></div>
+            <div class="myp-color-btn" data-color="linear-gradient(135deg,#17174d,#2d225e)" style="background:linear-gradient(135deg,#17174d,#2d225e)" onclick="mypSelectColor(this)"></div>
+            <div class="myp-color-btn" data-color="linear-gradient(135deg,#f59e0b,#ef4444)" style="background:linear-gradient(135deg,#f59e0b,#ef4444)" onclick="mypSelectColor(this)"></div>
+            <div class="myp-color-btn" data-color="linear-gradient(135deg,#06b6d4,#3b82f6)" style="background:linear-gradient(135deg,#06b6d4,#3b82f6)" onclick="mypSelectColor(this)"></div>
+          </div>
+        </div>
+      </div>
+      <button class="myp-save-btn" onclick="mypSave()">💾 Сохранить профиль</button>
+      <div class="myp-saved-msg" id="mypSavedMsg"></div>
+    </div>
+
+    <!-- Панель: Настройки -->
+    <div class="myp-panel" id="myp-panel-settings">
+      <div class="myp-setting-row">
+        <div>
+          <div class="myp-setting-label">🌙 Тёмная тема</div>
+          <div class="myp-setting-sub">Меняет цвет сайта на тёмный</div>
+        </div>
+        <label class="myp-toggle">
+          <input type="checkbox" id="mypDarkMode" onchange="mypToggleDark(this.checked)"/>
+          <span class="myp-toggle-slider"></span>
+        </label>
+      </div>
+      <div class="myp-setting-row">
+        <div>
+          <div class="myp-setting-label">🔔 Уведомления о ДЗ</div>
+          <div class="myp-setting-sub">Push-уведомления когда добавляют новое задание</div>
+        </div>
+        <label class="myp-toggle">
+          <input type="checkbox" id="mypNotifs" onchange="mypToggleNotifs(this.checked)"/>
+          <span class="myp-toggle-slider"></span>
+        </label>
+      </div>
+      <div class="myp-setting-row">
+        <div>
+          <div class="myp-setting-label">👁 Показывать профиль одноклассникам</div>
+          <div class="myp-setting-sub">Если выключить — вас не видно во вкладке "Класс"</div>
+        </div>
+        <label class="myp-toggle">
+          <input type="checkbox" id="mypVisible" checked onchange="mypSaveSettings()"/>
+          <span class="myp-toggle-slider"></span>
+        </label>
+      </div>
+      <div class="myp-setting-row">
+        <div>
+          <div class="myp-setting-label">🎂 Напоминание о днях рождения</div>
+          <div class="myp-setting-sub">Уведомление в день рождения одноклассника</div>
+        </div>
+        <label class="myp-toggle">
+          <input type="checkbox" id="mypBdNotifs" checked onchange="mypSaveSettings()"/>
+          <span class="myp-toggle-slider"></span>
+        </label>
+      </div>
+      <div class="myp-setting-row">
+        <div>
+          <div class="myp-setting-label">🗑 Очистить мой профиль</div>
+          <div class="myp-setting-sub">Удалить все ваши данные из Firebase</div>
+        </div>
+        <button onclick="mypDeleteProfile()" style="background:#fee2e2;border:none;color:#ef4444;font-weight:800;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:0.82rem;">Удалить</button>
+      </div>
+    </div>
+
+    <!-- Панель: Одноклассники -->
+    <div class="myp-panel" id="myp-panel-classmates">
+      <div style="color:#888;font-size:0.82rem;margin-bottom:16px;">👥 Одноклассники которые заполнили профиль:</div>
+      <div class="myp-classmates-grid" id="mypClassmatesGrid">
+        <div class="myp-empty-cm">⏳ Загрузка...</div>
+      </div>
+    </div>
+
+    <!-- Панель: Достижения -->
+    <div class="myp-panel" id="myp-panel-achievements">
+      <div style="color:#888;font-size:0.82rem;margin-bottom:16px;">🏆 Ваши достижения на сайте:</div>
+      <div class="myp-achievements" id="mypAchievements"></div>
+    </div>
+  </div>
+</section>
+
+<script>
+(function() {
+  // ── Данные профиля ──
+  let myProfile = {};
+  let mySettings = {};
+  let myColor = 'linear-gradient(135deg,#A855F7,#6366f1)';
+
+  const ACHIEVEMENTS = [
+    { id:'profile_filled', icon:'📝', name:'Профиль заполнен', desc:'Заполнил все поля' },
+    { id:'first_visit', icon:'🌟', name:'Первый визит', desc:'Зашёл на сайт' },
+    { id:'has_goal', icon:'🎯', name:'Целеустремлённый', desc:'Добавил цель на год' },
+    { id:'has_about', icon:'💬', name:'Открытый', desc:'Написал о себе' },
+    { id:'dark_mode', icon:'🌙', name:'Ночной пользователь', desc:'Включил тёмную тему' },
+    { id:'birthday_set', icon:'🎂', name:'Именинник', desc:'Указал дату рождения' },
+  ];
+
+  // ── Загрузка из localStorage ──
+  function loadLocal() {
+    try {
+      myProfile = JSON.parse(localStorage.getItem('myp_profile') || '{}');
+      mySettings = JSON.parse(localStorage.getItem('myp_settings') || '{}');
+      myColor = myProfile.color || 'linear-gradient(135deg,#A855F7,#6366f1)';
+    } catch(e) {}
+  }
+
+  // ── Обновить шапку профиля ──
+  function updateHeader() {
+    const name = myProfile.name || 'Ваше имя';
+    const letter = name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase() || '?';
+    document.getElementById('mypAvatarBig').textContent = letter;
+    document.getElementById('mypAvatarBig').style.background = myColor;
+    document.getElementById('mypHeaderName').textContent = name;
+    document.getElementById('mypHeaderStatus').textContent = myProfile.status || '✨ Добавьте статус...';
+    document.getElementById('mypBadgeFav').textContent = '📚 ' + (myProfile.favSubject || '—');
+    const bd = myProfile.birthday ? new Date(myProfile.birthday+'T00:00:00').toLocaleDateString('ru-RU',{day:'numeric',month:'long'}) : '—';
+    document.getElementById('mypBadgeBd').textContent = '🎂 ' + bd;
+    document.getElementById('mypBadgeCity').textContent = '📍 ' + (myProfile.city || '—');
+  }
+
+  // ── Заполнить поля формы ──
+  function fillForm() {
+    if(myProfile.name) document.getElementById('mypName').value = myProfile.name;
+    if(myProfile.birthday) document.getElementById('mypBirthday').value = myProfile.birthday;
+    if(myProfile.favSubject) document.getElementById('mypFavSubject').value = myProfile.favSubject;
+    if(myProfile.city) document.getElementById('mypCity').value = myProfile.city;
+    if(myProfile.status) document.getElementById('mypStatus').value = myProfile.status;
+    if(myProfile.about) document.getElementById('mypAbout').value = myProfile.about;
+    if(myProfile.goal) document.getElementById('mypGoal').value = myProfile.goal;
+    // Цвет
+    if(myProfile.color) {
+      myColor = myProfile.color;
+      document.querySelectorAll('.myp-color-btn').forEach(b => {
+        b.classList.toggle('selected', b.dataset.color === myColor);
+      });
+    }
+    // Настройки
+    document.getElementById('mypDarkMode').checked = !!mySettings.darkMode;
+    document.getElementById('mypNotifs').checked = mySettings.notifs !== false;
+    document.getElementById('mypVisible').checked = mySettings.visible !== false;
+    document.getElementById('mypBdNotifs').checked = mySettings.bdNotifs !== false;
+    if(mySettings.darkMode) document.body.classList.add('dark-mode');
+  }
+
+  // ── Сохранить ──
+  window.mypSave = function() {
+    myProfile = {
+      name: document.getElementById('mypName').value,
+      birthday: document.getElementById('mypBirthday').value,
+      favSubject: document.getElementById('mypFavSubject').value,
+      city: document.getElementById('mypCity').value,
+      status: document.getElementById('mypStatus').value,
+      about: document.getElementById('mypAbout').value,
+      goal: document.getElementById('mypGoal').value,
+      color: myColor,
+      updatedAt: Date.now()
+    };
+    localStorage.setItem('myp_profile', JSON.stringify(myProfile));
+
+    // Сохранить в Firebase если профиль виден
+    if(window.firebaseDB && myProfile.name && mySettings.visible !== false) {
+      const key = myProfile.name.replace(/\s+/g,'_');
+      window.firebaseDB.ref('profiles/' + key).set(myProfile);
+    }
+
+    updateHeader();
+    renderAchievements();
+
+    const msg = document.getElementById('mypSavedMsg');
+    msg.textContent = '✅ Профиль сохранён!';
+    setTimeout(() => msg.textContent = '', 2500);
+  };
+
+  // ── Настройки ──
+  window.mypToggleDark = function(on) {
+    document.body.classList.toggle('dark-mode', on);
+    mySettings.darkMode = on;
+    mypSaveSettings();
+    renderAchievements();
+  };
+
+  window.mypToggleNotifs = function(on) {
+    if(on && 'Notification' in window && Notification.permission !== 'granted') {
+      Notification.requestPermission().then(p => {
+        mySettings.notifs = p === 'granted';
+        document.getElementById('mypNotifs').checked = mySettings.notifs;
+        mypSaveSettings();
+      });
+    } else {
+      mySettings.notifs = on;
+      mypSaveSettings();
+    }
+  };
+
+  window.mypSaveSettings = function() {
+    mySettings.visible = document.getElementById('mypVisible').checked;
+    mySettings.bdNotifs = document.getElementById('mypBdNotifs').checked;
+    localStorage.setItem('myp_settings', JSON.stringify(mySettings));
+  };
+
+  window.mypDeleteProfile = function() {
+    if(!confirm('Удалить ваш профиль из Firebase? Локальные данные останутся.')) return;
+    if(window.firebaseDB && myProfile.name) {
+      const key = myProfile.name.replace(/\s+/g,'_');
+      window.firebaseDB.ref('profiles/' + key).remove();
+    }
+    alert('Профиль удалён из Firebase.');
+  };
+
+  // ── Цвет ──
+  window.mypSelectColor = function(btn) {
+    document.querySelectorAll('.myp-color-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    myColor = btn.dataset.color;
+    document.getElementById('mypAvatarBig').style.background = myColor;
+  };
+
+  // ── Вкладки ──
+  window.mypSwitchTab = function(tab, btn) {
+    document.querySelectorAll('.myp-tab').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.myp-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('myp-panel-' + tab).classList.add('active');
+    if(tab === 'classmates') loadClassmates();
+    if(tab === 'achievements') renderAchievements();
+  };
+
+  // ── Одноклассники из Firebase ──
+  function loadClassmates() {
+    const grid = document.getElementById('mypClassmatesGrid');
+    if(!window.firebaseDB) { grid.innerHTML = '<div class="myp-empty-cm">⚠️ Firebase не подключён</div>'; return; }
+    grid.innerHTML = '<div class="myp-empty-cm">⏳ Загрузка...</div>';
+    window.firebaseDB.ref('profiles').once('value', snap => {
+      const data = snap.val();
+      if(!data) { grid.innerHTML = '<div class="myp-empty-cm">😔 Никто ещё не заполнил профиль</div>'; return; }
+      const profiles = Object.values(data).filter(p => p && p.name);
+      if(!profiles.length) { grid.innerHTML = '<div class="myp-empty-cm">😔 Пока никого нет</div>'; return; }
+      grid.innerHTML = profiles.map(p => {
+        const letter = p.name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+        const color = p.color || 'linear-gradient(135deg,#A855F7,#6366f1)';
+        return `<div class="myp-classmate-card">
+          <div class="myp-cm-avatar" style="background:${color}">${letter}</div>
+          <div class="myp-cm-name">${p.name}</div>
+          <div class="myp-cm-status">${p.status || '—'}</div>
+          <div class="myp-cm-fav">${p.favSubject ? '📚 ' + p.favSubject : ''}</div>
+        </div>`;
+      }).join('');
+    });
+  }
+
+  // ── Достижения ──
+  function renderAchievements() {
+    const earned = new Set();
+    earned.add('first_visit');
+    if(myProfile.name && myProfile.birthday && myProfile.favSubject && myProfile.city && myProfile.status) earned.add('profile_filled');
+    if(myProfile.goal) earned.add('has_goal');
+    if(myProfile.about) earned.add('has_about');
+    if(mySettings.darkMode) earned.add('dark_mode');
+    if(myProfile.birthday) earned.add('birthday_set');
+
+    document.getElementById('mypAchievements').innerHTML = ACHIEVEMENTS.map(a =>
+      `<div class="myp-ach ${earned.has(a.id)?'earned':''}">
+        <div class="myp-ach-icon">${a.icon}</div>
+        <div class="myp-ach-name">${a.name}</div>
+        <div class="myp-ach-desc">${a.desc}</div>
+      </div>`
+    ).join('');
+  }
+
+  // ── Инициализация ──
+  loadLocal();
+  fillForm();
+  updateHeader();
+  renderAchievements();
+  // Пометить первый визит
+  localStorage.setItem('myp_first_visit', '1');
+})();
+</script>
+
 
   <!-- ТРЕКЕР ПРОГУЛОВ -->
   <section id="attendance">
@@ -5083,6 +5875,1082 @@ function handleNavOverlay(e) {
   })();
   </script>
 
+
+<!-- ══════════════════════════════════════════
+     НАСТРОЙКИ — секция
+══════════════════════════════════════════ -->
+<style>
+#settings-section { margin-bottom: 64px; }
+
+.st-wrap {
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  overflow: hidden;
+}
+
+.st-header {
+  background: linear-gradient(135deg, #17174d 0%, #2d225e 60%, #6366f1 100%);
+  padding: 22px 20px 18px;
+  display: flex; align-items: center; gap: 14px;
+}
+.st-header-emoji { font-size: 2rem; }
+.st-header-title { color: #fff; font-size: 1.2rem; font-weight: 900; }
+.st-header-sub { color: rgba(255,255,255,0.65); font-size: 0.78rem; margin-top: 1px; }
+
+.st-group {
+  padding: 16px 16px 4px;
+  border-bottom: 1px solid #f0eeff;
+}
+.st-group:last-child { border-bottom: none; }
+.st-group-label {
+  font-size: 0.68rem; font-weight: 900;
+  text-transform: uppercase; letter-spacing: 1px;
+  color: #A855F7; margin-bottom: 8px;
+}
+
+.st-row {
+  display: flex; align-items: center;
+  justify-content: space-between;
+  padding: 11px 0; gap: 10px;
+  border-bottom: 1px solid #faf8ff;
+}
+.st-row:last-child { border-bottom: none; }
+.st-row-left { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; }
+.st-icon {
+  width: 34px; height: 34px; border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.05rem; flex-shrink: 0;
+}
+.st-label { font-weight: 700; font-size: 0.85rem; color: #17174d; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.st-sub { font-size: 0.71rem; color: #bbb; margin-top: 1px; }
+
+/* Toggle */
+.st-toggle { position: relative; width: 42px; height: 23px; flex-shrink: 0; }
+.st-toggle input { opacity: 0; width: 0; height: 0; }
+.st-toggle-slider {
+  position: absolute; inset: 0;
+  background: #ddd; border-radius: 999px; cursor: pointer;
+  transition: background 0.25s;
+}
+.st-toggle-slider::before {
+  content: ''; position: absolute;
+  width: 17px; height: 17px; border-radius: 50%;
+  background: #fff; top: 3px; left: 3px;
+  transition: transform 0.25s;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+}
+.st-toggle input:checked + .st-toggle-slider { background: #A855F7; }
+.st-toggle input:checked + .st-toggle-slider::before { transform: translateX(19px); }
+
+/* Темы */
+.st-themes { display: flex; gap: 8px; flex-wrap: wrap; padding: 10px 0 14px; }
+.st-theme-btn {
+  width: 30px; height: 30px; border-radius: 50%;
+  border: 3px solid transparent; cursor: pointer;
+  transition: transform 0.15s, border-color 0.15s;
+}
+.st-theme-btn:hover { transform: scale(1.18); }
+.st-theme-btn.selected { border-color: #17174d; transform: scale(1.2); }
+
+/* Шрифт */
+.st-font-row { display: flex; gap: 6px; padding: 10px 0 14px; width: 100%; }
+.st-font-btn {
+  flex: 1; padding: 7px 4px;
+  border: 2px solid #e5e7eb; border-radius: 9px;
+  background: #fafafa; cursor: pointer;
+  font-weight: 800; color: #aaa; font-size: 0.78rem;
+  transition: all 0.2s;
+}
+.st-font-btn.selected { border-color: #A855F7; color: #A855F7; background: #f5f0ff; }
+
+/* О сайте */
+.st-about-box {
+  margin: 4px 0 14px;
+  background: linear-gradient(135deg, #f5f0ff, #ede9fe);
+  border-radius: 12px; padding: 14px 16px;
+  font-size: 0.82rem; color: #4c1d95;
+  border: 1px solid #ddd6fe;
+  line-height: 1.7;
+}
+
+/* Danger */
+.st-danger-btn {
+  background: #fee2e2; border: none; color: #ef4444;
+  font-weight: 800; padding: 7px 14px;
+  border-radius: 8px; cursor: pointer; font-size: 0.78rem;
+  white-space: nowrap; flex-shrink: 0;
+}
+</style>
+
+<section id="settings-section">
+  <div class="section-label">
+    <span class="dot" style="background:linear-gradient(135deg,#6366f1,#A855F7)"></span>
+    ⚙️ Настройки
+  </div>
+  <div class="st-wrap">
+
+    <div class="st-header">
+      <div class="st-header-emoji">⚙️</div>
+      <div>
+        <div class="st-header-title">Настройки сайта</div>
+        <div class="st-header-sub">Персонализируй под себя</div>
+      </div>
+    </div>
+
+    <!-- Внешний вид -->
+    <div class="st-group">
+      <div class="st-group-label">🎨 Внешний вид</div>
+
+      <div class="st-row">
+        <div class="st-row-left">
+          <div class="st-icon" style="background:#f0fdf4">🌙</div>
+          <div>
+            <div class="st-label">Тёмная тема</div>
+            <div class="st-sub">Тёмный фон сайта</div>
+          </div>
+        </div>
+        <label class="st-toggle">
+          <input type="checkbox" id="stDarkMode" onchange="stToggleDark(this.checked)"/>
+          <span class="st-toggle-slider"></span>
+        </label>
+      </div>
+
+      <div class="st-row" style="flex-wrap:wrap">
+        <div class="st-row-left">
+          <div class="st-icon" style="background:#faf5ff">🎨</div>
+          <div>
+            <div class="st-label">Цветовая тема</div>
+            <div class="st-sub">Цвет акцентов</div>
+          </div>
+        </div>
+        <div class="st-themes" id="stThemes" style="width:100%;padding-left:44px">
+          <div class="st-theme-btn selected" data-color="#A855F7" style="background:#A855F7" onclick="stSelectTheme(this)"></div>
+          <div class="st-theme-btn" data-color="#6366f1" style="background:#6366f1" onclick="stSelectTheme(this)"></div>
+          <div class="st-theme-btn" data-color="#3b82f6" style="background:#3b82f6" onclick="stSelectTheme(this)"></div>
+          <div class="st-theme-btn" data-color="#10b981" style="background:#10b981" onclick="stSelectTheme(this)"></div>
+          <div class="st-theme-btn" data-color="#f59e0b" style="background:#f59e0b" onclick="stSelectTheme(this)"></div>
+          <div class="st-theme-btn" data-color="#ef4444" style="background:#ef4444" onclick="stSelectTheme(this)"></div>
+          <div class="st-theme-btn" data-color="#ec4899" style="background:#ec4899" onclick="stSelectTheme(this)"></div>
+          <div class="st-theme-btn" data-color="#17174d" style="background:#17174d" onclick="stSelectTheme(this)"></div>
+        </div>
+      </div>
+
+      <div class="st-row" style="flex-wrap:wrap">
+        <div class="st-row-left">
+          <div class="st-icon" style="background:#eff6ff">🔤</div>
+          <div>
+            <div class="st-label">Размер шрифта</div>
+            <div class="st-sub">Текст на сайте</div>
+          </div>
+        </div>
+        <div class="st-font-row">
+          <button class="st-font-btn" data-size="14" onclick="stSelectFont(this)">А мал.</button>
+          <button class="st-font-btn selected" data-size="16" onclick="stSelectFont(this)">А норм.</button>
+          <button class="st-font-btn" data-size="18" onclick="stSelectFont(this)">А бол.</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Уведомления -->
+    <div class="st-group">
+      <div class="st-group-label">🔔 Уведомления</div>
+      <div class="st-row">
+        <div class="st-row-left">
+          <div class="st-icon" style="background:#fef3c7">📝</div>
+          <div>
+            <div class="st-label">Новое ДЗ</div>
+            <div class="st-sub">Push при добавлении задания</div>
+          </div>
+        </div>
+        <label class="st-toggle"><input type="checkbox" id="stNotifHW" checked onchange="stSave()"/><span class="st-toggle-slider"></span></label>
+      </div>
+      <div class="st-row">
+        <div class="st-row-left">
+          <div class="st-icon" style="background:#fce7f3">🎂</div>
+          <div>
+            <div class="st-label">Дни рождения</div>
+            <div class="st-sub">В день рождения одноклассника</div>
+          </div>
+        </div>
+        <label class="st-toggle"><input type="checkbox" id="stNotifBD" checked onchange="stSave()"/><span class="st-toggle-slider"></span></label>
+      </div>
+      <div class="st-row">
+        <div class="st-row-left">
+          <div class="st-icon" style="background:#f0fdf4">📢</div>
+          <div>
+            <div class="st-label">Объявления</div>
+            <div class="st-sub">Новые объявления учителя</div>
+          </div>
+        </div>
+        <label class="st-toggle"><input type="checkbox" id="stNotifAnn" checked onchange="stSave()"/><span class="st-toggle-slider"></span></label>
+      </div>
+    </div>
+
+    <!-- Приватность -->
+    <div class="st-group">
+      <div class="st-group-label">🔒 Приватность</div>
+      <div class="st-row">
+        <div class="st-row-left">
+          <div class="st-icon" style="background:#f5f3ff">👁</div>
+          <div>
+            <div class="st-label">Показывать профиль</div>
+            <div class="st-sub">Видимость в разделе "Класс"</div>
+          </div>
+        </div>
+        <label class="st-toggle"><input type="checkbox" id="stVisible" checked onchange="stSave()"/><span class="st-toggle-slider"></span></label>
+      </div>
+      <div class="st-row">
+        <div class="st-row-left">
+          <div class="st-icon" style="background:#fff7ed">🎂</div>
+          <div>
+            <div class="st-label">Показывать дату рождения</div>
+            <div class="st-sub">Видна другим в профиле</div>
+          </div>
+        </div>
+        <label class="st-toggle"><input type="checkbox" id="stShowBD" checked onchange="stSave()"/><span class="st-toggle-slider"></span></label>
+      </div>
+    </div>
+
+    <!-- О сайте -->
+    <div class="st-group">
+      <div class="st-group-label">ℹ️ О сайте</div>
+      <div class="st-about-box">
+        🏫 Сайт класса <strong>10А</strong> · Гимназия №4<br>
+        👨‍💻 Разработчик: <strong>Чураев Аскар</strong><br>
+        🔧 Версия <strong>2.0</strong> · Firebase Realtime DB
+      </div>
+    </div>
+
+    <!-- Сброс -->
+    <div class="st-group">
+      <div class="st-group-label">⚠️ Сброс</div>
+      <div class="st-row">
+        <div class="st-row-left">
+          <div class="st-icon" style="background:#fee2e2">🗑</div>
+          <div>
+            <div class="st-label">Очистить все данные</div>
+            <div class="st-sub">Сбросить настройки и кэш</div>
+          </div>
+        </div>
+        <button class="st-danger-btn" onclick="stClearAll()">Сбросить</button>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<script>
+(function() {
+  let stSettings = {};
+  function stLoad() {
+    try { stSettings = JSON.parse(localStorage.getItem('st_settings') || '{}'); } catch(e) {}
+    document.getElementById('stDarkMode').checked = !!stSettings.darkMode;
+    if(stSettings.darkMode) document.body.classList.add('dark-mode');
+    if(stSettings.themeColor) stApplyThemeColor(stSettings.themeColor, false);
+    if(stSettings.fontSize) {
+      document.documentElement.style.fontSize = stSettings.fontSize + 'px';
+      document.querySelectorAll('.st-font-btn').forEach(b => b.classList.toggle('selected', b.dataset.size == stSettings.fontSize));
+    }
+    if(stSettings.notifHW !== undefined) document.getElementById('stNotifHW').checked = stSettings.notifHW;
+    if(stSettings.notifBD !== undefined) document.getElementById('stNotifBD').checked = stSettings.notifBD;
+    if(stSettings.notifAnn !== undefined) document.getElementById('stNotifAnn').checked = stSettings.notifAnn;
+    if(stSettings.visible !== undefined) document.getElementById('stVisible').checked = stSettings.visible;
+    if(stSettings.showBD !== undefined) document.getElementById('stShowBD').checked = stSettings.showBD;
+  }
+  window.stSave = function() {
+    stSettings.darkMode = document.getElementById('stDarkMode').checked;
+    stSettings.notifHW = document.getElementById('stNotifHW').checked;
+    stSettings.notifBD = document.getElementById('stNotifBD').checked;
+    stSettings.notifAnn = document.getElementById('stNotifAnn').checked;
+    stSettings.visible = document.getElementById('stVisible').checked;
+    stSettings.showBD = document.getElementById('stShowBD').checked;
+    localStorage.setItem('st_settings', JSON.stringify(stSettings));
+  };
+  window.stToggleDark = function(on) {
+    document.body.classList.toggle('dark-mode', on);
+    stSettings.darkMode = on;
+    stSave();
+    const mypDark = document.getElementById('mypDarkMode');
+    if(mypDark) mypDark.checked = on;
+  };
+  function stApplyThemeColor(color, save) {
+    document.querySelectorAll('.st-theme-btn').forEach(b => b.classList.toggle('selected', b.dataset.color === color));
+    document.documentElement.style.setProperty('--accent', color);
+    if(save) { stSettings.themeColor = color; stSave(); }
+  }
+  window.stSelectTheme = function(btn) { stApplyThemeColor(btn.dataset.color, true); };
+  window.stSelectFont = function(btn) {
+    document.querySelectorAll('.st-font-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    document.documentElement.style.fontSize = btn.dataset.size + 'px';
+    stSettings.fontSize = btn.dataset.size;
+    stSave();
+  };
+  window.stClearAll = function() {
+    if(!confirm('Сбросить все настройки?')) return;
+    localStorage.clear();
+    document.body.classList.remove('dark-mode');
+    document.documentElement.style.fontSize = '';
+    document.documentElement.style.removeProperty('--accent');
+    location.reload();
+  };
+  document.addEventListener('DOMContentLoaded', stLoad);
+})();
+</script>
+
+<!-- ══════════════════════════════════════════
+     ЧАТ КЛАССА — WhatsApp стиль
+══════════════════════════════════════════ -->
+<style>
+#chat-section { margin-bottom: 64px; }
+
+.chat-wrap {
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+  display: flex;
+  flex-direction: column;
+  height: 600px;
+  background: #ece5dd;
+}
+
+/* Шапка чата */
+.chat-header {
+  background: linear-gradient(135deg, #17174d, #2d225e);
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+.chat-header-avatar {
+  width: 42px; height: 42px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #A855F7, #6366f1);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.3rem;
+  flex-shrink: 0;
+}
+.chat-header-info { flex: 1; }
+.chat-header-name { color: #fff; font-weight: 900; font-size: 1rem; }
+.chat-header-status { color: rgba(255,255,255,0.6); font-size: 0.75rem; margin-top: 1px; }
+.chat-header-actions { display: flex; gap: 14px; }
+.chat-header-btn {
+  background: none; border: none;
+  color: rgba(255,255,255,0.8); font-size: 1.2rem;
+  cursor: pointer; padding: 4px;
+  transition: color 0.2s;
+}
+.chat-header-btn:hover { color: #fff; }
+
+/* Фон сообщений — паттерн как WhatsApp */
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  background-color: #ece5dd;
+  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23c8bdb5' fill-opacity='0.15'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+.chat-messages::-webkit-scrollbar { width: 4px; }
+.chat-messages::-webkit-scrollbar-track { background: transparent; }
+.chat-messages::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.2); border-radius: 2px; }
+
+/* Дата-разделитель */
+.chat-date-divider {
+  text-align: center;
+  margin: 8px 0;
+}
+.chat-date-divider span {
+  background: rgba(225,245,254,0.92);
+  color: #667781;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+/* Пузырьки сообщений */
+.chat-msg-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  max-width: 85%;
+  animation: msgIn 0.2s ease;
+}
+@keyframes msgIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.chat-msg-row.mine { align-self: flex-end; flex-direction: row-reverse; }
+.chat-msg-row.theirs { align-self: flex-start; }
+
+.chat-msg-avatar {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.7rem; font-weight: 900; color: #fff;
+  flex-shrink: 0; margin-bottom: 2px;
+}
+
+.chat-bubble {
+  padding: 8px 10px 6px;
+  border-radius: 10px;
+  max-width: 100%;
+  position: relative;
+  word-break: break-word;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+}
+.chat-msg-row.mine .chat-bubble {
+  background: #d9fdd3;
+  border-bottom-right-radius: 2px;
+}
+.chat-msg-row.theirs .chat-bubble {
+  background: #fff;
+  border-bottom-left-radius: 2px;
+}
+.chat-sender {
+  font-size: 0.72rem;
+  font-weight: 800;
+  margin-bottom: 3px;
+  color: #A855F7;
+}
+.chat-msg-row.mine .chat-sender { display: none; }
+.chat-text { font-size: 0.88rem; color: #111; line-height: 1.4; }
+.chat-meta {
+  display: flex; align-items: center; gap: 4px;
+  justify-content: flex-end;
+  margin-top: 3px;
+}
+.chat-time { font-size: 0.65rem; color: #999; }
+.chat-ticks { font-size: 0.7rem; color: #53bdeb; }
+
+/* Реакции */
+.chat-reactions {
+  display: flex; gap: 3px; flex-wrap: wrap;
+  margin-top: 4px;
+}
+.chat-reaction-btn {
+  background: rgba(255,255,255,0.7);
+  border: 1px solid rgba(0,0,0,0.08);
+  border-radius: 999px;
+  padding: 1px 7px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+.chat-reaction-btn:hover { transform: scale(1.15); }
+
+/* Эмодзи пикер реакций */
+.chat-react-picker {
+  display: none;
+  position: absolute;
+  bottom: 100%; left: 0;
+  background: #fff;
+  border-radius: 999px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+  padding: 6px 10px;
+  gap: 6px;
+  flex-direction: row;
+  z-index: 100;
+  white-space: nowrap;
+}
+.chat-react-picker.open { display: flex; }
+.chat-react-emoji {
+  font-size: 1.3rem; cursor: pointer;
+  transition: transform 0.15s;
+}
+.chat-react-emoji:hover { transform: scale(1.3); }
+
+/* Системное сообщение */
+.chat-system-msg {
+  text-align: center;
+  color: #667781;
+  font-size: 0.72rem;
+  background: rgba(225,245,254,0.85);
+  padding: 5px 12px;
+  border-radius: 8px;
+  margin: 6px auto;
+  max-width: 280px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+}
+
+/* Панель ввода */
+.chat-input-area {
+  background: #f0f2f5;
+  padding: 8px 10px;
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  flex-shrink: 0;
+  border-top: 1px solid rgba(0,0,0,0.06);
+}
+.chat-input-box {
+  flex: 1;
+  background: #fff;
+  border-radius: 22px;
+  display: flex;
+  align-items: flex-end;
+  padding: 6px 14px;
+  gap: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+.chat-emoji-btn {
+  background: none; border: none;
+  font-size: 1.3rem; cursor: pointer;
+  color: #8696a0; padding: 2px;
+  flex-shrink: 0; align-self: center;
+}
+.chat-input {
+  flex: 1; border: none; outline: none;
+  font-size: 0.9rem; color: #111;
+  background: transparent;
+  resize: none;
+  min-height: 22px; max-height: 100px;
+  font-family: inherit;
+  line-height: 1.4;
+  padding: 2px 0;
+}
+.chat-input::placeholder { color: #aaa; }
+.chat-attach-btn {
+  background: none; border: none;
+  font-size: 1.2rem; cursor: pointer;
+  color: #8696a0; padding: 2px;
+  flex-shrink: 0; align-self: center;
+}
+
+/* Кнопка отправки / микрофон */
+.chat-send-btn {
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #A855F7, #6366f1);
+  border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.2rem; color: #fff;
+  flex-shrink: 0;
+  transition: transform 0.15s, opacity 0.15s;
+  box-shadow: 0 2px 8px rgba(168,85,247,0.4);
+}
+.chat-send-btn:hover { transform: scale(1.08); }
+.chat-send-btn:active { transform: scale(0.95); }
+
+/* Эмодзи панель */
+.chat-emoji-panel {
+  display: none;
+  background: #fff;
+  border-top: 1px solid #eee;
+  padding: 10px;
+  flex-wrap: wrap;
+  gap: 6px;
+  max-height: 150px;
+  overflow-y: auto;
+  flex-shrink: 0;
+}
+.chat-emoji-panel.open { display: flex; }
+.chat-emoji-item {
+  font-size: 1.4rem; cursor: pointer;
+  padding: 4px; border-radius: 6px;
+  transition: background 0.15s;
+}
+.chat-emoji-item:hover { background: #f0f2f5; }
+
+/* Имя перед отправкой */
+.chat-name-bar {
+  background: #fff8e1;
+  border-bottom: 2px solid #ffe082;
+  padding: 10px 16px;
+  display: flex; align-items: center; gap: 10px;
+  flex-shrink: 0;
+}
+.chat-name-select {
+  flex: 1; border: 1.5px solid #ffe082;
+  border-radius: 8px; padding: 7px 12px;
+  font-size: 0.85rem; font-weight: 700;
+  background: #fff; color: #17174d;
+  outline: none;
+}
+.chat-name-ok {
+  background: linear-gradient(135deg, #A855F7, #6366f1);
+  color: #fff; border: none;
+  border-radius: 8px; padding: 8px 16px;
+  font-weight: 800; font-size: 0.82rem;
+  cursor: pointer;
+}
+
+/* Кол-во онлайн */
+.chat-online-count {
+  background: rgba(255,255,255,0.15);
+  border-radius: 999px;
+  padding: 2px 10px;
+  font-size: 0.72rem;
+  color: rgba(255,255,255,0.8);
+  font-weight: 700;
+}
+
+/* Тёмная тема */
+body.dark-mode .chat-wrap { background: #0d1117; }
+body.dark-mode .chat-messages { background-color: #0d1117; }
+body.dark-mode .chat-msg-row.theirs .chat-bubble { background: #1e2733; }
+body.dark-mode .chat-msg-row.mine .chat-bubble { background: #005c4b; }
+body.dark-mode .chat-text { color: #e2e8f0; }
+body.dark-mode .chat-input-area { background: #1a1a2e; }
+body.dark-mode .chat-input-box { background: #2d2d50; }
+body.dark-mode .chat-input { color: #e2e8f0; }
+body.dark-mode .chat-emoji-panel { background: #1a1a2e; border-color: #2d2d50; }
+body.dark-mode .chat-name-bar { background: #1e1e35; border-color: #2d2d50; }
+body.dark-mode .chat-name-select { background: #2d2d50; color: #e2e8f0; border-color: #A855F7; }
+body.dark-mode .chat-reaction-btn { background: rgba(255,255,255,0.1); }
+body.dark-mode .chat-date-divider span { background: rgba(30,30,50,0.9); color: #94a3b8; }
+body.dark-mode .chat-system-msg { background: rgba(30,30,50,0.9); color: #94a3b8; }
+</style>
+
+<section id="chat-section">
+  <div class="section-label">
+    <span class="dot" style="background:linear-gradient(135deg,#25d366,#128c7e)"></span>
+    💬 Чат класса
+  </div>
+
+  <div class="chat-wrap" id="chatWrap">
+
+    <!-- Шапка -->
+    <div class="chat-header">
+      <div class="chat-header-avatar">🏫</div>
+      <div class="chat-header-info">
+        <div class="chat-header-name">Чат 10А</div>
+        <div class="chat-header-status" id="chatOnlineStatus">онлайн</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <span class="chat-online-count" id="chatMsgCount">0 сообщений</span>
+        <button class="chat-header-btn" onclick="chatClearMine()" title="Удалить мои сообщения">🗑</button>
+      </div>
+    </div>
+
+    <!-- Выбор имени -->
+    <div class="chat-name-bar" id="chatNameBar">
+      <span style="font-size:0.82rem;font-weight:700;color:#856404;white-space:nowrap">👤 Кто ты?</span>
+      <select class="chat-name-select" id="chatNameSelect">
+        <option value="">— Выбери имя —</option>
+        <option>Абдурахмонов Иброхим</option>
+        <option>Додоев Хушнуд</option>
+        <option>Зоиров Рауф</option>
+        <option>Имомов Шахром</option>
+        <option>Кобилов Шириншох</option>
+        <option>Кодиров Исроил</option>
+        <option>Косимов Мансур</option>
+        <option>Окилов Хусрав</option>
+        <option>Рахматуллоев Эхром</option>
+        <option>Файзуллоев Мухриддин</option>
+        <option>Файзуллоев Файзулло</option>
+        <option>Хакимов Хасан</option>
+        <option>Хакимов Хусейн</option>
+        <option>Чураев Аскар</option>
+        <option>Юсупов Юсуф</option>
+      </select>
+      <button class="chat-name-ok" onclick="chatSetName()">Войти</button>
+    </div>
+
+    <!-- Сообщения -->
+    <div class="chat-messages" id="chatMessages">
+      <div class="chat-system-msg">🔒 Добро пожаловать в чат 10А! Будьте вежливы.</div>
+    </div>
+
+    <!-- Эмодзи панель -->
+    <div class="chat-emoji-panel" id="chatEmojiPanel">
+      <span class="chat-emoji-item" onclick="chatAddEmoji('😂')">😂</span>
+      <span class="chat-emoji-item" onclick="chatAddEmoji('❤️')">❤️</span>
+      <span class="chat-emoji-item" onclick="chatAddEmoji('👍')">👍</span>
+      <span class="chat-emoji-item" onclick="chatAddEmoji('🔥')">🔥</span>
+      <span class="chat-emoji-item" onclick="chatAddEmoji('😊')">😊</span>
+      <span class="chat-emoji-item" onclick="chatAddEmoji('🥳')">🥳</span>
+      <span class="chat-emoji-item" onclick="chatAddEmoji('😎')">😎</span>
+      <span class="chat-emoji-item" onclick="chatAddEmoji('🙏')">🙏</span>
+      <span class="chat-emoji-item" onclick="chatAddEmoji('💪')">💪</span>
+      <span class="chat-emoji-item" onclick="chatAddEmoji('✅')">✅</span>
+      <span class="chat-emoji-item" onclick="chatAddEmoji('📚')">📚</span>
+      <span class="chat-emoji-item" onclick="chatAddEmoji('🎉')">🎉</span>
+      <span class="chat-emoji-item" onclick="chatAddEmoji('😴')">😴</span>
+      <span class="chat-emoji-item" onclick="chatAddEmoji('🤣')">🤣</span>
+      <span class="chat-emoji-item" onclick="chatAddEmoji('👀')">👀</span>
+      <span class="chat-emoji-item" onclick="chatAddEmoji('💯')">💯</span>
+      <span class="chat-emoji-item" onclick="chatAddEmoji('🤔')">🤔</span>
+      <span class="chat-emoji-item" onclick="chatAddEmoji('😭')">😭</span>
+      <span class="chat-emoji-item" onclick="chatAddEmoji('🥺')">🥺</span>
+      <span class="chat-emoji-item" onclick="chatAddEmoji('👋')">👋</span>
+      <span class="chat-emoji-item" onclick="chatAddEmoji('😅')">😅</span>
+      <span class="chat-emoji-item" onclick="chatAddEmoji('🤦')">🤦</span>
+      <span class="chat-emoji-item" onclick="chatAddEmoji('⚡')">⚡</span>
+      <span class="chat-emoji-item" onclick="chatAddEmoji('🌟')">🌟</span>
+    </div>
+
+    <!-- Ввод -->
+    <div class="chat-input-area" id="chatInputArea">
+      <div class="chat-input-box">
+        <button class="chat-emoji-btn" onclick="chatToggleEmoji()" title="Эмодзи">😊</button>
+        <textarea class="chat-input" id="chatInput"
+          placeholder="Сообщение..."
+          rows="1"
+          onkeydown="chatKeyDown(event)"
+          oninput="chatAutoResize(this)"></textarea>
+        <button class="chat-attach-btn" onclick="chatToggleEmoji()" title="Эмодзи">🎭</button>
+      </div>
+      <button class="chat-send-btn" id="chatSendBtn" onclick="chatSend()">➤</button>
+    </div>
+
+  </div>
+</section>
+
+<script>
+(function() {
+  const COLORS = [
+    'linear-gradient(135deg,#A855F7,#6366f1)',
+    'linear-gradient(135deg,#3b82f6,#06b6d4)',
+    'linear-gradient(135deg,#10b981,#84cc16)',
+    'linear-gradient(135deg,#f59e0b,#ef4444)',
+    'linear-gradient(135deg,#ec4899,#f43f5e)',
+    'linear-gradient(135deg,#8b5cf6,#ec4899)',
+    'linear-gradient(135deg,#14b8a6,#6366f1)',
+    'linear-gradient(135deg,#f97316,#eab308)',
+  ];
+  const REACTIONS = ['👍','❤️','😂','😮','😢','🙏'];
+
+  let chatName = localStorage.getItem('chat_name') || '';
+  let chatColor = localStorage.getItem('chat_color') || COLORS[0];
+  let msgCount = 0;
+  let lastDate = '';
+  let replyTo = null;
+
+  // Установить имя
+  window.chatSetName = function() {
+    const sel = document.getElementById('chatNameSelect');
+    if(!sel.value) { sel.style.border='2px solid #ef4444'; return; }
+    chatName = sel.value;
+    // Цвет по индексу имени
+    const idx = sel.selectedIndex % COLORS.length;
+    chatColor = COLORS[idx];
+    localStorage.setItem('chat_name', chatName);
+    localStorage.setItem('chat_color', chatColor);
+    document.getElementById('chatNameBar').style.display = 'none';
+
+    // Системное сообщение о входе
+    if(window.firebaseDB) {
+      window.firebaseDB.ref('chat').push({
+        type: 'system',
+        text: chatName + ' вошёл в чат 👋',
+        ts: Date.now()
+      });
+    }
+  };
+
+  // Загрузить имя если уже выбрано
+  if(chatName) {
+    document.addEventListener('DOMContentLoaded', function() {
+      const bar = document.getElementById('chatNameBar');
+      if(bar) bar.style.display = 'none';
+      const sel = document.getElementById('chatNameSelect');
+      if(sel) sel.value = chatName;
+    });
+  }
+
+  // Автоизменение высоты textarea
+  window.chatAutoResize = function(el) {
+    el.style.height = 'auto';
+    el.style.height = Math.min(el.scrollHeight, 100) + 'px';
+  };
+
+  // Enter отправляет (Shift+Enter — новая строка)
+  window.chatKeyDown = function(e) {
+    if(e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      chatSend();
+    }
+  };
+
+  // Эмодзи панель
+  window.chatToggleEmoji = function() {
+    document.getElementById('chatEmojiPanel').classList.toggle('open');
+  };
+  window.chatAddEmoji = function(em) {
+    const inp = document.getElementById('chatInput');
+    inp.value += em;
+    inp.focus();
+    chatAutoResize(inp);
+  };
+
+  // Получить инициалы
+  function getInitials(name) {
+    return name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+  }
+
+  // Форматировать время
+  function fmtTime(ts) {
+    const d = new Date(ts);
+    return d.toLocaleTimeString('ru-RU', {hour:'2-digit', minute:'2-digit'});
+  }
+  function fmtDate(ts) {
+    const d = new Date(ts);
+    const today = new Date();
+    const yest = new Date(); yest.setDate(yest.getDate()-1);
+    if(d.toDateString()===today.toDateString()) return 'Сегодня';
+    if(d.toDateString()===yest.toDateString()) return 'Вчера';
+    return d.toLocaleDateString('ru-RU', {day:'numeric', month:'long'});
+  }
+
+  // Рендер сообщения
+  function renderMsg(key, data) {
+    const container = document.getElementById('chatMessages');
+
+    // Системное сообщение
+    if(data.type === 'system') {
+      const div = document.createElement('div');
+      div.className = 'chat-system-msg';
+      div.textContent = data.text;
+      container.appendChild(div);
+      return;
+    }
+
+    // Разделитель даты
+    const dateStr = fmtDate(data.ts);
+    if(dateStr !== lastDate) {
+      lastDate = dateStr;
+      const div = document.createElement('div');
+      div.className = 'chat-date-divider';
+      div.innerHTML = `<span>${dateStr}</span>`;
+      container.appendChild(div);
+    }
+
+    const isMine = data.sender === chatName;
+    const color = data.color || COLORS[0];
+
+    const row = document.createElement('div');
+    row.className = 'chat-msg-row ' + (isMine ? 'mine' : 'theirs');
+    row.dataset.key = key;
+
+    // Аватар (только для чужих)
+    if(!isMine) {
+      const av = document.createElement('div');
+      av.className = 'chat-msg-avatar';
+      av.style.background = color;
+      av.textContent = getInitials(data.sender);
+      row.appendChild(av);
+    }
+
+    // Пузырёк
+    const bubble = document.createElement('div');
+    bubble.className = 'chat-bubble';
+    bubble.style.position = 'relative';
+
+    // Имя отправителя
+    if(!isMine) {
+      const snd = document.createElement('div');
+      snd.className = 'chat-sender';
+      snd.style.color = color.includes('#A855') ? '#A855F7' : '#3b82f6';
+      snd.textContent = data.sender;
+      bubble.appendChild(snd);
+    }
+
+    // Цитата (reply)
+    if(data.replyText) {
+      const rq = document.createElement('div');
+      rq.style.cssText = 'background:rgba(0,0,0,0.06);border-left:3px solid #A855F7;padding:4px 8px;border-radius:4px;margin-bottom:5px;font-size:0.75rem;color:#666;';
+      rq.textContent = '↩ ' + data.replySender + ': ' + data.replyText.slice(0,60) + (data.replyText.length>60?'...':'');
+      bubble.appendChild(rq);
+    }
+
+    // Текст
+    const txt = document.createElement('div');
+    txt.className = 'chat-text';
+    txt.textContent = data.text;
+    bubble.appendChild(txt);
+
+    // Мета (время + галочки)
+    const meta = document.createElement('div');
+    meta.className = 'chat-meta';
+    meta.innerHTML = `<span class="chat-time">${fmtTime(data.ts)}</span>${isMine?'<span class="chat-ticks">✓✓</span>':''}`;
+    bubble.appendChild(meta);
+
+    // Реакции
+    const reacts = document.createElement('div');
+    reacts.className = 'chat-reactions';
+    reacts.id = 'reacts-' + key;
+    if(data.reactions) {
+      Object.entries(data.reactions).forEach(([em, count]) => {
+        const btn = document.createElement('button');
+        btn.className = 'chat-reaction-btn';
+        btn.textContent = em + ' ' + count;
+        btn.onclick = () => chatReact(key, em);
+        reacts.appendChild(btn);
+      });
+    }
+    bubble.appendChild(reacts);
+
+    // Долгое нажатие / двойной клик — реакции + ответ
+    bubble.ondblclick = () => chatShowReactPicker(key, bubble, data);
+    bubble.oncontextmenu = (e) => { e.preventDefault(); chatShowReactPicker(key, bubble, data); };
+
+    row.appendChild(bubble);
+    container.appendChild(row);
+
+    // Прокрутить вниз
+    msgCount++;
+    document.getElementById('chatMsgCount').textContent = msgCount + ' сообщений';
+    container.scrollTop = container.scrollHeight;
+  }
+
+  // Показать пикер реакций
+  let pickerOpen = null;
+  function chatShowReactPicker(key, bubble, data) {
+    // Закрыть старый
+    if(pickerOpen) { pickerOpen.remove(); pickerOpen = null; }
+
+    const picker = document.createElement('div');
+    picker.className = 'chat-react-picker open';
+
+    REACTIONS.forEach(em => {
+      const span = document.createElement('span');
+      span.className = 'chat-react-emoji';
+      span.textContent = em;
+      span.onclick = () => { chatReact(key, em); picker.remove(); pickerOpen = null; };
+      picker.appendChild(span);
+    });
+
+    // Кнопка "Ответить"
+    const replyBtn = document.createElement('span');
+    replyBtn.style.cssText = 'font-size:1rem;cursor:pointer;padding:2px 4px;border-left:1px solid #eee;margin-left:4px;';
+    replyBtn.textContent = '↩';
+    replyBtn.title = 'Ответить';
+    replyBtn.onclick = () => {
+      replyTo = { key, text: data.text, sender: data.sender };
+      showReplyPreview();
+      picker.remove(); pickerOpen = null;
+    };
+    picker.appendChild(replyBtn);
+
+    bubble.style.position = 'relative';
+    bubble.appendChild(picker);
+    pickerOpen = picker;
+
+    // Закрыть при клике снаружи
+    setTimeout(() => document.addEventListener('click', function h() {
+      if(picker.parentNode) picker.remove();
+      pickerOpen = null;
+      document.removeEventListener('click', h);
+    }), 100);
+  }
+
+  // Показать превью ответа
+  function showReplyPreview() {
+    let prev = document.getElementById('chatReplyPreview');
+    if(!prev) {
+      prev = document.createElement('div');
+      prev.id = 'chatReplyPreview';
+      prev.style.cssText = 'background:#e8f4fd;border-left:3px solid #A855F7;padding:6px 12px;font-size:0.78rem;color:#333;display:flex;align-items:center;justify-content:space-between;';
+      const inputArea = document.getElementById('chatInputArea');
+      inputArea.parentNode.insertBefore(prev, inputArea);
+    }
+    prev.innerHTML = `<span>↩ <b>${replyTo.sender}</b>: ${replyTo.text.slice(0,50)}</span><button onclick="chatCancelReply()" style="background:none;border:none;font-size:1rem;cursor:pointer;color:#999">✕</button>`;
+  }
+
+  window.chatCancelReply = function() {
+    replyTo = null;
+    const prev = document.getElementById('chatReplyPreview');
+    if(prev) prev.remove();
+  };
+
+  // Реакция
+  window.chatReact = function(key, em) {
+    if(!window.firebaseDB) return;
+    const ref = window.firebaseDB.ref('chat/' + key + '/reactions/' + em);
+    ref.transaction(cur => (cur || 0) + 1);
+  };
+
+  // Отправить сообщение
+  window.chatSend = function() {
+    if(!chatName) { alert('Сначала выбери своё имя!'); return; }
+    const inp = document.getElementById('chatInput');
+    const text = inp.value.trim();
+    if(!text) return;
+    if(!window.firebaseDB) { alert('Firebase не подключён'); return; }
+
+    const msg = {
+      sender: chatName,
+      color: chatColor,
+      text,
+      ts: Date.now(),
+      type: 'text'
+    };
+    if(replyTo) {
+      msg.replyText = replyTo.text;
+      msg.replySender = replyTo.sender;
+    }
+
+    window.firebaseDB.ref('chat').push(msg);
+    inp.value = '';
+    inp.style.height = 'auto';
+    chatCancelReply();
+    document.getElementById('chatEmojiPanel').classList.remove('open');
+  };
+
+  // Удалить свои сообщения
+  window.chatClearMine = function() {
+    if(!chatName) return;
+    if(!confirm('Удалить все ваши сообщения из чата?')) return;
+    if(!window.firebaseDB) return;
+    window.firebaseDB.ref('chat').once('value', snap => {
+      snap.forEach(child => {
+        if(child.val().sender === chatName) child.ref.remove();
+      });
+    });
+  };
+
+  // Слушать Firebase
+  function startListening() {
+    if(!window.firebaseDB) { setTimeout(startListening, 600); return; }
+
+    // Загрузить последние 100 сообщений
+    window.firebaseDB.ref('chat').limitToLast(100).on('child_added', snap => {
+      renderMsg(snap.key, snap.val());
+    });
+
+    // Обновления реакций
+    window.firebaseDB.ref('chat').on('child_changed', snap => {
+      const data = snap.val();
+      if(!data.reactions) return;
+      const reacts = document.getElementById('reacts-' + snap.key);
+      if(!reacts) return;
+      reacts.innerHTML = '';
+      Object.entries(data.reactions).forEach(([em, count]) => {
+        const btn = document.createElement('button');
+        btn.className = 'chat-reaction-btn';
+        btn.textContent = em + ' ' + count;
+        btn.onclick = () => chatReact(snap.key, em);
+        reacts.appendChild(btn);
+      });
+    });
+
+    // Удалённые сообщения
+    window.firebaseDB.ref('chat').on('child_removed', snap => {
+      const row = document.querySelector('[data-key="' + snap.key + '"]');
+      if(row) row.remove();
+    });
+
+    document.getElementById('chatOnlineStatus').textContent = 'подключено ✓';
+  }
+
+  startListening();
+
+  // Если имя уже сохранено
+  if(chatName) {
+    document.addEventListener('DOMContentLoaded', function() {
+      const bar = document.getElementById('chatNameBar');
+      if(bar) bar.style.display = 'none';
+    });
+  }
+})();
+</script>
 </main>
 
 <footer>
@@ -5776,9 +7644,5 @@ function renderProfile() {
     });
     const msg = `📝 *Домашние задания 10А*\n\n` + lines.join('\n');
     window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
-  };
-})();
-</script>
-
 </body>
 </html>
