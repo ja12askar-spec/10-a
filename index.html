@@ -29,6 +29,36 @@
     console.error('❌ Firebase ошибка:', e);
   }
 
+  // ══ ОНЛАЙН-ИНДИКАТОР (Firebase Presence) ══
+  window.addEventListener('load', function() {
+    function initPresence() {
+      if (!window.firebaseDB) { setTimeout(initPresence, 600); return; }
+      const db = window.firebaseDB;
+      const connectedRef = db.ref('.info/connected');
+      // Уникальный ID сессии
+      const sessionId = Math.random().toString(36).slice(2);
+      const presenceRef = db.ref('presence/' + sessionId);
+
+      connectedRef.on('value', function(snap) {
+        if (!snap.val()) return;
+        // При отключении — автоматически удаляем запись
+        presenceRef.onDisconnect().remove();
+        presenceRef.set({ ts: Date.now() });
+      });
+
+      // Слушаем общий счётчик
+      db.ref('presence').on('value', function(snap) {
+        const count = snap.numChildren ? snap.numChildren() : 0;
+        const el = document.getElementById('onlineCount');
+        if (el) {
+          el.textContent = 'Онлайн: ' + count + '\u00a0' +
+            (count === 1 ? 'чел.' : count < 5 ? 'чел.' : 'чел.');
+        }
+      });
+    }
+    initPresence();
+  });
+
   // ══ УВЕДОМЛЕНИЯ через Realtime Database ══
   window.addEventListener('load', function() {
     // Запрашиваем разрешение
@@ -66,6 +96,11 @@
   });
 </script>
 <style>
+
+@keyframes onlinePulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.55; transform: scale(1.35); }
+}
 
 :root {
     --yellow: #2d225e;
@@ -2925,6 +2960,10 @@ tr:nth-child(even) {
   <div class="header-tape">
     <span>📅 2025–2026 Учебный год</span>
     <span>✏️ Английский класс</span>
+    <span id="onlineIndicator" style="display:flex;align-items:center;gap:6px;">
+      <span id="onlineDot" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#4ade80;box-shadow:0 0 6px #4ade80;animation:onlinePulse 2s infinite;flex-shrink:0;"></span>
+      <span id="onlineCount">Онлайн: …</span>
+    </span>
   </div>
   <div class="header-inner">
     <div class="class-title">
