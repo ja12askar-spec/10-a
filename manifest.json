@@ -1,0 +1,22 @@
+{
+  "name": "Класс 10А",
+  "short_name": "10А",
+  "description": "Сайт класса 10А — Гимназия №4",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#17174d",
+  "theme_color": "#2d225e",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "Picsart_25-04-29_18-23-38-058.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg"
+    },
+    {
+      "src": "Picsart_25-04-29_18-23-38-058.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg"
+    }
+  ]
+}
