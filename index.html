@@ -2544,6 +2544,23 @@ tr:nth-child(even) {
 </style>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&family=Sora:wght@400;600;700;800&display=swap" rel="stylesheet"/>
 
+<!-- PWA -->
+<link rel="manifest" href="./manifest.json">
+<meta name="theme-color" content="#2d225e">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="10А">
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function() {
+      navigator.serviceWorker.register('./service-worker.js')
+        .then(() => console.log('✅ PWA готов'))
+        .catch(e => console.log('SW ошибка:', e));
+    });
+  }
+</script>
+
 </head>
 <body>
 
