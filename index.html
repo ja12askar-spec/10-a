@@ -2596,6 +2596,222 @@ tr:nth-child(even) {
   }
 </script>
 
+<!-- ══ SKELETON LOADING ══ -->
+<style>
+@keyframes skeletonShimmer {
+  0%   { background-position: -800px 0; }
+  100% { background-position: 800px 0; }
+}
+
+.sk {
+  background: linear-gradient(90deg,
+    rgba(0,0,0,0.06) 25%,
+    rgba(0,0,0,0.12) 50%,
+    rgba(0,0,0,0.06) 75%
+  );
+  background-size: 800px 100%;
+  animation: skeletonShimmer 1.4s ease-in-out infinite;
+  border-radius: 10px;
+  display: block;
+}
+
+/* Dark variant for dark-bg sections */
+.sk-dark {
+  background: linear-gradient(90deg,
+    rgba(255,255,255,0.06) 25%,
+    rgba(255,255,255,0.14) 50%,
+    rgba(255,255,255,0.06) 75%
+  );
+  background-size: 800px 100%;
+  animation: skeletonShimmer 1.4s ease-in-out infinite;
+  border-radius: 10px;
+  display: block;
+}
+
+/* Skeleton card containers */
+.sk-card {
+  background: #fff;
+  border-radius: 20px;
+  padding: 22px 24px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.07);
+}
+.sk-card-dark {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 20px;
+  padding: 22px 24px;
+}
+
+/* Skeleton page overlay */
+#skeleton-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
+  background: var(--cream, #FFF8EE);
+  pointer-events: none;
+  transition: opacity 0.6s ease;
+}
+#skeleton-overlay.sk-hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.sk-header-wrap {
+  background: #17174d;
+  padding: 0;
+}
+.sk-tape {
+  background: #2d225e;
+  padding: 6px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+.sk-nav {
+  background: #fff;
+  height: 52px;
+  border-bottom: 3px solid #2d225e;
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  gap: 16px;
+}
+.sk-hero {
+  background: linear-gradient(135deg, #17174d, #2d225e);
+  padding: 28px 48px 32px;
+  display: flex;
+  gap: 24px;
+  align-items: center;
+}
+.sk-main {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 40px 24px 60px;
+  display: flex;
+  flex-direction: column;
+  gap: 48px;
+}
+.sk-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.sk-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+.sk-grid-3 { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px,1fr)); gap: 16px; }
+.sk-grid-2 { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px,1fr)); gap: 14px; }
+.sk-row    { display: flex; gap: 12px; align-items: center; }
+</style>
+
+<div id="skeleton-overlay">
+  <!-- Fake header -->
+  <div class="sk-header-wrap">
+    <div class="sk-tape">
+      <span class="sk sk-dark" style="width:160px;height:14px"></span>
+      <span class="sk sk-dark" style="width:120px;height:14px"></span>
+      <span class="sk sk-dark" style="width:90px;height:14px"></span>
+    </div>
+    <div class="sk-hero">
+      <div style="flex:1">
+        <span class="sk sk-dark" style="width:55%;height:36px;margin-bottom:10px"></span>
+        <span class="sk sk-dark" style="width:30%;height:16px"></span>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <span class="sk sk-dark" style="width:140px;height:36px;border-radius:999px"></span>
+        <span class="sk sk-dark" style="width:120px;height:36px;border-radius:999px"></span>
+      </div>
+    </div>
+  </div>
+  <!-- Fake nav -->
+  <div class="sk-nav">
+    <span class="sk" style="width:60px;height:22px"></span>
+    <span style="flex:1"></span>
+    <span class="sk" style="width:36px;height:36px;border-radius:8px"></span>
+  </div>
+  <!-- Fake main content -->
+  <div class="sk-main">
+    <!-- Welcome card -->
+    <div class="sk-card" style="display:flex;gap:24px;align-items:center;background:linear-gradient(135deg,#17174d,#2d225e);padding:36px 40px">
+      <span class="sk sk-dark" style="width:80px;height:80px;border-radius:50%;flex-shrink:0"></span>
+      <div style="flex:1">
+        <span class="sk sk-dark" style="width:50%;height:28px;margin-bottom:12px"></span>
+        <span class="sk sk-dark" style="width:90%;height:14px;margin-bottom:8px"></span>
+        <span class="sk sk-dark" style="width:70%;height:14px"></span>
+      </div>
+    </div>
+    <!-- Announcements -->
+    <div class="sk-section">
+      <div class="sk-label">
+        <span class="sk" style="width:14px;height:14px;border-radius:50%"></span>
+        <span class="sk" style="width:160px;height:26px"></span>
+      </div>
+      <div class="sk-card sk-row">
+        <span class="sk" style="width:46px;height:46px;border-radius:12px;flex-shrink:0"></span>
+        <div style="flex:1"><span class="sk" style="width:30%;height:12px;margin-bottom:8px"></span><span class="sk" style="width:70%;height:18px;margin-bottom:8px"></span><span class="sk" style="width:90%;height:12px"></span></div>
+      </div>
+      <div class="sk-card sk-row">
+        <span class="sk" style="width:46px;height:46px;border-radius:12px;flex-shrink:0"></span>
+        <div style="flex:1"><span class="sk" style="width:25%;height:12px;margin-bottom:8px"></span><span class="sk" style="width:60%;height:18px;margin-bottom:8px"></span><span class="sk" style="width:85%;height:12px"></span></div>
+      </div>
+    </div>
+    <!-- Schedule grid -->
+    <div class="sk-section">
+      <div class="sk-label">
+        <span class="sk" style="width:14px;height:14px;border-radius:50%"></span>
+        <span class="sk" style="width:200px;height:26px"></span>
+      </div>
+      <div class="sk-grid-3">
+        <div class="sk-card"><span class="sk" style="width:100%;height:44px;border-radius:12px;margin-bottom:14px"></span><span class="sk" style="width:80%;height:12px;margin-bottom:8px"></span><span class="sk" style="width:70%;height:12px;margin-bottom:8px"></span><span class="sk" style="width:75%;height:12px;margin-bottom:8px"></span><span class="sk" style="width:65%;height:12px"></span></div>
+        <div class="sk-card"><span class="sk" style="width:100%;height:44px;border-radius:12px;margin-bottom:14px"></span><span class="sk" style="width:75%;height:12px;margin-bottom:8px"></span><span class="sk" style="width:80%;height:12px;margin-bottom:8px"></span><span class="sk" style="width:60%;height:12px;margin-bottom:8px"></span><span class="sk" style="width:70%;height:12px"></span></div>
+        <div class="sk-card"><span class="sk" style="width:100%;height:44px;border-radius:12px;margin-bottom:14px"></span><span class="sk" style="width:70%;height:12px;margin-bottom:8px"></span><span class="sk" style="width:85%;height:12px;margin-bottom:8px"></span><span class="sk" style="width:65%;height:12px;margin-bottom:8px"></span><span class="sk" style="width:75%;height:12px"></span></div>
+      </div>
+    </div>
+    <!-- Ratings -->
+    <div class="sk-section">
+      <div class="sk-label">
+        <span class="sk" style="width:14px;height:14px;border-radius:50%"></span>
+        <span class="sk" style="width:220px;height:26px"></span>
+      </div>
+      <div class="sk-card">
+        <span class="sk" style="width:100%;height:56px;border-radius:14px;margin-bottom:10px"></span>
+        <span class="sk" style="width:100%;height:56px;border-radius:14px;margin-bottom:10px"></span>
+        <span class="sk" style="width:100%;height:56px;border-radius:14px;margin-bottom:10px"></span>
+        <span class="sk" style="width:100%;height:56px;border-radius:14px"></span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Hide skeleton once page is ready
+(function(){
+  function hideSkeleton() {
+    const sk = document.getElementById('skeleton-overlay');
+    if (!sk) return;
+    sk.classList.add('sk-hidden');
+    setTimeout(() => { if (sk.parentNode) sk.remove(); }, 700);
+  }
+  // If first visit, wait for intro to finish (3.2s intro + 0.9s exit + buffer)
+  // If returning visit, just wait for load
+  function scheduleHide() {
+    const isFirstVisit = !sessionStorage.getItem('intro_shown_v1');
+    const unlocked = sessionStorage.getItem('site_unlocked') === '1';
+    const delay = (isFirstVisit && unlocked) ? 5200 : 1400;
+    setTimeout(hideSkeleton, delay);
+  }
+  if (document.readyState === 'complete') {
+    scheduleHide();
+  } else {
+    window.addEventListener('load', scheduleHide);
+  }
+})();
+</script>
+
 </head>
 <body>
 
@@ -2603,6 +2819,285 @@ tr:nth-child(even) {
 
 
 
+
+<!-- ══════════════════════════════════
+     WELCOME INTRO SCREEN
+══════════════════════════════════ -->
+<div id="intro-screen">
+  <canvas id="intro-particles"></canvas>
+  <div id="intro-content">
+    <div id="intro-logo-wrap">
+      <div id="intro-logo-ring"></div>
+      <div id="intro-logo-text">10<span>А</span></div>
+    </div>
+    <div id="intro-school">Гимназия №4</div>
+    <div id="intro-tagline">
+      <span id="intro-typing"></span><span id="intro-cursor">|</span>
+    </div>
+    <div id="intro-dots">
+      <span></span><span></span><span></span>
+    </div>
+  </div>
+  <div id="intro-bottom">2025 — 2026 Учебный год</div>
+</div>
+
+<style>
+/* ══ INTRO SCREEN ══ */
+#intro-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 999999;
+  background: #0d0d2e;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  font-family: 'Nunito', 'Sora', sans-serif;
+}
+
+#intro-particles {
+  position: absolute;
+  inset: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+}
+
+#intro-content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+}
+
+/* Logo ring */
+#intro-logo-wrap {
+  position: relative;
+  width: 140px; height: 140px;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 28px;
+  opacity: 0;
+  transform: scale(0.5);
+  animation: introLogoIn 0.7s cubic-bezier(.34,1.56,.64,1) 0.3s forwards;
+}
+
+@keyframes introLogoIn {
+  to { opacity: 1; transform: scale(1); }
+}
+
+#intro-logo-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 3px solid transparent;
+  background: linear-gradient(135deg, #A855F7, #4ECDC4, #f59e0b, #A855F7) border-box;
+  -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: destination-out;
+  mask-composite: exclude;
+  animation: introSpin 3s linear infinite;
+}
+@keyframes introSpin { to { transform: rotate(360deg); } }
+
+#intro-logo-ring::before {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, #A855F7, #4ECDC4, #f59e0b, #A855F7);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #fff calc(100% - 3px));
+  mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #fff calc(100% - 3px));
+  animation: introSpin 3s linear infinite;
+}
+
+#intro-logo-text {
+  font-family: 'Fredoka One', cursive;
+  font-size: 3.6rem;
+  color: #fff;
+  line-height: 1;
+  letter-spacing: -1px;
+  text-shadow: 0 0 40px rgba(168,85,247,0.6);
+}
+#intro-logo-text span { color: #4ECDC4; }
+
+/* School name */
+#intro-school {
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.45);
+  margin-bottom: 22px;
+  opacity: 0;
+  animation: introFadeUp 0.5s ease 0.9s forwards;
+}
+
+/* Typing tagline */
+#intro-tagline {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: rgba(255,255,255,0.85);
+  min-height: 2rem;
+  margin-bottom: 36px;
+  opacity: 0;
+  animation: introFadeUp 0.5s ease 1.1s forwards;
+}
+
+#intro-cursor {
+  animation: introBlink 0.7s step-end infinite;
+  color: #4ECDC4;
+  font-weight: 300;
+}
+@keyframes introBlink { 50% { opacity: 0; } }
+
+/* Loading dots */
+#intro-dots {
+  display: flex;
+  gap: 8px;
+  opacity: 0;
+  animation: introFadeUp 0.4s ease 1.3s forwards;
+}
+#intro-dots span {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.3);
+  animation: introDotPulse 1.2s ease-in-out infinite;
+}
+#intro-dots span:nth-child(2) { animation-delay: 0.2s; }
+#intro-dots span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes introDotPulse {
+  0%, 100% { background: rgba(255,255,255,0.25); transform: scale(1); }
+  50%       { background: #A855F7; transform: scale(1.4); }
+}
+
+/* Bottom year text */
+#intro-bottom {
+  position: absolute;
+  bottom: 28px;
+  font-size: 0.75rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.2);
+  font-weight: 700;
+  z-index: 2;
+  opacity: 0;
+  animation: introFadeUp 0.5s ease 1.5s forwards;
+}
+
+@keyframes introFadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Exit animation */
+#intro-screen.intro-exit {
+  animation: introExit 0.9s cubic-bezier(.4,0,.2,1) forwards;
+}
+@keyframes introExit {
+  0%   { opacity: 1; transform: scale(1); clip-path: circle(150% at 50% 50%); }
+  100% { opacity: 0; transform: scale(1.05); clip-path: circle(0% at 50% 50%); }
+}
+</style>
+
+<script>
+(function(){
+  // Only show intro on first visit (not on every PIN entry)
+  const INTRO_KEY = 'intro_shown_v1';
+  const introEl = document.getElementById('intro-screen');
+
+  // Always hide intro initially — it will be shown by PIN success handler if needed
+  introEl.style.display = 'none';
+  if (sessionStorage.getItem(INTRO_KEY)) return; // already seen, never show again
+
+  // Particle canvas
+  const canvas = document.getElementById('intro-particles');
+  const ctx = canvas.getContext('2d');
+  let particles = [];
+  let animFrame;
+
+  function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  resizeCanvas();
+  window.addEventListener('resize', resizeCanvas);
+
+  function createParticle() {
+    return {
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      r: Math.random() * 2 + 0.5,
+      dx: (Math.random() - 0.5) * 0.4,
+      dy: -Math.random() * 0.6 - 0.2,
+      alpha: Math.random() * 0.5 + 0.1,
+      color: ['#A855F7','#4ECDC4','#f59e0b','#6366f1','#fff'][Math.floor(Math.random()*5)]
+    };
+  }
+
+  for (let i = 0; i < 80; i++) particles.push(createParticle());
+
+  function drawParticles() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    particles.forEach(p => {
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = p.color;
+      ctx.globalAlpha = p.alpha;
+      ctx.fill();
+      p.x += p.dx; p.y += p.dy;
+      if (p.y < -10) { p.y = canvas.height + 10; p.x = Math.random() * canvas.width; }
+    });
+    ctx.globalAlpha = 1;
+    animFrame = requestAnimationFrame(drawParticles);
+  }
+  drawParticles();
+
+  // Typing animation
+  const phrases = ['Добро пожаловать! 👋', 'Класс 10А ждёт тебя ✨', 'Учёба. Дружба. Успех. 🚀'];
+  let pIdx = 0, cIdx = 0, deleting = false;
+  const typingEl = document.getElementById('intro-typing');
+
+  function typeEffect() {
+    const phrase = phrases[pIdx];
+    if (!deleting) {
+      typingEl.textContent = phrase.slice(0, ++cIdx);
+      if (cIdx === phrase.length) {
+        deleting = true;
+        setTimeout(typeEffect, 1600);
+        return;
+      }
+      setTimeout(typeEffect, 60);
+    } else {
+      typingEl.textContent = phrase.slice(0, --cIdx);
+      if (cIdx === 0) {
+        deleting = false;
+        pIdx = (pIdx + 1) % phrases.length;
+        setTimeout(typeEffect, 300);
+        return;
+      }
+      setTimeout(typeEffect, 35);
+    }
+  }
+  setTimeout(typeEffect, 1200);
+
+  // Auto-dismiss after 3.2s
+  function dismissIntro() {
+    cancelAnimationFrame(animFrame);
+    sessionStorage.setItem(INTRO_KEY, '1');
+    introEl.classList.add('intro-exit');
+    setTimeout(() => { introEl.style.display = 'none'; }, 900);
+  }
+
+  const introDismissTimer = setTimeout(dismissIntro, 3200);
+
+  // Tap to skip
+  introEl.addEventListener('click', () => {
+    clearTimeout(introDismissTimer);
+    dismissIntro();
+  });
+})();
+</script>
 
 <!-- ══════════════════════════════════
      PIN LOCK SCREEN
@@ -2898,7 +3393,14 @@ tr:nth-child(even) {
       sessionStorage.setItem('site_unlocked', '1');
       setTimeout(() => {
         overlay.classList.add('unlocking');
-        setTimeout(() => overlay.style.display = 'none', 700);
+        setTimeout(() => {
+          overlay.style.display = 'none';
+          // Show intro only on very first visit this session
+          if (!sessionStorage.getItem('intro_shown_v1')) {
+            const introEl = document.getElementById('intro-screen');
+            if (introEl) { introEl.style.display = 'flex'; }
+          }
+        }, 700);
       }, 600);
     } else {
       /* ОШИБКА */
@@ -2989,6 +3491,7 @@ tr:nth-child(even) {
       <a href="#announcements" onclick="closeNav()">📢 Объявления</a>
       <a href="#today" onclick="closeNav()">📅 Сегодня</a>
       <a href="#schedule" onclick="closeNav()">🗓 Расписание</a>
+      <a href="#subject-rating" onclick="closeNav()">⭐ Рейтинг предметов</a>
       <a href="#work" onclick="closeNav()">👥 Список учеников</a>
       <a href="#homework" onclick="closeNav()">📝 Домашние задания</a>
       <a href="#chat-section" onclick="showSection('chat-section');closeNav()">💬 Чат класса</a>
@@ -3411,6 +3914,376 @@ document.addEventListener('DOMContentLoaded', function() {
       </div>
     </div>
   </section>
+
+  <!-- ══ РЕЙТИНГ ПРЕДМЕТОВ ══ -->
+  <style>
+  .subj-rating-wrap {
+    background: #fff;
+    border-radius: 24px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.09);
+    overflow: hidden;
+  }
+  .subj-rating-header {
+    background: linear-gradient(135deg, #17174d 0%, #2d225e 60%, #1a3a6e 100%);
+    padding: 28px 32px 22px;
+    position: relative;
+    overflow: hidden;
+  }
+  .subj-rating-header::before {
+    content: '⭐';
+    font-size: 110px;
+    position: absolute;
+    right: 24px; bottom: -22px;
+    opacity: 0.10;
+    pointer-events: none;
+    line-height: 1;
+  }
+  .subj-rating-header h3 {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.55rem;
+    color: #fff;
+    margin-bottom: 4px;
+  }
+  .subj-rating-header p {
+    color: rgba(255,255,255,0.6);
+    font-size: 0.88rem;
+  }
+  .subj-rating-body { padding: 24px 28px 28px; }
+
+  /* Кнопка голоса */
+  .vote-my-btn-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 22px;
+    flex-wrap: wrap;
+  }
+  .vote-select {
+    flex: 1;
+    min-width: 180px;
+    padding: 11px 16px;
+    border-radius: 12px;
+    border: 2px solid #e0d8f8;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #17174d;
+    background: #fafafa;
+    outline: none;
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+  .vote-select:focus { border-color: var(--purple); }
+  .vote-submit-btn {
+    padding: 11px 26px;
+    background: linear-gradient(135deg, #A855F7, #7e22ce);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-weight: 800;
+    font-size: 0.95rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    transition: transform 0.15s, box-shadow 0.15s;
+    white-space: nowrap;
+  }
+  .vote-submit-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(168,85,247,0.35); }
+  .vote-submit-btn:active { transform: scale(0.97); }
+  .vote-submit-btn:disabled { background: #ccc; cursor: not-allowed; transform: none; box-shadow: none; }
+  .vote-notice {
+    font-size: 0.82rem;
+    color: #888;
+    background: #f9f9f9;
+    border-radius: 10px;
+    padding: 8px 14px;
+    border: 1px solid #ececec;
+  }
+  .vote-notice strong { color: var(--purple); }
+
+  /* Список предметов */
+  .subj-list { display: flex; flex-direction: column; gap: 10px; }
+  .subj-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 13px 16px;
+    border-radius: 14px;
+    background: #f8f7ff;
+    border: 2px solid transparent;
+    transition: border-color 0.2s, transform 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .subj-item.top1 { background: linear-gradient(90deg,#fffbeb,#fef9c3); border-color: #f59e0b; }
+  .subj-item.top2 { background: linear-gradient(90deg,#f0f0f0,#e8e8e8); border-color: #9ca3af; }
+  .subj-item.top3 { background: linear-gradient(90deg,#fff7ed,#fde8cc); border-color: #f97316; }
+  .subj-item:hover { transform: translateX(4px); border-color: var(--purple); }
+
+  .subj-rank {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1rem;
+    font-weight: 900;
+    flex-shrink: 0;
+    background: rgba(168,85,247,0.12);
+    color: var(--purple);
+  }
+  .subj-item.top1 .subj-rank { background: #f59e0b; color: #fff; font-size: 1.1rem; }
+  .subj-item.top2 .subj-rank { background: #9ca3af; color: #fff; }
+  .subj-item.top3 .subj-rank { background: #f97316; color: #fff; }
+
+  .subj-emoji { font-size: 1.35rem; flex-shrink: 0; }
+  .subj-name { font-weight: 800; font-size: 0.97rem; color: #17174d; flex: 1; }
+  .subj-votes {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #888;
+    white-space: nowrap;
+  }
+  .subj-bar-wrap {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 3px;
+    background: rgba(0,0,0,0.06);
+  }
+  .subj-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #A855F7, #6366f1);
+    border-radius: 2px;
+    transition: width 0.6s cubic-bezier(.4,0,.2,1);
+  }
+  .subj-item.top1 .subj-bar { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+  .subj-item.top2 .subj-bar { background: linear-gradient(90deg, #6b7280, #9ca3af); }
+  .subj-item.top3 .subj-bar { background: linear-gradient(90deg, #f97316, #fb923c); }
+
+  .subj-voted-tag {
+    background: #ede9fe;
+    color: var(--purple);
+    font-size: 0.72rem;
+    font-weight: 800;
+    border-radius: 999px;
+    padding: 2px 9px;
+    flex-shrink: 0;
+  }
+
+  .subj-empty {
+    text-align: center;
+    padding: 28px;
+    color: #aaa;
+    font-size: 0.95rem;
+  }
+
+  /* Тост */
+  #voteToast {
+    position: fixed;
+    bottom: 80px; left: 50%;
+    transform: translateX(-50%) translateY(30px);
+    background: #17174d;
+    color: #fff;
+    padding: 12px 24px;
+    border-radius: 14px;
+    font-weight: 700;
+    font-size: 0.92rem;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.35s;
+    z-index: 9999;
+    white-space: nowrap;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.25);
+  }
+  #voteToast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  </style>
+
+  <section id="subject-rating">
+    <div class="section-label">
+      <span class="dot" style="background:linear-gradient(135deg,#f59e0b,#A855F7)"></span>
+      Рейтинг предметов
+    </div>
+    <div class="subj-rating-wrap">
+      <div class="subj-rating-header">
+        <h3>⭐ Любимый урок 10А</h3>
+        <p>Голосуй за свой любимый предмет — результаты видны всему классу в реальном времени</p>
+      </div>
+      <div class="subj-rating-body">
+        <div class="vote-my-btn-row">
+          <select class="vote-select" id="subjectVoteSelect">
+            <option value="">— Выбери предмет —</option>
+            <option value="Алгебра">📐 Алгебра</option>
+            <option value="Геометрия">📏 Геометрия</option>
+            <option value="Физика">⚡ Физика</option>
+            <option value="Химия">🧪 Химия</option>
+            <option value="Биология">🌿 Биология</option>
+            <option value="История">📜 История</option>
+            <option value="Английский язык">🇬🇧 Английский язык</option>
+            <option value="Русский язык">📖 Русский язык</option>
+            <option value="Литература">✍️ Литература</option>
+            <option value="Информатика">💻 Информатика</option>
+            <option value="Таджикский язык">🇹🇯 Таджикский язык</option>
+            <option value="География">🌍 География</option>
+            <option value="Право">⚖️ Право</option>
+            <option value="Спорт">🏃 Спорт</option>
+            <option value="Военный урок">🎖 Военный урок</option>
+            <option value="Труд">🔨 Труд</option>
+          </select>
+          <button class="vote-submit-btn" id="subjectVoteBtn" onclick="submitSubjectVote()">
+            ⭐ Проголосовать
+          </button>
+        </div>
+        <div id="subjectVoteNotice" class="vote-notice" style="display:none;margin-bottom:18px;">
+          Ты уже голосовал — твой голос за <strong id="subjectVoteFor"></strong>. Можешь изменить голос, выбрав другой предмет.
+        </div>
+        <div class="subj-list" id="subjectRatingList">
+          <div class="subj-empty">⏳ Загрузка...</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div id="voteToast"></div>
+
+  <script>
+  (function() {
+    const SUBJECT_EMOJIS = {
+      'Алгебра':'📐','Геометрия':'📏','Физика':'⚡','Химия':'🧪','Биология':'🌿',
+      'История':'📜','Английский язык':'🇬🇧','Русский язык':'📖','Литература':'✍️',
+      'Информатика':'💻','Таджикский язык':'🇹🇯','География':'🌍','Право':'⚖️',
+      'Спорт':'🏃','Военный урок':'🎖','Труд':'🔨','Семья':'🏠'
+    };
+
+    // Уникальный ID пользователя (localStorage)
+    let userId = localStorage.getItem('vote_user_id');
+    if (!userId) {
+      userId = 'u_' + Math.random().toString(36).slice(2) + Date.now().toString(36);
+      localStorage.setItem('vote_user_id', userId);
+    }
+
+    let userVote = localStorage.getItem('subject_vote') || null;
+    let allVotes = {};
+
+    function showToast(msg, ok = true) {
+      const t = document.getElementById('voteToast');
+      t.textContent = msg;
+      t.style.background = ok ? '#17174d' : '#ef4444';
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2800);
+    }
+
+    function renderRating(votes) {
+      const list = document.getElementById('subjectRatingList');
+      if (!list) return;
+
+      // Подсчёт
+      const counts = {};
+      Object.values(votes || {}).forEach(v => {
+        if (v) counts[v] = (counts[v] || 0) + 1;
+      });
+
+      const sorted = Object.entries(counts).sort((a,b) => b[1]-a[1]);
+      const total = sorted.reduce((s,[,c]) => s+c, 0);
+
+      if (sorted.length === 0) {
+        list.innerHTML = '<div class="subj-empty">🗳 Пока никто не проголосовал — будь первым!</div>';
+        return;
+      }
+
+      const maxVotes = sorted[0][1];
+      list.innerHTML = sorted.map(([name, count], i) => {
+        const rank = i + 1;
+        const rankClass = rank === 1 ? 'top1' : rank === 2 ? 'top2' : rank === 3 ? 'top3' : '';
+        const rankLabel = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : rank;
+        const emoji = SUBJECT_EMOJIS[name] || '📚';
+        const pct = Math.round((count / maxVotes) * 100);
+        const isMyVote = userVote === name;
+        return `<div class="subj-item ${rankClass}">
+          <div class="subj-rank">${rankLabel}</div>
+          <div class="subj-emoji">${emoji}</div>
+          <div class="subj-name">${name}</div>
+          ${isMyVote ? '<span class="subj-voted-tag">твой голос</span>' : ''}
+          <div class="subj-votes">${count} ${count===1?'голос':count<5?'голоса':'голосов'} · ${Math.round(count/total*100)}%</div>
+          <div class="subj-bar-wrap"><div class="subj-bar" style="width:${pct}%"></div></div>
+        </div>`;
+      }).join('');
+    }
+
+    function updateNotice() {
+      const notice = document.getElementById('subjectVoteNotice');
+      const forEl = document.getElementById('subjectVoteFor');
+      const btn = document.getElementById('subjectVoteBtn');
+      if (userVote) {
+        notice.style.display = 'block';
+        forEl.textContent = userVote;
+        btn.textContent = '🔄 Изменить голос';
+      } else {
+        notice.style.display = 'none';
+        btn.innerHTML = '⭐ Проголосовать';
+      }
+    }
+
+    window.submitSubjectVote = function() {
+      const sel = document.getElementById('subjectVoteSelect');
+      const subject = sel.value;
+      if (!subject) { showToast('❗ Выбери предмет!', false); sel.focus(); return; }
+
+      const btn = document.getElementById('subjectVoteBtn');
+      btn.disabled = true;
+
+      function doVote(db) {
+        db.ref('subject_votes/' + userId).set(subject)
+          .then(() => {
+            userVote = subject;
+            localStorage.setItem('subject_vote', subject);
+            updateNotice();
+            showToast('✅ Голос за «' + subject + '» засчитан!');
+            btn.disabled = false;
+          })
+          .catch(() => {
+            showToast('❌ Ошибка. Попробуй ещё раз.', false);
+            btn.disabled = false;
+          });
+      }
+
+      if (window.firebaseDB) { doVote(window.firebaseDB); }
+      else {
+        let tries = 0;
+        const wait = setInterval(() => {
+          if (window.firebaseDB) { clearInterval(wait); doVote(window.firebaseDB); }
+          else if (++tries > 20) { clearInterval(wait); showToast('❌ Нет соединения', false); btn.disabled = false; }
+        }, 300);
+      }
+    };
+
+    function initVoting() {
+      if (!window.firebaseDB) { setTimeout(initVoting, 400); return; }
+      const db = window.firebaseDB;
+
+      // Восстановить голос из Firebase (приоритет над localStorage)
+      db.ref('subject_votes/' + userId).once('value', snap => {
+        const fbVote = snap.val();
+        if (fbVote) {
+          userVote = fbVote;
+          localStorage.setItem('subject_vote', fbVote);
+          const sel = document.getElementById('subjectVoteSelect');
+          if (sel) sel.value = fbVote;
+        }
+        updateNotice();
+      });
+
+      // Live-обновление рейтинга
+      db.ref('subject_votes').on('value', snap => {
+        allVotes = snap.val() || {};
+        renderRating(allVotes);
+      });
+    }
+
+    updateNotice();
+    initVoting();
+  })();
+  </script>
 
   <!-- СПИСОК УЧЕНИКОВ -->
   <section id="work">
