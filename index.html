@@ -2799,7 +2799,7 @@ tr:nth-child(even) {
   // If first visit, wait for intro to finish (3.2s intro + 0.9s exit + buffer)
   // If returning visit, just wait for load
   function scheduleHide() {
-    const isFirstVisit = !sessionStorage.getItem('intro_shown_v1');
+    const isFirstVisit = !sessionStorage.getItem('intro_shown_v2');
     const unlocked = sessionStorage.getItem('site_unlocked') === '1';
     const delay = (isFirstVisit && unlocked) ? 5200 : 1400;
     setTimeout(hideSkeleton, delay);
@@ -3003,12 +3003,12 @@ tr:nth-child(even) {
 <script>
 (function(){
   // Only show intro on first visit (not on every PIN entry)
-  const INTRO_KEY = 'intro_shown_v1';
+  const INTRO_KEY = 'intro_shown_v2';
   const introEl = document.getElementById('intro-screen');
 
-  // Always hide intro initially — it will be shown by PIN success handler if needed
+  // Always hide intro initially — it will be shown by PIN logic when needed
   introEl.style.display = 'none';
-  if (sessionStorage.getItem(INTRO_KEY)) return; // already seen, never show again
+  if (sessionStorage.getItem(INTRO_KEY)) return; // already seen this session
 
   // Particle canvas
   const canvas = document.getElementById('intro-particles');
@@ -3320,6 +3320,11 @@ tr:nth-child(even) {
   /* ── Проверить сохранённый доступ ── */
   if (sessionStorage.getItem('site_unlocked') === '1') {
     overlay.style.display = 'none';
+    // Если интро ещё не показывали в этой сессии — показать сейчас
+    if (!sessionStorage.getItem('intro_shown_v2')) {
+      const introEl = document.getElementById('intro-screen');
+      if (introEl) introEl.style.display = 'flex';
+    }
     return;
   }
 
@@ -3396,7 +3401,7 @@ tr:nth-child(even) {
         setTimeout(() => {
           overlay.style.display = 'none';
           // Show intro only on very first visit this session
-          if (!sessionStorage.getItem('intro_shown_v1')) {
+          if (!sessionStorage.getItem('intro_shown_v2')) {
             const introEl = document.getElementById('intro-screen');
             if (introEl) { introEl.style.display = 'flex'; }
           }
