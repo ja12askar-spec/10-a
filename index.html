@@ -3501,6 +3501,7 @@ tr:nth-child(even) {
       <a href="#homework" onclick="closeNav()">📝 Домашние задания</a>
       <a href="#chat-section" onclick="showSection('chat-section');closeNav()">💬 Чат класса</a>
       <a href="#attendance" onclick="closeNav()">📋 Прогулы</a>
+      <a href="#payment" onclick="closeNav()">💰 Оплата обучения</a>
       <a href="#profile-section" onclick="closeNav()">🧠 Профиль</a>
       <a href="#my-profile" onclick="showSection('my-profile');closeNav()">👤 Мой профиль</a>
       <a href="#settings-section" onclick="showSection('settings-section');closeNav()">⚙️ Настройки</a>
@@ -4849,6 +4850,555 @@ document.addEventListener('DOMContentLoaded', function() {
       </div>
     </div>
   </section>
+
+<!-- ══════════════════════════════════════════
+     ОПЛАТА ОБУЧЕНИЯ — секция
+══════════════════════════════════════════ -->
+<style>
+#payment { margin-bottom: 64px; }
+
+.pay-wrapper {
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 8px 30px rgba(0,0,0,.10);
+  overflow: hidden;
+}
+
+/* Топбар */
+.pay-topbar {
+  background: linear-gradient(135deg, #17174d, #15803d);
+  padding: 24px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.pay-topbar h3 {
+  color: #fff;
+  font-family: 'Fredoka One', cursive;
+  font-size: 1.5rem;
+  margin: 0;
+}
+.pay-stats {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.pay-stat-chip {
+  background: rgba(255,255,255,.13);
+  border: 1px solid rgba(255,255,255,.22);
+  color: #fff;
+  border-radius: 999px;
+  padding: 6px 16px;
+  font-size: .82rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* Контролы */
+.pay-controls {
+  padding: 18px 28px;
+  background: #f8f7ff;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.pay-search {
+  flex: 1 1 220px;
+  padding: 11px 16px;
+  border-radius: 12px;
+  border: 2px solid #e0e0e0;
+  font-size: .92rem;
+  font-family: sans-serif;
+  outline: none;
+  transition: border-color .2s;
+}
+.pay-search:focus { border-color: #22c55e; box-shadow: 0 0 0 3px rgba(34,197,94,.12); }
+
+/* Учительский блок */
+.pay-teacher-notice {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #f0fdf4;
+  border: 2px solid #bbf7d0;
+  border-radius: 12px;
+  padding: 10px 16px;
+  font-size: .85rem;
+  font-weight: 700;
+  color: #15803d;
+  cursor: pointer;
+  transition: background .2s;
+}
+.pay-teacher-notice:hover { background: #dcfce7; }
+
+.pay-teacher-login {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.pay-teacher-login input {
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 2px solid #e0e0e0;
+  font-size: .9rem;
+  outline: none;
+  transition: border-color .2s;
+  width: 160px;
+}
+.pay-teacher-login input:focus { border-color: #22c55e; }
+.pay-teacher-login button {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 10px;
+  font-weight: 800;
+  font-size: .85rem;
+  cursor: pointer;
+  transition: background .2s;
+}
+.pay-login-btn { background: #22c55e; color: #fff; }
+.pay-login-btn:hover { background: #16a34a; }
+.pay-cancel-btn { background: #f1f5f9; color: #475569; }
+.pay-cancel-btn:hover { background: #e2e8f0; }
+
+.pay-teacher-badge {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  background: #dcfce7;
+  border: 2px solid #22c55e;
+  border-radius: 12px;
+  padding: 8px 14px;
+  font-weight: 800;
+  font-size: .85rem;
+  color: #15803d;
+}
+.pay-teacher-badge button {
+  background: none;
+  border: none;
+  color: #dc2626;
+  font-weight: 800;
+  cursor: pointer;
+  font-size: .85rem;
+  padding: 0 4px;
+}
+.pay-pass-error {
+  display: none;
+  color: #dc2626;
+  font-size: .82rem;
+  font-weight: 700;
+}
+
+/* Таблица */
+.pay-table-wrap { overflow-x: auto; }
+.pay-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: sans-serif;
+}
+.pay-table thead th {
+  background: #17174d;
+  color: #fff;
+  padding: 14px 16px;
+  font-size: .82rem;
+  letter-spacing: .5px;
+  text-align: left;
+  white-space: nowrap;
+}
+.pay-table tbody tr {
+  border-bottom: 1px solid #f0f0f0;
+  transition: background .15s;
+}
+.pay-table tbody tr:hover { background: #f0fdf4 !important; }
+.pay-table tbody tr:nth-child(even) { background: #fafafa; }
+.pay-table td {
+  padding: 13px 16px;
+  font-size: .9rem;
+  vertical-align: middle;
+}
+.pay-table td:first-child { color: #aaa; font-weight: 700; font-size: .8rem; width: 36px; }
+
+/* Прогресс-бар */
+.pay-bar-wrap {
+  width: 120px;
+  height: 8px;
+  background: #e5e7eb;
+  border-radius: 999px;
+  overflow: hidden;
+}
+.pay-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width .4s ease;
+}
+
+/* Статус */
+.pay-status-paid   { color: #15803d; font-weight: 800; font-size: .85rem; }
+.pay-status-part   { color: #d97706; font-weight: 800; font-size: .85rem; }
+.pay-status-unpaid { color: #dc2626; font-weight: 800; font-size: .85rem; }
+
+/* Инпут суммы */
+.pay-amount-input {
+  width: 110px;
+  padding: 7px 10px;
+  border-radius: 8px;
+  border: 2px solid #e0e0e0;
+  font-size: .88rem;
+  font-family: sans-serif;
+  outline: none;
+  transition: border-color .2s;
+}
+.pay-amount-input:focus { border-color: #22c55e; }
+.pay-save-btn {
+  padding: 7px 12px;
+  border: none;
+  border-radius: 8px;
+  background: #22c55e;
+  color: #fff;
+  font-weight: 800;
+  font-size: .82rem;
+  cursor: pointer;
+  transition: background .2s, transform .15s;
+  white-space: nowrap;
+}
+.pay-save-btn:hover { background: #16a34a; transform: scale(1.04); }
+
+/* Футер */
+.pay-footer {
+  padding: 14px 28px;
+  background: #f8f7ff;
+  border-top: 1px solid #eee;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: .8rem;
+  color: #999;
+  font-weight: 600;
+}
+
+/* Итоговая сводка */
+.pay-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 14px;
+  padding: 20px 28px;
+  background: #f8fff8;
+  border-bottom: 1px solid #eee;
+}
+.pay-summary-card {
+  background: #fff;
+  border-radius: 14px;
+  padding: 16px 18px;
+  border: 2px solid #e5e7eb;
+  text-align: center;
+}
+.pay-summary-card .val {
+  font-family: 'Fredoka One', cursive;
+  font-size: 1.5rem;
+  color: #17174d;
+}
+.pay-summary-card .lbl {
+  font-size: .75rem;
+  color: #aaa;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  margin-top: 2px;
+}
+
+@media(max-width:600px) {
+  .pay-topbar { padding: 18px 16px; }
+  .pay-controls { padding: 14px 16px; }
+  .pay-summary { padding: 14px 16px; }
+  .pay-table td, .pay-table thead th { padding: 10px 10px; }
+}
+
+/* Тёмная тема */
+body.dark-mode .pay-wrapper { background: #1a1a2e !important; border-color: #2a2a45 !important; }
+body.dark-mode .pay-controls, body.dark-mode .pay-footer, body.dark-mode .pay-summary { background: #13131f !important; border-color: #2a2a45 !important; }
+body.dark-mode .pay-summary-card { background: #1a1a2e !important; border-color: #2a2a45 !important; color: #e2e8f0 !important; }
+body.dark-mode .pay-summary-card .val { color: #c4b5fd !important; }
+body.dark-mode .pay-table tbody tr:nth-child(even) { background: #1e1e35 !important; }
+body.dark-mode .pay-table tbody tr:hover { background: #16213e !important; }
+body.dark-mode .pay-table td { color: #e2e8f0 !important; }
+body.dark-mode .pay-search, body.dark-mode .pay-amount-input { background: #13131f !important; color: #e2e8f0 !important; border-color: #2a2a45 !important; }
+</style>
+
+<section id="payment">
+  <div class="section-label">
+    <span class="dot" style="background:#22c55e"></span>
+    💰 Оплата обучения
+  </div>
+  <div class="pay-wrapper">
+
+    <!-- Топбар -->
+    <div class="pay-topbar">
+      <h3>💰 Оплата обучения — 10 «А»</h3>
+      <div class="pay-stats">
+        <span class="pay-stat-chip" id="payStatPaid">✅ Оплатили: 0</span>
+        <span class="pay-stat-chip" id="payStatPart">⏳ Частично: 0</span>
+        <span class="pay-stat-chip" id="payStatUnpaid">❌ Не платили: 0</span>
+        <span class="pay-stat-chip" id="payStatTotal">💵 Собрано: 0 с.</span>
+      </div>
+    </div>
+
+    <!-- Сводка -->
+    <div class="pay-summary">
+      <div class="pay-summary-card">
+        <div class="val" id="payCollected">0</div>
+        <div class="lbl">Собрано (с.)</div>
+      </div>
+      <div class="pay-summary-card">
+        <div class="val" id="payTarget">0</div>
+        <div class="lbl">Цель (с.)</div>
+      </div>
+      <div class="pay-summary-card">
+        <div class="val" id="payRemaining">0</div>
+        <div class="lbl">Осталось собрать (с.)</div>
+      </div>
+      <div class="pay-summary-card">
+        <div class="val" id="payPercent">0%</div>
+        <div class="lbl">Выполнение плана</div>
+      </div>
+    </div>
+
+    <!-- Контролы -->
+    <div class="pay-controls">
+      <input class="pay-search" type="text" id="paySearch" placeholder="🔍 Поиск ученика..." oninput="renderPayTable()">
+
+      <!-- Кнопка "войти как учитель" -->
+      <div class="pay-teacher-notice" id="payTeacherNotice" onclick="payShowLogin()">
+        🔐 Учитель — войти для редактирования
+      </div>
+
+      <!-- Форма входа -->
+      <div class="pay-teacher-login" id="payTeacherLogin">
+        <input type="password" id="payTeacherPass" placeholder="Пароль учителя" onkeydown="if(event.key==='Enter')payAuth()">
+        <button class="pay-login-btn" onclick="payAuth()">Войти</button>
+        <button class="pay-cancel-btn" onclick="payHideLogin()">Отмена</button>
+        <span class="pay-pass-error" id="payPassError">❌ Неверный пароль</span>
+      </div>
+
+      <!-- Бейдж учителя -->
+      <div class="pay-teacher-badge" id="payTeacherBadge">
+        ✅ Учитель
+        <button onclick="payLogout()">Выйти</button>
+      </div>
+    </div>
+
+    <!-- Таблица -->
+    <div class="pay-table-wrap">
+      <table class="pay-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Ученик</th>
+            <th>Оплачено (с.)</th>
+            <th>Осталось (с.)</th>
+            <th>Прогресс</th>
+            <th>Статус</th>
+            <th id="payActionTh" style="display:none">Изменить</th>
+          </tr>
+        </thead>
+        <tbody id="payBody"></tbody>
+      </table>
+      <div id="payEmpty" style="display:none;text-align:center;padding:30px;color:#aaa;font-size:.95rem;">
+        🔍 Ученик не найден
+      </div>
+    </div>
+
+    <!-- Футер -->
+    <div class="pay-footer">
+      <span>Сумма к оплате: <strong>2 000 с.</strong> с каждого ученика</span>
+      <span id="payLastUpdate">—</span>
+    </div>
+  </div>
+</section>
+
+<script>
+/* ══════════════════════════════════
+   ОПЛАТА ОБУЧЕНИЯ — логика
+══════════════════════════════════ */
+(function() {
+  const TOTAL_AMOUNT = 2000; // сомони
+  const PAY_PASS = "10a2025"; // тот же пароль что и журнал/ДЗ
+  let payIsTeacher = false;
+
+  // Список учеников (совпадает с прогулами)
+  const PAY_STUDENTS = [
+    "Абдурахмонов Иброхим",
+    "Додоев Хушнуд",
+    "Зоиров Рауф",
+    "Имомов Шахром",
+    "Кобилов Шириншох",
+    "Кодиров Исроил",
+    "Косимов Мансур",
+    "Окилов Хусрав",
+    "Рахматуллоев Эхром",
+    "Файзуллоев Мухриддин",
+    "Файзуллоев Файзулло",
+    "Хакимов Хасан",
+    "Хакимов Хусейн",
+    "Чураев Аскар",
+    "Юсупов Юсуф",
+  ];
+
+  let payData = {}; // { "Имя": { paid: 0 } }
+
+  // Инициализация из Firebase
+  function initPayment() {
+    if (!window.firebaseDB) { setTimeout(initPayment, 500); return; }
+    window.firebaseDB.ref('payment').on('value', snap => {
+      const val = snap.val();
+      if (val && typeof val === 'object') {
+        payData = val;
+      } else {
+        payData = {};
+      }
+      renderPayTable();
+      updatePayStats();
+    });
+  }
+
+  function savePayment() {
+    if (window.firebaseDB) {
+      window.firebaseDB.ref('payment').set(payData).catch(e => console.error(e));
+    }
+    const t = new Date().toLocaleTimeString('ru-RU', {hour:'2-digit',minute:'2-digit'});
+    const el = document.getElementById('payLastUpdate');
+    if (el) el.textContent = 'Обновлено: ' + t;
+  }
+
+  function getPaid(name) {
+    return (payData[name] && payData[name].paid) ? Number(payData[name].paid) : 0;
+  }
+
+  function getPayStatus(paid) {
+    if (paid >= TOTAL_AMOUNT) return { cls:'pay-status-paid',   label:'✅ Оплачено', color:'#22c55e' };
+    if (paid > 0)             return { cls:'pay-status-part',   label:'⏳ Частично', color:'#f59e0b' };
+    return                           { cls:'pay-status-unpaid', label:'❌ Не оплачено', color:'#ef4444' };
+  }
+
+  window.renderPayTable = function() {
+    const query = (document.getElementById('paySearch')?.value || '').toLowerCase().trim();
+    const tbody = document.getElementById('payBody');
+    const empty = document.getElementById('payEmpty');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+    let vis = 0;
+
+    PAY_STUDENTS.forEach((name, i) => {
+      const paid = getPaid(name);
+      const left = Math.max(0, TOTAL_AMOUNT - paid);
+      const pct  = Math.min(100, Math.round(paid / TOTAL_AMOUNT * 100));
+      const st   = getPayStatus(paid);
+      const barColor = paid >= TOTAL_AMOUNT ? '#22c55e' : paid > 0 ? '#f59e0b' : '#e5e7eb';
+
+      const ok = !query || name.toLowerCase().includes(query);
+      if (!ok) return;
+      vis++;
+
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${i+1}</td>
+        <td style="font-weight:700">${name}</td>
+        <td style="font-weight:800;color:${paid>=TOTAL_AMOUNT?'#15803d':paid>0?'#d97706':'#dc2626'}">${paid.toLocaleString('ru-RU')}</td>
+        <td style="font-weight:700;color:${left===0?'#15803d':'#dc2626'}">${left===0?'—':left.toLocaleString('ru-RU')}</td>
+        <td>
+          <div style="display:flex;align-items:center;gap:8px">
+            <div class="pay-bar-wrap">
+              <div class="pay-bar-fill" style="width:${pct}%;background:${barColor}"></div>
+            </div>
+            <span style="font-size:.78rem;font-weight:700;color:#888">${pct}%</span>
+          </div>
+        </td>
+        <td><span class="${st.cls}">${st.label}</span></td>
+        <td id="pay-action-${i}" style="display:${payIsTeacher?'':'none'}">
+          <div style="display:flex;align-items:center;gap:6px">
+            <input class="pay-amount-input" type="number" min="0" max="${TOTAL_AMOUNT}" 
+              value="${paid}" id="payInput-${i}" placeholder="Сумма">
+            <button class="pay-save-btn" onclick="paySave('${name}', ${i})">Сохранить</button>
+          </div>
+        </td>`;
+      tbody.appendChild(tr);
+    });
+
+    empty.style.display = (vis === 0 && query) ? 'block' : 'none';
+    document.getElementById('payActionTh').style.display = payIsTeacher ? '' : 'none';
+    updatePayStats();
+  };
+
+  window.paySave = function(name, idx) {
+    if (!payIsTeacher) return;
+    const input = document.getElementById('payInput-' + idx);
+    if (!input) return;
+    const val = Math.max(0, Math.min(TOTAL_AMOUNT, parseInt(input.value) || 0));
+    if (!payData[name]) payData[name] = {};
+    payData[name].paid = val;
+    savePayment();
+  };
+
+  function updatePayStats() {
+    const paid    = PAY_STUDENTS.filter(n => getPaid(n) >= TOTAL_AMOUNT).length;
+    const part    = PAY_STUDENTS.filter(n => { const p = getPaid(n); return p > 0 && p < TOTAL_AMOUNT; }).length;
+    const unpaid  = PAY_STUDENTS.filter(n => getPaid(n) === 0).length;
+    const total   = PAY_STUDENTS.reduce((a,n) => a + getPaid(n), 0);
+    const target  = PAY_STUDENTS.length * TOTAL_AMOUNT;
+    const remain  = Math.max(0, target - total);
+    const pct     = Math.round(total / target * 100);
+
+    const s = (id, txt) => { const el = document.getElementById(id); if(el) el.textContent = txt; };
+    s('payStatPaid',   '✅ Оплатили: ' + paid);
+    s('payStatPart',   '⏳ Частично: ' + part);
+    s('payStatUnpaid', '❌ Не платили: ' + unpaid);
+    s('payStatTotal',  '💵 Собрано: ' + total.toLocaleString('ru-RU') + ' с.');
+    s('payCollected',  total.toLocaleString('ru-RU'));
+    s('payTarget',     target.toLocaleString('ru-RU'));
+    s('payRemaining',  remain.toLocaleString('ru-RU'));
+    s('payPercent',    pct + '%');
+  }
+
+  // Учитель
+  window.payShowLogin = function() {
+    document.getElementById('payTeacherNotice').style.display = 'none';
+    document.getElementById('payTeacherLogin').style.display = 'flex';
+  };
+  window.payHideLogin = function() {
+    document.getElementById('payTeacherLogin').style.display = 'none';
+    document.getElementById('payTeacherNotice').style.display = 'flex';
+    document.getElementById('payPassError').style.display = 'none';
+  };
+  window.payAuth = function() {
+    const val = document.getElementById('payTeacherPass').value;
+    if (val === PAY_PASS) {
+      payIsTeacher = true;
+      document.getElementById('payTeacherLogin').style.display = 'none';
+      document.getElementById('payTeacherNotice').style.display = 'none';
+      document.getElementById('payTeacherBadge').style.display = 'flex';
+      document.getElementById('payTeacherPass').value = '';
+      renderPayTable();
+    } else {
+      document.getElementById('payPassError').style.display = 'inline';
+      document.getElementById('payTeacherPass').value = '';
+      setTimeout(() => { document.getElementById('payPassError').style.display = 'none'; }, 2500);
+    }
+  };
+  window.payLogout = function() {
+    payIsTeacher = false;
+    document.getElementById('payTeacherBadge').style.display = 'none';
+    document.getElementById('payTeacherNotice').style.display = 'flex';
+    renderPayTable();
+  };
+
+  initPayment();
+})();
+</script>
 
 <!-- ══════════════════════════════════════════
      МОЙ ПРОФИЛЬ — секция
