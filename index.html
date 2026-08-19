@@ -2586,6 +2586,185 @@ tr:nth-child(even) {
   .section-label { font-size: 1.1rem; }
 }
 
+
+/* ═══════════════════════════════════════════════
+   LAPTOP OPTIMIZATION — 901px to 1440px
+   Keeps the existing mobile layout intact while
+   using laptop screen width more efficiently.
+═══════════════════════════════════════════════ */
+@media (min-width: 901px) and (max-width: 1440px) {
+  html { scroll-behavior: smooth; }
+
+  main {
+    width: min(100% - 48px, 1240px);
+    max-width: 1240px;
+    padding: 32px 0 72px;
+  }
+
+  section { margin-bottom: 52px; }
+
+  .header-inner {
+    padding: 24px 36px 28px;
+    gap: 16px;
+  }
+
+  .class-title h1 {
+    font-size: clamp(2.4rem, 4vw, 3.4rem);
+  }
+
+  .header-badges {
+    gap: 8px;
+  }
+
+  .badge {
+    padding: 7px 14px;
+    font-size: .8rem;
+  }
+
+  /* The menu remains a drawer, but the drawer is a little wider
+     and easier to use with a laptop trackpad/mouse. */
+  .nav-links-inner {
+    width: 300px;
+  }
+
+  .nav-links a {
+    padding: 13px 24px;
+  }
+
+  .welcome-card {
+    padding: 30px 34px;
+    gap: 26px;
+  }
+
+  .welcome-card h2 { font-size: 2rem; }
+  .welcome-card p { max-width: 760px; }
+
+  #schedule .week-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  #work .gallery {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  #resources .res-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  .cards-container {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 18px;
+  }
+
+  .card {
+    height: 360px;
+  }
+
+  .login-container,
+  .quiz-container,
+  .leaderboard-container {
+    max-width: 820px;
+  }
+
+  .quiz-container {
+    padding: 36px 40px;
+  }
+
+  .quiz-container p {
+    font-size: 1.65rem;
+  }
+
+  .profile-body {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+    padding: 28px 32px;
+  }
+
+  .profile-hero {
+    padding: 30px 34px;
+  }
+
+  .profile-rank-badge {
+    top: 24px;
+    right: 26px;
+  }
+
+  .attendance-wrapper {
+    border-radius: 18px;
+  }
+
+  .att-topbar,
+  .att-controls,
+  .att-legend,
+  .att-footer {
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+
+  .att-table th,
+  .att-table td {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  /* Prevent long content from stretching cards or the page. */
+  img, video, iframe, canvas {
+    max-width: 100%;
+  }
+
+  table {
+    max-width: 100%;
+  }
+
+  /* Chat/large embedded blocks should stay inside the laptop viewport. */
+  .chat-container,
+  .chat-box,
+  .chat-wrapper,
+  .payment-container,
+  .settings-container {
+    max-width: 100%;
+  }
+}
+
+/* Medium laptop / small desktop: avoid cramped 4-column sections. */
+@media (min-width: 901px) and (max-width: 1120px) {
+  main {
+    width: min(100% - 32px, 1040px);
+  }
+
+  #work .gallery,
+  .cards-container {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  #resources .res-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  #schedule .week-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .profile-body {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .profile-insights,
+  .profile-subjects {
+    grid-column: 1 / -1;
+  }
+}
+
+/* Very wide screens: keep the content readable instead of stretching it. */
+@media (min-width: 1441px) {
+  main {
+    max-width: 1280px;
+  }
+}
+
 </style>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&family=Sora:wght@400;600;700;800&display=swap" rel="stylesheet"/>
 
@@ -7271,8 +7450,10 @@ body.dark-mode .divider { background: #2a2a45 !important; }
       if (!list) return;
 
       if (messages.length === 0) {
+        list.classList.add('gb-is-empty');
         list.innerHTML = '<div class="gb-empty">💬 Пока нет сообщений. Будьте первым!</div>';
       } else {
+        list.classList.remove('gb-is-empty');
         list.innerHTML = messages.slice().reverse().map((m, vi) => {
           const realIdx = messages.length - 1 - vi;
           return `<div class="gb-msg" style="animation-delay:${vi * 0.05}s">
@@ -8000,6 +8181,819 @@ body.dark-mode .chat-name-select { background: #2d2d50; color: #e2e8f0; border-c
 body.dark-mode .chat-reaction-btn { background: rgba(255,255,255,0.1); }
 body.dark-mode .chat-date-divider span { background: rgba(30,30,50,0.9); color: #94a3b8; }
 body.dark-mode .chat-system-msg { background: rgba(30,30,50,0.9); color: #94a3b8; }
+
+
+/* ═══════════════════════════════════════════════
+   FINAL RESPONSIVE FIX
+   Desktop/laptop: full navigation
+   Mobile: clean right-side drawer + no overflow
+═══════════════════════════════════════════════ */
+
+/* Laptop / desktop navigation */
+@media (min-width: 769px) {
+  nav {
+    min-height: 56px;
+    padding: 0 20px;
+  }
+
+  .nav-brand {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    margin-right: 12px;
+  }
+
+  .nav-hamburger {
+    display: none !important;
+  }
+
+  .nav-links {
+    position: static;
+    display: flex !important;
+    flex: 1;
+    align-items: center;
+    justify-content: flex-end;
+    background: transparent;
+    box-shadow: none;
+    min-width: 0;
+  }
+
+  .nav-links-inner {
+    width: auto;
+    height: auto;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 0;
+    background: transparent;
+    box-shadow: none;
+    overflow: visible;
+  }
+
+  .nav-links a {
+    padding: 9px 10px;
+    border-left: 0;
+    border-bottom: 3px solid transparent;
+    font-size: .78rem;
+    white-space: nowrap;
+    border-radius: 8px;
+  }
+
+  .nav-links a:hover {
+    border-left-color: transparent;
+    border-bottom-color: var(--purple);
+    background: #f0eeff;
+  }
+}
+
+/* Phone / small tablet navigation */
+@media (max-width: 768px) {
+  body {
+    overflow-x: hidden;
+  }
+
+  nav {
+    width: 100%;
+    min-height: 52px;
+  }
+
+  .nav-hamburger {
+    display: flex !important;
+    z-index: 100002;
+  }
+
+  .nav-links {
+    display: none;
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100dvh;
+    max-height: none;
+    padding: 0;
+    margin: 0;
+    flex-direction: row;
+    align-items: stretch;
+    justify-content: flex-end;
+    background: rgba(10, 10, 30, .58);
+    border: 0;
+    box-shadow: none;
+    z-index: 100000;
+  }
+
+  .nav-links.open {
+    display: flex !important;
+  }
+
+  .nav-links-inner {
+    width: min(86vw, 330px);
+    height: 100%;
+    max-height: none;
+    margin: 0;
+    padding: 64px 0 18px;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    box-shadow: -10px 0 30px rgba(0,0,0,.22);
+  }
+
+  .nav-links a {
+    width: 100%;
+    min-height: 48px;
+    padding: 13px 20px;
+    display: flex;
+    align-items: center;
+    border: 0;
+    border-bottom: 1px solid #f0f0f4;
+    color: var(--navy);
+    background: #fff;
+    font-size: .9rem;
+    line-height: 1.25;
+    white-space: normal;
+  }
+
+  .nav-links a:hover,
+  .nav-links a:active {
+    background: #f3f0ff;
+    border-left: 4px solid var(--purple);
+    color: var(--purple);
+  }
+
+  /* Never let the page itself create horizontal scrolling on phones. */
+  main {
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
+  }
+
+  .welcome-card {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  #schedule .week-grid,
+  #work .gallery,
+  #resources .res-grid,
+  .cards-container {
+    grid-template-columns: 1fr !important;
+    width: 100%;
+  }
+
+  .day-card,
+  .work-card,
+  .res-card,
+  .card {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .profile-card,
+  .attendance-wrapper,
+  .login-container,
+  .quiz-container,
+  .leaderboard-container {
+    max-width: 100%;
+  }
+
+  .profile-hero {
+    min-width: 0;
+  }
+
+  .profile-body {
+    min-width: 0;
+  }
+
+  .subject-name {
+    width: 95px;
+  }
+
+  .att-table-wrap {
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Small phones */
+@media (max-width: 420px) {
+  main {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .header-inner {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+
+  .welcome-card {
+    padding: 24px 18px;
+    border-radius: 18px;
+  }
+
+  .welcome-card h2 {
+    font-size: 1.7rem;
+  }
+
+  .section-label {
+    font-size: 1.15rem;
+  }
+
+  .nav-links-inner {
+    width: min(90vw, 310px);
+  }
+
+  .nav-links a {
+    padding-left: 18px;
+    padding-right: 18px;
+    font-size: .86rem;
+  }
+}
+
+
+
+/* ═══════════════════════════════════════════════
+   MOBILE DEVICE OVERRIDE
+   Fixes Android/iPhone browsers when "Desktop site"
+   makes the CSS viewport report a laptop-sized width.
+═══════════════════════════════════════════════ */
+.force-mobile {
+  overflow-x: hidden !important;
+}
+
+.force-mobile nav {
+  width: 100% !important;
+  min-height: 52px !important;
+  padding: 0 !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+}
+
+.force-mobile .nav-hamburger {
+  display: flex !important;
+  flex-direction: column !important;
+  width: 52px !important;
+  height: 52px !important;
+  padding: 10px 14px !important;
+  margin-left: auto !important;
+  z-index: 100002 !important;
+}
+
+.force-mobile .nav-links {
+  display: none !important;
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100dvh !important;
+  max-height: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  flex: none !important;
+  flex-direction: row !important;
+  align-items: stretch !important;
+  justify-content: flex-end !important;
+  background: rgba(10,10,30,.58) !important;
+  z-index: 100000 !important;
+}
+
+.force-mobile .nav-links.open {
+  display: flex !important;
+}
+
+.force-mobile .nav-links-inner {
+  width: min(86vw, 330px) !important;
+  height: 100% !important;
+  max-height: none !important;
+  padding: 64px 0 18px !important;
+  margin: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  background: #fff !important;
+  overflow-y: auto !important;
+  box-shadow: -10px 0 30px rgba(0,0,0,.22) !important;
+}
+
+.force-mobile .nav-links a {
+  width: 100% !important;
+  min-height: 48px !important;
+  box-sizing: border-box !important;
+  padding: 13px 20px !important;
+  display: flex !important;
+  align-items: center !important;
+  border: 0 !important;
+  border-bottom: 1px solid #f0f0f4 !important;
+  border-radius: 0 !important;
+  background: #fff !important;
+  color: var(--navy) !important;
+  font-size: .9rem !important;
+  line-height: 1.25 !important;
+  white-space: normal !important;
+}
+
+.force-mobile main {
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+}
+
+.force-mobile .header-inner {
+  flex-direction: column !important;
+  align-items: flex-start !important;
+}
+
+.force-mobile .header-badges {
+  flex-wrap: wrap !important;
+}
+
+.force-mobile #schedule .week-grid,
+.force-mobile #work .gallery,
+.force-mobile #resources .res-grid,
+.force-mobile .cards-container {
+  grid-template-columns: 1fr !important;
+}
+
+.force-mobile .day-card,
+.force-mobile .work-card,
+.force-mobile .res-card,
+.force-mobile .card {
+  width: 100% !important;
+  min-width: 0 !important;
+}
+
+/* Do not let the desktop navigation rules apply to phones. */
+@media (max-width: 768px), (max-device-width: 768px) {
+  .nav-hamburger { display: flex !important; }
+  .nav-links { display: none !important; }
+  .nav-links.open { display: flex !important; }
+}
+
+
+
+/* ═══════════════════════════════════════════════
+   LAPTOP NAVIGATION — final clean layout
+   The previous desktop nav was too wide for a laptop.
+   Keep every menu item visible without clipping.
+═══════════════════════════════════════════════ */
+
+@media (min-width: 769px) and (max-width: 1400px) {
+  nav {
+    width: 100%;
+    min-height: 58px;
+    height: auto;
+    padding: 6px 18px;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  nav .nav-brand {
+    display: flex !important;
+    flex: 0 0 auto;
+    white-space: nowrap;
+    align-items: center;
+  }
+
+  nav .nav-hamburger {
+    display: none !important;
+  }
+
+  nav .nav-links {
+    position: static !important;
+    inset: auto !important;
+    display: flex !important;
+    flex: 1 1 auto;
+    min-width: 0;
+    width: auto;
+    height: auto;
+    max-height: none;
+    padding: 0 !important;
+    margin: 0;
+    background: transparent !important;
+    box-shadow: none !important;
+    overflow: visible;
+    align-items: center;
+    justify-content: flex-start;
+  }
+
+  nav .nav-links-inner {
+    width: 100%;
+    height: auto;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 2px 4px;
+    background: transparent;
+    box-shadow: none;
+    overflow: visible;
+  }
+
+  nav .nav-links a {
+    flex: 0 1 auto;
+    width: auto;
+    min-height: 34px;
+    box-sizing: border-box;
+    padding: 7px 8px;
+    margin: 0;
+    border: 0 !important;
+    border-radius: 7px;
+    font-size: clamp(.68rem, .72vw, .78rem);
+    line-height: 1.1;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  nav .nav-links a:hover {
+    border: 0 !important;
+    background: #f0eeff;
+  }
+}
+
+/* Narrow laptops: deliberately use two neat rows rather than
+   squeezing the navigation into an unreadable single line. */
+@media (min-width: 769px) and (max-width: 1050px) {
+  nav {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  nav .nav-links-inner {
+    justify-content: center;
+    gap: 1px 3px;
+  }
+
+  nav .nav-links a {
+    padding: 6px 7px;
+    font-size: .67rem;
+  }
+}
+
+/* Wide desktop: keep the same clean alignment. */
+@media (min-width: 1401px) {
+  nav .nav-links-inner {
+    flex-wrap: nowrap;
+  }
+
+  nav .nav-links a {
+    white-space: nowrap;
+  }
+}
+
+
+
+/* Guestbook: compact empty state */
+.gb-list.gb-is-empty {
+  max-height: none !important;
+  height: auto !important;
+  min-height: 0 !important;
+  overflow: visible !important;
+  padding-top: 12px !important;
+  padding-bottom: 12px !important;
+}
+
+.gb-list.gb-is-empty .gb-empty {
+  padding: 18px 12px !important;
+  margin: 0 !important;
+}
+
+.gb-list:not(.gb-is-empty) {
+  max-height: 560px;
+  overflow-y: auto;
+}
+
+/* Keep the guestbook form fully visible and proportional on laptops. */
+@media (min-width: 769px) {
+  .gb-form-area {
+    padding: 24px 28px !important;
+    gap: 12px !important;
+  }
+
+  .gb-input {
+    min-height: 42px;
+    box-sizing: border-box;
+  }
+
+  .gb-textarea {
+    min-height: 86px;
+    box-sizing: border-box;
+  }
+
+  .gb-emoji-row {
+    min-height: 38px;
+  }
+}
+
+
+
+/* ═══════════════════════════════════════════════
+   NAVIGATION ONLY — clean laptop navigation
+   No other page sections are changed.
+═══════════════════════════════════════════════ */
+
+/* Reset previous navigation overrides */
+@media (min-width: 769px) {
+  nav {
+    width: 100% !important;
+    min-height: 54px !important;
+    height: auto !important;
+    padding: 0 18px !important;
+    box-sizing: border-box !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 14px !important;
+    overflow: visible !important;
+  }
+
+  nav .nav-brand {
+    display: flex !important;
+    flex: 0 0 auto !important;
+    align-items: center !important;
+    white-space: nowrap !important;
+  }
+
+  nav .nav-hamburger {
+    display: none !important;
+  }
+
+  nav .nav-links {
+    display: flex !important;
+    position: static !important;
+    inset: auto !important;
+    flex: 1 1 auto !important;
+    width: auto !important;
+    height: auto !important;
+    max-height: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+  }
+
+  nav .nav-links-inner {
+    width: 100% !important;
+    height: auto !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    gap: 2px !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+  }
+
+  nav .nav-links a {
+    flex: 0 1 auto !important;
+    width: auto !important;
+    min-height: 36px !important;
+    padding: 8px 7px !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+    border: 0 !important;
+    border-radius: 7px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    white-space: nowrap !important;
+    font-size: clamp(11px, .72vw, 13px) !important;
+    line-height: 1 !important;
+  }
+
+  nav .nav-links a:hover {
+    border: 0 !important;
+    background: #f0eeff !important;
+  }
+}
+
+/* On smaller laptops, allow two neat navigation rows.
+   This prevents the menu from being cut off. */
+@media (min-width: 769px) and (max-width: 1150px) {
+  nav {
+    flex-wrap: wrap !important;
+    padding-top: 5px !important;
+    padding-bottom: 5px !important;
+  }
+
+  nav .nav-links {
+    flex-basis: 100% !important;
+    order: 2 !important;
+  }
+
+  nav .nav-links-inner {
+    justify-content: center !important;
+    flex-wrap: wrap !important;
+    row-gap: 2px !important;
+  }
+
+  nav .nav-links a {
+    font-size: 11px !important;
+    padding: 7px 8px !important;
+  }
+}
+
+/* Phones: hamburger + right drawer only. */
+@media (max-width: 768px), (max-device-width: 768px) {
+  nav {
+    width: 100% !important;
+    min-height: 52px !important;
+    padding: 0 !important;
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+  }
+
+  nav .nav-hamburger {
+    display: flex !important;
+    margin-left: auto !important;
+    z-index: 100002 !important;
+  }
+
+  nav .nav-links {
+    display: none !important;
+  }
+
+  nav .nav-links.open {
+    display: flex !important;
+    position: fixed !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100dvh !important;
+    max-height: none !important;
+    padding: 0 !important;
+    background: rgba(10,10,30,.58) !important;
+    justify-content: flex-end !important;
+    z-index: 100000 !important;
+  }
+
+  nav .nav-links-inner {
+    width: min(86vw, 330px) !important;
+    height: 100% !important;
+    padding: 64px 0 18px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    flex-wrap: nowrap !important;
+    justify-content: flex-start !important;
+    background: #fff !important;
+    overflow-y: auto !important;
+  }
+
+  nav .nav-links a {
+    width: 100% !important;
+    min-height: 48px !important;
+    padding: 13px 20px !important;
+    justify-content: flex-start !important;
+    border: 0 !important;
+    border-bottom: 1px solid #f0f0f4 !important;
+    border-radius: 0 !important;
+    font-size: .9rem !important;
+    white-space: normal !important;
+  }
+}
+
+
+
+/* ===== FINAL NAV FIX: LAPTOP ONLY ===== */
+@media (min-width: 769px) {
+  nav {
+    width: 100% !important;
+    min-height: 72px !important;
+    height: auto !important;
+    padding: 6px 18px !important;
+    box-sizing: border-box !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 16px !important;
+    overflow: visible !important;
+  }
+
+  nav .nav-brand {
+    display: flex !important;
+    flex: 0 0 auto !important;
+    align-items: center !important;
+    white-space: nowrap !important;
+  }
+
+  nav .nav-hamburger {
+    display: none !important;
+  }
+
+  nav .nav-links {
+    display: flex !important;
+    position: static !important;
+    width: auto !important;
+    height: auto !important;
+    max-height: none !important;
+    flex: 1 1 auto !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+  }
+
+  /* IMPORTANT: allow wrapping instead of clipping */
+  nav .nav-links-inner {
+    width: 100% !important;
+    height: auto !important;
+    min-width: 0 !important;
+    padding: 2px 0 !important;
+    margin: 0 !important;
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    align-content: center !important;
+    gap: 3px 4px !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+  }
+
+  nav .nav-links a {
+    flex: 0 0 auto !important;
+    width: auto !important;
+    min-height: 32px !important;
+    height: 32px !important;
+    padding: 6px 9px !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border: 0 !important;
+    border-radius: 7px !important;
+    white-space: nowrap !important;
+    font-size: 12px !important;
+    line-height: 1 !important;
+  }
+
+  nav .nav-links a:hover {
+    background: #f0eeff !important;
+    border: 0 !important;
+  }
+}
+
+/* 769–1150px: two clean rows, guaranteed no clipping */
+@media (min-width: 769px) and (max-width: 1150px) {
+  nav {
+    min-height: 92px !important;
+    padding: 5px 12px !important;
+    flex-wrap: wrap !important;
+    row-gap: 2px !important;
+  }
+
+  nav .nav-brand {
+    width: 100% !important;
+    height: 28px !important;
+  }
+
+  nav .nav-links {
+    width: 100% !important;
+    flex-basis: 100% !important;
+  }
+
+  nav .nav-links-inner {
+    justify-content: center !important;
+    gap: 2px 4px !important;
+  }
+
+  nav .nav-links a {
+    font-size: 11px !important;
+    min-height: 30px !important;
+    height: 30px !important;
+    padding: 5px 7px !important;
+  }
+}
+
+/* 1151–1440px: one line if it genuinely fits; otherwise wraps */
+@media (min-width: 1151px) and (max-width: 1440px) {
+  nav .nav-links-inner {
+    justify-content: flex-end !important;
+  }
+
+  nav .nav-links a {
+    font-size: 12px !important;
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+  }
+}
+
 </style>
 
 <section id="chat-section">
@@ -9152,5 +10146,19 @@ function renderProfile() {
 
 })();
 </script>
+
+<script>
+(function () {
+  const ua = navigator.userAgent || '';
+  const isPhone =
+    /Android|iPhone|iPad|iPod|Windows Phone|Mobile/i.test(ua) ||
+    (navigator.maxTouchPoints > 1 && Math.min(screen.width, screen.height) <= 768);
+
+  if (isPhone) {
+    document.documentElement.classList.add('force-mobile');
+  }
+})();
+</script>
+
 </body>
 </html>
