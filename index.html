@@ -5,8 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>10A website</title>
 
+  
     <script src="https://cdn.botpress.cloud/webchat/v3.6/inject.js"></script>
 <script src="https://files.bpcontent.cloud/2026/06/03/11/20260603110755-SCDO70X8.js" defer></script>
+    
     
 <link rel="icon" href="./Picsart_25-04-29_18-23-38-058.jpg">
 
@@ -114,6 +116,10 @@
     --purple: #A855F7;
     --green: #6BCB77;
     --cream: #FFF8EE;
+    --text-dark: #17174d;
+    --border: #e5e7eb;
+    --light: #f8f7ff;
+    --secondary: #16c784;
     --card-shadow: 0 8px 30px rgba(0,0,0,0.10);
   }
 
@@ -3131,7 +3137,7 @@ tr:nth-child(even) {
   </div>
 </div>
 
-<style>
+<style> 
 /* ── PIN OVERLAY ── */
 #pin-overlay {
   position: fixed;
@@ -8473,9 +8479,19 @@ const STUDENTS_DEFAULT = [
 const ATT_KEY = "att_data_10a"; // оставим для резерва
 
 function loadAttData() {
+  try {
+    const saved = localStorage.getItem(ATT_KEY);
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (Array.isArray(parsed) && parsed.length) return parsed;
+    }
+  } catch (e) { console.warn('Attendance local load error:', e); }
   return JSON.parse(JSON.stringify(STUDENTS_DEFAULT));
 }
 function saveAttData() {
+  try {
+    localStorage.setItem(ATT_KEY, JSON.stringify(students));
+  } catch (e) { console.warn('Attendance local save error:', e); }
   if (window.firebaseDB) {
     // Сохраняем как объект по ключу-имени, чтобы Firebase не конвертировал массив
     const obj = {};
@@ -9132,5 +9148,9 @@ function renderProfile() {
     });
     const msg = `📝 *Домашние задания 10А*\n\n` + lines.join('\n');
     window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
+  };
+
+})();
+</script>
 </body>
 </html>
