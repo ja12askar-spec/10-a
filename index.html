@@ -3,7 +3,13 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>10A website</title>
+<title>10"А" · Гимназия №4</title>
+<meta name="description" content="Сайт класса 10А: расписание, домашние задания, оценки, объявления и чат."/>
+<meta name="robots" content="noindex, nofollow"/>
+<meta property="og:title" content="10&quot;А&quot; · Гимназия №4"/>
+<meta property="og:description" content="Расписание, домашние задания, оценки и объявления класса."/>
+<meta property="og:image" content="./Picsart_25-04-29_18-23-38-058.jpg"/>
+<meta property="og:type" content="website"/>
 
   
     <script src="https://cdn.botpress.cloud/webchat/v3.6/inject.js"></script>
@@ -4543,11 +4549,11 @@ document.addEventListener('DOMContentLoaded', function() {
         </div>
       </div>
       <div class="card">
-        <img src="Picsart_25-05-31_07-04-18-278.jpg" alt="Photo">
+        <img src="./Picsart_25-09-05_18-44-08-089(1).jpg" alt="Photo">
         <div class="overlay">
           <div class="content">
-            <h2 class="title">Рауф & Аскар</h2>
-            <div class="meta"><span class="author">Қасри фарҳанг</span><span class="dot">.</span><span class="date">2025-2026</span></div>
+            <h2 class="title">Иброҳим & Рауф</h2>
+            <div class="meta"><span class="author">Мактаб</span><span class="dot">.</span><span class="date">2025-2026</span></div>
           </div>
         </div>
       </div>
@@ -4639,7 +4645,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   <script>
   (function() {
-    const PASS      = "10a2025";
+    const PASS      = "0926";
 
     const STUDENTS = [
       "Абдурахмонов Иброхим","Додоев Хушнуд","Зоиров Рауф","Имомов Шахром",
@@ -5416,7 +5422,7 @@ body.dark-mode .pay-search, body.dark-mode .pay-amount-input { background: #1313
 ══════════════════════════════════ */
 (function() {
   const TOTAL_AMOUNT = 2000; // сомони
-  const PAY_PASS = "10a2025"; // тот же пароль что и журнал/ДЗ
+  const PAY_PASS = "0926"; // тот же пароль что и журнал/ДЗ
   let payIsTeacher = false;
 
   // Список учеников (совпадает с прогулами)
@@ -9339,7 +9345,9 @@ body.dark-mode .chat-system-msg { background: rgba(30,30,50,0.9); color: #94a3b8
       const inputArea = document.getElementById('chatInputArea');
       inputArea.parentNode.insertBefore(prev, inputArea);
     }
-    prev.innerHTML = `<span>↩ <b>${replyTo.sender}</b>: ${replyTo.text.slice(0,50)}</span><button onclick="chatCancelReply()" style="background:none;border:none;font-size:1rem;cursor:pointer;color:#999">✕</button>`;
+    const safeSender = String(replyTo.sender).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    const safeText = String(replyTo.text).slice(0,50).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    prev.innerHTML = `<span>↩ <b>${safeSender}</b>: ${safeText}</span><button onclick="chatCancelReply()" style="background:none;border:none;font-size:1rem;cursor:pointer;color:#999">✕</button>`;
   }
 
   window.chatCancelReply = function() {
@@ -9913,7 +9921,7 @@ function renderProfile() {
   window.hwIsTeacher = false;
 
   // ── Учитель для ДЗ ──
-  const HW_TEACHER_PASS = "10a2025"; // тот же пароль что и для журнала
+  const HW_TEACHER_PASS = "0926"; // тот же пароль что и для журнала
 
   window.hwShowTeacherLogin = function() {
     document.getElementById('hwTeacherNotice').style.display = 'none';
