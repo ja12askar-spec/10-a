@@ -21,6 +21,7 @@
 <!-- ══ FIREBASE SDK ══ -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
 <script>
   const firebaseConfig = {
     apiKey:            "AIzaSyBn_T427SM0L3C8Wr6GRPqIkvwXQ42GAQk",
@@ -36,6 +37,7 @@
   try {
     const app = firebase.initializeApp(firebaseConfig);
     window.firebaseDB = firebase.database(app);
+    window.firebaseStorage = firebase.storage(app);
     console.log('✅ Firebase подключён');
   } catch(e) {
     console.error('❌ Firebase ошибка:', e);
@@ -1935,6 +1937,262 @@ tr:nth-child(even) {
 }
 
 /* ══════════════════════════════════════════
+   ФАЙЛЫ (полезные материалы)
+══════════════════════════════════════════ */
+#files { margin-bottom: 64px; }
+
+.fl-wrapper {
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: var(--card-shadow);
+  overflow: hidden;
+}
+
+.fl-topbar {
+  background: linear-gradient(135deg, #4c1d95, var(--purple));
+  padding: 24px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.fl-topbar h3 { color: #fff; font-size: 1.2rem; }
+
+.fl-stats { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.fl-stat-chip {
+  background: rgba(255,255,255,.15);
+  border: 1px solid rgba(255,255,255,.25);
+  color: #fff;
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-size: .78rem;
+  font-weight: 800;
+}
+
+.fl-form-bar {
+  display: flex;
+  gap: 12px;
+  padding: 18px 28px;
+  background: #f8f7ff;
+  border-bottom: 1px solid #e0d8f8;
+  flex-wrap: wrap;
+  align-items: flex-end;
+}
+
+.fl-input-group { display: flex; flex-direction: column; gap: 5px; flex: 1 1 160px; }
+
+.fl-wide { flex: 2 1 220px; }
+
+.fl-input-group label {
+  font-size: .74rem;
+  font-weight: 800;
+  color: #7c3aed;
+  text-transform: uppercase;
+  letter-spacing: .4px;
+}
+
+.fl-input {
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 2px solid #e0d8f8;
+  font-size: .88rem;
+  font-family: inherit;
+  color: var(--navy);
+  background: #fff;
+}
+
+.fl-input:focus { outline: none; border-color: var(--purple); }
+
+.fl-dropzone {
+  padding: 16px 14px;
+  border-radius: 10px;
+  border: 2px dashed #d3c4f7;
+  background: #fff;
+  font-size: .82rem;
+  font-weight: 700;
+  color: #7c3aed;
+  text-align: center;
+  cursor: pointer;
+  transition: .2s;
+}
+
+.fl-dropzone:hover { border-color: var(--purple); background: #faf5ff; }
+
+.fl-dropzone.fl-dropzone-active {
+  border-color: var(--purple);
+  background: #f3e8ff;
+  color: #6d28d9;
+}
+
+.fl-dropzone.fl-dropzone-filled {
+  border-style: solid;
+  border-color: var(--purple);
+  background: #f3e8ff;
+  color: #4c1d95;
+}
+
+.fl-add-btn {
+  padding: 11px 22px;
+  background: linear-gradient(135deg, var(--purple), #7c3aed);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-weight: 800;
+  font-size: .88rem;
+  cursor: pointer;
+  transition: .2s;
+  white-space: nowrap;
+}
+
+.fl-add-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(168,85,247,.35); }
+
+.fl-filter-bar {
+  display: flex;
+  gap: 8px;
+  padding: 14px 28px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.fl-filter-btn {
+  padding: 7px 16px;
+  border-radius: 999px;
+  border: 2px solid #e5e7eb;
+  background: #fff;
+  color: #6b7280;
+  font-weight: 800;
+  font-size: .8rem;
+  cursor: pointer;
+  transition: .2s;
+}
+
+.fl-filter-btn.active, .fl-filter-btn:hover {
+  background: var(--purple);
+  border-color: var(--purple);
+  color: #fff;
+}
+
+.fl-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 6px 28px 20px;
+  max-height: 520px;
+  overflow-y: auto;
+}
+
+.fl-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: var(--light);
+  transition: .2s;
+}
+
+.fl-item:hover { border-color: var(--purple); box-shadow: 0 4px 14px rgba(168,85,247,.12); }
+
+.fl-icon {
+  width: 42px; height: 42px;
+  border-radius: 12px;
+  background: #ede9fe;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  flex-shrink: 0;
+}
+
+.fl-item-body { flex: 1; min-width: 0; }
+
+.fl-subject-tag {
+  display: inline-block;
+  background: #ede9fe;
+  color: #6d28d9;
+  border-radius: 999px;
+  padding: 2px 10px;
+  font-size: .68rem;
+  font-weight: 800;
+  margin-bottom: 4px;
+}
+
+.fl-title {
+  font-weight: 800;
+  font-size: .95rem;
+  color: var(--navy);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.fl-meta { font-size: .74rem; color: #9ca3af; font-weight: 600; margin-top: 2px; }
+
+.fl-open-btn {
+  padding: 8px 16px;
+  background: var(--purple);
+  color: #fff;
+  border-radius: 10px;
+  font-weight: 800;
+  font-size: .8rem;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: .2s;
+}
+
+.fl-open-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 14px rgba(168,85,247,.35); }
+
+.fl-delete-btn {
+  width: 30px; height: 30px;
+  border-radius: 8px;
+  border: none;
+  background: #fee2e2;
+  color: #ef4444;
+  font-weight: 800;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: .2s;
+  flex-shrink: 0;
+}
+
+.fl-delete-btn:hover { transform: scale(1.15); background: #ef4444; color: #fff; }
+
+.fl-empty {
+  text-align: center;
+  padding: 36px 20px;
+  color: #aaa;
+  font-size: .95rem;
+}
+
+.fl-footer {
+  padding: 12px 28px;
+  background: #f8f7ff;
+  border-top: 1px solid #e0d8f8;
+  font-size: .78rem;
+  color: #a78bfa;
+  font-weight: 700;
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+@media (max-width: 640px) {
+  .fl-topbar { flex-direction: column; align-items: flex-start; }
+  .fl-form-bar { flex-direction: column; align-items: stretch; }
+  .fl-input-group { flex: unset; width: 100%; }
+  .fl-add-btn { width: 100%; padding: 13px; font-size: .95rem; }
+  .fl-item { flex-wrap: wrap; }
+  .fl-title { white-space: normal; }
+}
+
+/* ══════════════════════════════════════════
    ПРЕДСКАЗАНИЕ ОЦЕНКИ
 ══════════════════════════════════════════ */
 #grade-predictor { margin-bottom: 64px; }
@@ -3694,6 +3952,7 @@ tr:nth-child(even) {
       <a href="#subject-rating" onclick="closeNav()">⭐ Рейтинг предметов</a>
       <a href="#work" onclick="closeNav()">👥 Список учеников</a>
       <a href="#homework" onclick="closeNav()">📝 Домашние задания</a>
+      <a href="#files" onclick="closeNav()">📁 Полезные файлы</a>
       <a href="#chat-section" onclick="showSection('chat-section');closeNav()">💬 Чат класса</a>
       <a href="#attendance" onclick="closeNav()">📋 Прогулы</a>
       <a href="#payment" onclick="closeNav()">💰 Оплата обучения</a>
@@ -5042,6 +5301,105 @@ document.addEventListener('DOMContentLoaded', function() {
       <div class="hw-footer">
         <span id="hwFooterText">Задания автоматически краснеют при истечении срока</span>
         <span id="hwLastUpdated"></span>
+      </div>
+    </div>
+  </section>
+
+<!-- ══════════════════════════════════════════
+     ФАЙЛЫ — полезные материалы
+══════════════════════════════════════════ -->
+  <section id="files">
+    <div class="section-label">
+      <span class="dot" style="background:#A855F7"></span>
+      Полезные файлы
+    </div>
+
+    <div class="fl-wrapper">
+      <!-- Шапка -->
+      <div class="fl-topbar">
+        <h3>📁 Материалы для учёбы</h3>
+        <div class="fl-stats">
+          <span class="fl-stat-chip" id="flStatAll">Всего: 0</span>
+        </div>
+      </div>
+
+      <!-- Уведомление для учеников -->
+      <div id="flStudentNotice" style="padding:14px 28px;background:#f8f7ff;border-bottom:1px solid #e0d8f8;display:flex;align-items:center;gap:10px;font-size:.88rem;font-weight:700;color:#7c3aed;">
+        🔒 Только учитель может добавлять файлы. Войдите через раздел «🔑 Войти».
+      </div>
+
+      <!-- Форма добавления (только учитель) -->
+      <div class="fl-form-bar" id="flFormBar" style="display:none">
+        <div class="fl-input-group fl-wide">
+          <label>Название</label>
+          <input class="fl-input" id="flTitle" type="text" placeholder="Напр.: Конспект по алгебре, тема 5" maxlength="120"/>
+        </div>
+        <div class="fl-input-group">
+          <label>Предмет</label>
+          <select class="fl-input" id="flSubject">
+            <option value="Алгебра">Алгебра</option>
+            <option value="Русский язык">Русский язык</option>
+            <option value="Английский язык">Английский язык</option>
+            <option value="История">История</option>
+            <option value="Физика">Физика</option>
+            <option value="Химия">Химия</option>
+            <option value="Биология">Биология</option>
+            <option value="Литература">Литература</option>
+            <option value="Геометрия">Геометрия</option>
+            <option value="Информатика">Информатика</option>
+            <option value="Таджикский язык">Таджикский язык</option>
+            <option value="Право">Право</option>
+            <option value="География">География</option>
+            <option value="Другое">Другое</option>
+          </select>
+        </div>
+        <div class="fl-input-group">
+          <label>Тип</label>
+          <select class="fl-input" id="flType" onchange="flOnTypeChange()">
+            <option value="pdf">📄 PDF</option>
+            <option value="doc">📝 Документ</option>
+            <option value="ppt">📊 Презентация</option>
+            <option value="video">🎥 Видео (ссылка)</option>
+            <option value="link">🔗 Ссылка</option>
+          </select>
+        </div>
+        <div class="fl-input-group fl-wide" id="flFileGroup">
+          <label>Файл</label>
+          <div class="fl-dropzone" id="flDropzone" onclick="document.getElementById('flFile').click()">
+            <input class="fl-input" id="flFile" type="file" style="display:none" onchange="flOnFilePicked()"/>
+            <span id="flDropzoneText">📎 Перетащите файл сюда или нажмите, чтобы выбрать</span>
+          </div>
+          <div id="flUploadProgress" style="display:none;height:6px;border-radius:4px;background:#e0d8f8;overflow:hidden;margin-top:2px;">
+            <div id="flUploadBar" style="height:100%;width:0%;background:var(--purple);transition:width .2s;"></div>
+          </div>
+        </div>
+        <div class="fl-input-group fl-wide" style="display:none" id="flUrlGroup">
+          <label>Ссылка (YouTube и т.п.)</label>
+          <input class="fl-input" id="flUrl" type="url" placeholder="https://..."/>
+        </div>
+        <button class="fl-add-btn" id="flAddBtn" onclick="flAdd()">+ Добавить</button>
+      </div>
+
+      <!-- Фильтры -->
+      <div class="fl-filter-bar">
+        <span style="font-size:.78rem;font-weight:800;color:#aaa;text-transform:uppercase;letter-spacing:.5px;margin-right:4px">Показать:</span>
+        <button class="fl-filter-btn active" onclick="flFilter('all',this)">Все</button>
+        <button class="fl-filter-btn" onclick="flFilter('pdf',this)">📄 PDF</button>
+        <button class="fl-filter-btn" onclick="flFilter('doc',this)">📝 Документы</button>
+        <button class="fl-filter-btn" onclick="flFilter('ppt',this)">📊 Презентации</button>
+        <button class="fl-filter-btn" onclick="flFilter('video',this)">🎥 Видео</button>
+        <button class="fl-filter-btn" onclick="flFilter('link',this)">🔗 Ссылки</button>
+      </div>
+
+      <!-- Список -->
+      <div class="fl-list" id="flList">
+        <div class="fl-empty">📭 Пока нет файлов.</div>
+      </div>
+
+      <!-- Футер -->
+      <div class="fl-footer">
+        <span>Учитель загружает файлы напрямую (до 25 МБ) или добавляет ссылку на видео</span>
+        <span id="flLastUpdated"></span>
       </div>
     </div>
   </section>
@@ -10152,6 +10510,254 @@ function renderProfile() {
     window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
   };
 
+})();
+</script>
+
+<!-- ══════════════════════════════════════════
+     ФАЙЛЫ — логика
+══════════════════════════════════════════ -->
+<script>
+(function () {
+  let files = [];
+  let flFilterType = 'all';
+  let flPendingUpload = null; // { file }
+
+  const FL_ICONS = { pdf: '📄', doc: '📝', ppt: '📊', video: '🎥', link: '🔗' };
+  const FL_LABELS = { pdf: 'PDF', doc: 'Документ', ppt: 'Презентация', video: 'Видео', link: 'Ссылка' };
+  const FL_UPLOAD_TYPES = ['pdf', 'doc', 'ppt'];
+
+  function flIsTeacher() {
+    try {
+      const u = JSON.parse(sessionStorage.getItem('login_user') || localStorage.getItem('login_user') || 'null');
+      return u && u.role === 'Учитель';
+    } catch (e) { return false; }
+  }
+
+  function flApplyRole() {
+    const teacher = flIsTeacher();
+    const formBar = document.getElementById('flFormBar');
+    const notice = document.getElementById('flStudentNotice');
+    if (formBar) formBar.style.display = teacher ? 'flex' : 'none';
+    if (notice) notice.style.display = teacher ? 'none' : 'flex';
+    flRender();
+  }
+
+  window.flOnTypeChange = function () {
+    const type = document.getElementById('flType').value;
+    const isUpload = FL_UPLOAD_TYPES.includes(type);
+    document.getElementById('flFileGroup').style.display = isUpload ? 'flex' : 'none';
+    document.getElementById('flUrlGroup').style.display = isUpload ? 'none' : 'flex';
+  };
+
+  window.flOnFilePicked = function () {
+    const fileEl = document.getElementById('flFile');
+    const titleEl = document.getElementById('flTitle');
+    const zone = document.getElementById('flDropzone');
+    const zoneText = document.getElementById('flDropzoneText');
+    const f = fileEl.files && fileEl.files[0];
+    if (f) {
+      if (!titleEl.value.trim()) titleEl.value = f.name.replace(/\.[^.]+$/, '');
+      if (zone) zone.classList.add('fl-dropzone-filled');
+      if (zoneText) zoneText.textContent = '✅ ' + f.name + ' (' + flFormatSize(f.size) + ')';
+    } else {
+      if (zone) zone.classList.remove('fl-dropzone-filled');
+      if (zoneText) zoneText.textContent = '📎 Перетащите файл сюда или нажмите, чтобы выбрать';
+    }
+  };
+
+  function flSetupDropzone() {
+    const zone = document.getElementById('flDropzone');
+    const fileEl = document.getElementById('flFile');
+    if (!zone || !fileEl || zone.dataset.flBound) return;
+    zone.dataset.flBound = '1';
+
+    ['dragenter', 'dragover'].forEach(evt => {
+      zone.addEventListener(evt, e => {
+        e.preventDefault(); e.stopPropagation();
+        zone.classList.add('fl-dropzone-active');
+      });
+    });
+    ['dragleave', 'drop'].forEach(evt => {
+      zone.addEventListener(evt, e => {
+        e.preventDefault(); e.stopPropagation();
+        zone.classList.remove('fl-dropzone-active');
+      });
+    });
+    zone.addEventListener('drop', e => {
+      const dt = e.dataTransfer;
+      if (dt && dt.files && dt.files.length) {
+        fileEl.files = dt.files;
+        flOnFilePicked();
+      }
+    });
+  }
+
+  function flFormatSize(bytes) {
+    if (!bytes) return '';
+    if (bytes < 1024 * 1024) return Math.round(bytes / 1024) + ' КБ';
+    return (bytes / (1024 * 1024)).toFixed(1) + ' МБ';
+  }
+
+  function flSave() {
+    if (window.firebaseDB) {
+      const obj = {};
+      files.forEach(f => { obj[f.id] = f; });
+      window.firebaseDB.ref('files').set(obj).catch(e => console.error(e));
+    }
+  }
+
+  function flInit() {
+    if (window.firebaseDB) {
+      window.firebaseDB.ref('files').on('value', snap => {
+        const val = snap.val();
+        if (!val) files = [];
+        else if (Array.isArray(val)) files = val;
+        else files = Object.values(val);
+        flRender();
+      });
+    } else {
+      setTimeout(flInit, 500);
+    }
+  }
+
+  function flRender() {
+    const list = document.getElementById('flList');
+    if (!list) return;
+    const teacher = flIsTeacher();
+
+    let visible = files.filter(f => flFilterType === 'all' || f.type === flFilterType);
+    visible = visible.slice().sort((a, b) => (b.ts || 0) - (a.ts || 0));
+
+    if (visible.length === 0) {
+      list.innerHTML = '<div class="fl-empty">📭 ' +
+        (flFilterType === 'all' ? 'Пока нет файлов.' : 'Нет файлов этого типа.') + '</div>';
+    } else {
+      list.innerHTML = visible.map(f => {
+        const realIdx = files.indexOf(f);
+        const icon = FL_ICONS[f.type] || '📎';
+        const date = f.ts ? new Date(f.ts).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' }) : '';
+        const sizeText = f.size ? flFormatSize(f.size) : '';
+        const metaParts = [FL_LABELS[f.type] || 'Файл'];
+        if (sizeText) metaParts.push(sizeText);
+        if (date) metaParts.push('добавлено ' + date);
+        return `<div class="fl-item">
+          <div class="fl-icon">${icon}</div>
+          <div class="fl-item-body">
+            <div class="fl-subject-tag">${f.subject}</div>
+            <div class="fl-title">${f.title}</div>
+            <div class="fl-meta">${metaParts.join(' · ')}</div>
+          </div>
+          <a class="fl-open-btn" href="${f.url}" target="_blank" rel="noopener" ${f.storagePath ? 'download' : ''}>Открыть</a>
+          ${teacher ? `<button class="fl-delete-btn" onclick="flDelete(${realIdx})" title="Удалить">✕</button>` : ''}
+        </div>`;
+      }).join('');
+    }
+
+    const statAll = document.getElementById('flStatAll');
+    if (statAll) statAll.textContent = `Всего: ${files.length}`;
+    const updated = document.getElementById('flLastUpdated');
+    if (updated) updated.textContent = 'Обновлено: ' + new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+  }
+
+  function flResetForm() {
+    document.getElementById('flTitle').value = '';
+    document.getElementById('flUrl').value = '';
+    const fileEl = document.getElementById('flFile');
+    if (fileEl) fileEl.value = '';
+    const prog = document.getElementById('flUploadProgress');
+    const bar = document.getElementById('flUploadBar');
+    if (prog) prog.style.display = 'none';
+    if (bar) bar.style.width = '0%';
+    const zone = document.getElementById('flDropzone');
+    const zoneText = document.getElementById('flDropzoneText');
+    if (zone) zone.classList.remove('fl-dropzone-filled');
+    if (zoneText) zoneText.textContent = '📎 Перетащите файл сюда или нажмите, чтобы выбрать';
+  }
+
+  function flSetAdding(isAdding) {
+    const btn = document.getElementById('flAddBtn');
+    if (btn) { btn.disabled = isAdding; btn.textContent = isAdding ? 'Загрузка...' : '+ Добавить'; }
+  }
+
+  window.flAdd = function () {
+    if (!flIsTeacher()) { alert('Только учитель может добавлять файлы!'); return; }
+    const titleEl = document.getElementById('flTitle');
+    const subjectEl = document.getElementById('flSubject');
+    const typeEl = document.getElementById('flType');
+    const title = titleEl.value.trim();
+    const type = typeEl.value;
+    const subject = subjectEl.value;
+
+    if (!title) { titleEl.focus(); titleEl.style.borderColor = '#ef4444'; setTimeout(() => titleEl.style.borderColor = '', 1200); return; }
+
+    if (FL_UPLOAD_TYPES.includes(type)) {
+      // ── Реальная загрузка файла в Firebase Storage ──
+      const fileEl = document.getElementById('flFile');
+      const f = fileEl.files && fileEl.files[0];
+      if (!f) { alert('Выберите файл для загрузки!'); return; }
+      if (!window.firebaseStorage) { alert('Хранилище файлов недоступно. Попробуйте позже.'); return; }
+      if (f.size > 25 * 1024 * 1024) { alert('Файл слишком большой (максимум 25 МБ).'); return; }
+
+      const path = 'files/' + Date.now() + '_' + f.name.replace(/[^\w.\-]+/g, '_');
+      const ref = window.firebaseStorage.ref().child(path);
+      const task = ref.put(f);
+      const prog = document.getElementById('flUploadProgress');
+      const bar = document.getElementById('flUploadBar');
+      if (prog) prog.style.display = 'block';
+      flSetAdding(true);
+
+      task.on('state_changed', snap => {
+        const pct = Math.round((snap.bytesTransferred / snap.totalBytes) * 100);
+        if (bar) bar.style.width = pct + '%';
+      }, err => {
+        console.error(err);
+        alert('Ошибка загрузки файла: ' + err.message);
+        flSetAdding(false);
+        if (prog) prog.style.display = 'none';
+      }, () => {
+        task.snapshot.ref.getDownloadURL().then(url => {
+          const newFile = { id: Date.now(), title, subject, type, url, storagePath: path, size: f.size, ts: Date.now() };
+          files.unshift(newFile);
+          flSave(); flRender();
+          flResetForm();
+          flSetAdding(false);
+        });
+      });
+    } else {
+      // ── Обычная ссылка (видео, внешний ресурс) ──
+      const urlEl = document.getElementById('flUrl');
+      const url = urlEl.value.trim();
+      if (!url) { urlEl.focus(); urlEl.style.borderColor = '#ef4444'; setTimeout(() => urlEl.style.borderColor = '', 1200); return; }
+      const newFile = { id: Date.now(), title, subject, type, url, ts: Date.now() };
+      files.unshift(newFile);
+      flSave(); flRender();
+      flResetForm();
+    }
+  };
+
+  window.flDelete = function (idx) {
+    if (!flIsTeacher()) return;
+    const f = files[idx];
+    if (!f) return;
+    if (f.storagePath && window.firebaseStorage) {
+      window.firebaseStorage.ref().child(f.storagePath).delete().catch(e => console.warn('Файл в хранилище уже удалён или не найден:', e));
+    }
+    files.splice(idx, 1);
+    flSave(); flRender();
+  };
+
+  window.flFilter = function (type, btn) {
+    flFilterType = type;
+    document.querySelectorAll('.fl-filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    flRender();
+  };
+
+  flInit();
+  flApplyRole();
+  flOnTypeChange();
+  flSetupDropzone();
+  setInterval(flApplyRole, 1500);
 })();
 </script>
 
