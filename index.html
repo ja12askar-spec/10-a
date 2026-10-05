@@ -3753,7 +3753,7 @@ tr:nth-child(even) {
   </div>
 </header>
 
-<nav>
+<nav id="mainNav">
   <span class="nav-brand">🏫 10А</span>
   <button class="nav-hamburger" id="navHamburger" onclick="toggleNav(event)" aria-label="Меню">
     <span></span><span></span><span></span>
@@ -3832,7 +3832,7 @@ function handleNavOverlay(e) {
 }
 
 // Скрытые секции — показывать только по нажатию
-const HIDDEN_SECTIONS = ['my-profile', 'login', 'settings-section', 'chat-section'];
+const HIDDEN_SECTIONS = []; // все блоки показываются сразу
 function showSection(id) {
   const el = document.getElementById(id);
   if (!el) return;
@@ -4796,6 +4796,18 @@ function filterNav(query) {
       </div>
 
       <div id="jStats" style="display:flex;gap:12px;flex-wrap:wrap;margin-top:18px;"></div>
+
+      <!-- ГРАФИКИ -->
+      <div id="jCharts" style="display:flex;gap:16px;flex-wrap:wrap;margin-top:18px;">
+        <div style="flex:1;min-width:280px;background:#fff;border-radius:16px;padding:18px 20px;box-shadow:0 2px 12px rgba(0,0,0,.08);">
+          <div style="font-weight:800;font-size:.9rem;color:#17174d;margin-bottom:10px;">📈 Динамика среднего балла класса</div>
+          <canvas id="jTrendChart" style="width:100%;height:180px;display:block;"></canvas>
+        </div>
+        <div style="flex:1;min-width:280px;background:#fff;border-radius:16px;padding:18px 20px;box-shadow:0 2px 12px rgba(0,0,0,.08);">
+          <div style="font-weight:800;font-size:.9rem;color:#17174d;margin-bottom:10px;">🏆 Рейтинг учеников по среднему баллу</div>
+          <canvas id="jRankChart" style="width:100%;height:280px;display:block;"></canvas>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -4964,6 +4976,191 @@ function filterNav(query) {
       return vals.length ? vals.reduce((a,b)=>a+b,0)/vals.length : null;
     }
 
+    // ── ГРАФИКИ (canvas, без библиотек) ──
+    function setupCanvas(canvas) {
+      const dpr = window.devicePixelRatio || 1;
+      const rect = canvas.getBoundingClientRect();
+      const w = Math.max(rect.width, 50);
+      const h = parseInt(getComputedStyle(canvas).height) || canvas.clientHeight || 180;
+      canvas.width = Math.round(w * dpr);
+      canvas.height = Math.round(h * dpr);
+      const ctx = canvas.getContext('2d');
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      return { ctx, w, h };
+    }
+
+    function roundRect(ctx, x, y, w, h, r) {
+      const rr = Math.min(r, h/2, Math.abs(w)/2 || 0.01);
+      ctx.beginPath();
+      ctx.moveTo(x + rr, y);
+      ctx.arcTo(x + w, y, x + w, y + h, rr);
+      ctx.arcTo(x + w, y + h, x, y + h, rr);
+      ctx.arcTo(x, y + h, x, y, rr);
+      ctx.arcTo(x, y, x + w, y, rr);
+      ctx.closePath();
+    }
+
+    function emptyChart(canvas, w, h, msg) {
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = '#aaa';
+      ctx.font = '13px Nunito, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(msg, w/2, h/2);
+    }
+
+    function drawTrendChart(j) {
+      const canvas = document.getElementById('jTrendChart');
+      if (!canvas) return;
+      const { ctx, w, h } = setupCanvas(canvas);
+      ctx.clearRect(0, 0, w, h);
+      const dates = j.dates;
+      if (!dates.length) { emptyChart(canvas, w, h, 'Пока нет уроков'); return; }
+
+      const avgs = dates.map((d, di) => {
+        const vals = STUDENTS.map(n => (j.grades[n]||[])[di]).filter(v => v != null);
+        return vals.length ? vals.reduce((a,b)=>a+b,0)/vals.length : null;
+      });
+      if (!avgs.some(v => v != null)) { emptyChart(canvas, w, h, 'Пока нет оценок'); return; }
+
+      const pad = { l: 26, r: 10, t: 10, b: 24 };
+      const plotW = w - pad.l - pad.r;
+      const plotH = h - pad.t - pad.b;
+      const maxY = 10;
+
+      // сетка + подписи оси Y
+      ctx.strokeStyle = '#f0eeff'; ctx.lineWidth = 1;
+      ctx.fillStyle = '#aaa'; ctx.font = '9px Nunito, sans-serif';
+      ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+      [0, 5, 10].forEach(v => {
+        const y = pad.t + plotH - (v/maxY)*plotH;
+        ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(w - pad.r, y); ctx.stroke();
+        ctx.fillText(v, pad.l - 6, y);
+      });
+
+      const stepX = dates.length > 1 ? plotW/(dates.length-1) : 0;
+      const pts = avgs.map((v,i) => v==null ? null : {
+        x: pad.l + stepX*i,
+        y: pad.t + plotH - (v/maxY)*plotH
+      });
+
+      // область под линией
+      ctx.beginPath();
+      let started = false, lastX = pad.l;
+      pts.forEach(p => {
+        if (!p) return;
+        if (!started) { ctx.moveTo(p.x, p.y); started = true; } else ctx.lineTo(p.x, p.y);
+        lastX = p.x;
+      });
+      if (started) {
+        ctx.lineTo(lastX, pad.t + plotH);
+        ctx.lineTo(pad.l, pad.t + plotH);
+        ctx.closePath();
+        ctx.fillStyle = 'rgba(168,85,247,0.08)';
+        ctx.fill();
+      }
+
+      // линия
+      ctx.beginPath();
+      started = false;
+      pts.forEach(p => {
+        if (!p) return;
+        if (!started) { ctx.moveTo(p.x, p.y); started = true; } else ctx.lineTo(p.x, p.y);
+      });
+      ctx.strokeStyle = '#A855F7'; ctx.lineWidth = 2.5; ctx.lineJoin = 'round'; ctx.stroke();
+
+      // точки + подпись значения над каждой
+      pts.forEach((p,i) => {
+        if (!p) return;
+        ctx.beginPath(); ctx.arc(p.x, p.y, 3.5, 0, Math.PI*2);
+        ctx.fillStyle = '#A855F7'; ctx.fill();
+        ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.5; ctx.stroke();
+
+        ctx.fillStyle = '#7e22ce'; ctx.font = '10px Nunito, sans-serif';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
+        const v = avgs[i];
+        const labelY = p.y - 8 < pad.t + 10 ? p.y + 16 : p.y - 8;
+        ctx.fillText(v.toFixed(1), p.x, labelY);
+      });
+
+      // подписи дат по оси X (прореживаем, если их много)
+      ctx.fillStyle = '#888'; ctx.font = '9px Nunito, sans-serif';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
+      const labelEvery = Math.max(1, Math.ceil(dates.length / Math.max(1, Math.floor(plotW/46))));
+      dates.forEach((d,i) => {
+        if (i % labelEvery !== 0 && i !== dates.length-1) return;
+        ctx.fillText(fmtDate(d), pad.l + stepX*i, h - 8);
+      });
+
+      // подсказка, если уроков мало для настоящей динамики
+      if (dates.length < 2) {
+        ctx.fillStyle = '#bbb'; ctx.font = '10px Nunito, sans-serif';
+        ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+        ctx.fillText('Добавьте ещё уроки — появится линия динамики', pad.l, pad.t + 12);
+      }
+    }
+
+    function drawRankChart(names) {
+      const canvas = document.getElementById('jRankChart');
+      if (!canvas) return;
+      const { ctx, w, h } = setupCanvas(canvas);
+      ctx.clearRect(0, 0, w, h);
+
+      const data = names
+        .map(n => ({ name: n, avg: studentAvg(n, activeSubj) }))
+        .filter(d => d.avg != null)
+        .sort((a,b) => b.avg - a.avg);
+
+      if (!data.length) { emptyChart(canvas, w, h, 'Пока нет оценок'); return; }
+
+      const labelW = 108;
+      const pad = { l: 4, r: 34, t: 4, b: 4 };
+      const rowH = Math.min(24, (h - pad.t - pad.b) / data.length);
+      const barH = Math.max(10, rowH - 8);
+      const barX = pad.l + labelW;
+      const barMaxW = Math.max(10, w - pad.r - barX);
+
+      ctx.font = '10px Nunito, sans-serif';
+      ctx.textBaseline = 'middle';
+
+      data.forEach((d, i) => {
+        const y = pad.t + i*rowH + rowH/2;
+
+        // имя ученика (сокращённо: фамилия)
+        const shortName = d.name.split(' ')[0];
+        const label = shortName.length > 13 ? shortName.slice(0,12) + '…' : shortName;
+        ctx.fillStyle = '#444'; ctx.textAlign = 'left';
+        ctx.fillText(label, pad.l, y);
+
+        // полоса
+        const bw = Math.max(2, (d.avg/10) * barMaxW);
+        const color = d.avg>=9 ? '#16a34a' : d.avg>=7 ? '#0ea5e9' : d.avg>=5 ? '#f59e0b' : '#ef4444';
+        ctx.fillStyle = color;
+        roundRect(ctx, barX, y - barH/2, bw, barH, 5);
+        ctx.fill();
+
+        // значение
+        ctx.fillStyle = '#17174d'; ctx.textAlign = 'left';
+        ctx.fillText(d.avg.toFixed(1), barX + bw + 6, y);
+      });
+    }
+
+    function drawJournalCharts(j, names) {
+      if (!j) return;
+      drawTrendChart(j);
+      drawRankChart(names);
+    }
+
+    let _chartResizeTimer = null;
+    window.addEventListener('resize', function() {
+      clearTimeout(_chartResizeTimer);
+      _chartResizeTimer = setTimeout(function() {
+        if (activeSubj && db && db.journal && db.journal[activeSubj]) {
+          drawJournalCharts(db.journal[activeSubj], [...STUDENTS]);
+        }
+      }, 150);
+    });
+
     window.jSortByAvg = function() { sortMode = "avg"; render(); };
     window.jSortAlpha = function() { sortMode = "alpha"; render(); };
     window.jSetSubject = function(s) { activeSubj = s; render(); };
@@ -4989,6 +5186,10 @@ function filterNav(query) {
         document.getElementById("jHead").innerHTML = "";
         document.getElementById("jBody").innerHTML = "<tr><td style=\'padding:30px;text-align:center;color:#aaa;\'>Добавьте предмет чтобы начать</td></tr>";
         document.getElementById("jStats").innerHTML = "";
+        ["jTrendChart","jRankChart"].forEach(id => {
+          const c = document.getElementById(id);
+          if (c) { const ctx = c.getContext('2d'); ctx.clearRect(0,0,c.width,c.height); }
+        });
         return;
       }
 
@@ -5064,6 +5265,8 @@ function filterNav(query) {
           <div style="font-size:1.5rem;font-weight:900;color:${color};">${val}</div>
         </div>`
       ).join("");
+
+      drawJournalCharts(j, names);
     }
 
     // Ждём Firebase, затем загружаем данные
@@ -9156,6 +9359,50 @@ body.dark-mode .chat-system-msg { background: rgba(30,30,50,0.9); color: #94a3b8
   }
 }
 
+/* ===== NAV: все разделы сразу на виду (без бургера и выпадающих списков) ===== */
+#mainNav {
+  display: flex !important; flex-wrap: nowrap !important; align-items: center !important;
+  gap: 10px !important; padding: 0 12px !important; min-height: 52px !important;
+  height: auto !important; overflow: visible !important;
+}
+#mainNav .nav-hamburger { display: none !important; }
+#mainNav .nav-brand { display: flex !important; padding: 0 !important; flex: 0 0 auto !important; white-space: nowrap !important; }
+#mainNav .nav-links {
+  display: flex !important; position: static !important; inset: auto !important;
+  flex: 1 1 auto !important; min-width: 0 !important; width: auto !important; height: auto !important;
+  max-height: none !important; padding: 0 !important; margin: 0 !important;
+  background: transparent !important; border: 0 !important; box-shadow: none !important; overflow: visible !important;
+}
+#mainNav .nav-links-inner {
+  display: flex !important; flex-direction: row !important; flex-wrap: wrap !important;
+  align-items: center !important; justify-content: flex-end !important; gap: 2px 4px !important;
+  width: 100% !important; height: auto !important; padding: 6px 0 !important; margin: 0 !important;
+  background: transparent !important; box-shadow: none !important; overflow: visible !important;
+}
+#mainNav .nav-group, #mainNav .nav-drop { display: contents !important; }
+#mainNav .nav-group-title, #mainNav .nav-search-wrap, #mainNav .nav-no-results { display: none !important; }
+#mainNav .nav-links a {
+  display: inline-flex !important; align-items: center !important; width: auto !important;
+  min-height: 34px !important; height: auto !important; padding: 7px 10px !important; margin: 0 !important;
+  border: 0 !important; border-radius: 8px !important; background: transparent !important;
+  font-size: 13px !important; line-height: 1.1 !important; white-space: nowrap !important;
+  color: var(--navy);
+}
+#mainNav .nav-links a:hover, #mainNav .nav-links a.active {
+  background: #f0eeff !important; color: var(--purple) !important;
+}
+body.dark-mode #mainNav .nav-links a { color: #c4b5fd !important; }
+body.dark-mode #mainNav .nav-links a:hover, body.dark-mode #mainNav .nav-links a.active { background: rgba(168,85,247,.2) !important; }
+
+/* Телефон: одна строка, которую можно листать пальцем вбок */
+@media (max-width: 768px) {
+  #mainNav .nav-links-inner { flex-wrap: nowrap !important; justify-content: flex-start !important; overflow-x: auto !important; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+  #mainNav .nav-links-inner::-webkit-scrollbar { display: none; }
+}
+html.force-mobile #mainNav .nav-links-inner { flex-wrap: nowrap !important; justify-content: flex-start !important; overflow-x: auto !important; scrollbar-width: none; }
+html.force-mobile #mainNav .nav-links-inner::-webkit-scrollbar { display: none; }
+section { scroll-margin-top: 80px; }
+/* ===== /NAV ===== */
 </style>
 
 <section id="chat-section">
