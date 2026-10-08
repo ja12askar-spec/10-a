@@ -71,41 +71,504 @@
     initPresence();
   });
 
-  // ══ УВЕДОМЛЕНИЯ через Realtime Database ══
-  window.addEventListener('load', function() {
-    // Запрашиваем разрешение
-    if ('Notification' in window && Notification.permission === 'default') {
-      Notification.requestPermission();
+  // ══ УМНЫЕ УВЕДОМЛЕНИЯ ══
+  // Учитель что-то меняет -> smartNotify({type,...}) -> узел notify_trigger ->
+  // у всех открытых сайтов показывается уведомление (если категория включена в настройках).
+  // Категории: hw (ДЗ), schedule (расписание), grades (оценки), ann (объявления), chat (ответ в чате)
+  (function() {
+    'use strict';
+    const ICON = './Picsart_25-04-29_18-23-38-058.jpg';
+    const PREF_KEYS = { hw: 'notifHW', schedule: 'notifSched', grades: 'notifGrades', ann: 'notifAnn', chat: 'notifChat' };
+    const SECTION_TYPE = { homework: 'hw', schedule: 'schedule', journal: 'grades', grades: 'grades', announcements: 'ann', 'chat-section': 'chat' };
+    const WD_NOM  = ['Воскресенье', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота'];
+    const WD_PREP = ['в воскресенье', 'в понедельник', 'во вторник', 'в среду', 'в четверг', 'в пятницу', 'в субботу'];
+    const ORD_INST = ['', 'первым', 'вторым', 'третьим', 'четвёртым', 'пятым', 'шестым', 'седьмым'];
+    const ORD_NOM  = ['', 'первый', 'второй', 'третий', 'четвёртый', 'пятый', 'шестой', 'седьмой'];
+    const GEN = {
+      'алгебра': 'алгебры', 'геометрия': 'геометрии', 'математика': 'математики', 'физика': 'физики',
+      'химия': 'химии', 'биология': 'биологии', 'география': 'географии', 'история': 'истории',
+      'литература': 'литературы', 'информатика': 'информатики', 'право': 'права', 'семья': 'семьи',
+      'труд': 'труда', 'спорт': 'спорта', 'русский язык': 'русского языка', 'русский': 'русского языка',
+      'английский язык': 'английского языка', 'английский': 'английского языка',
+      'таджикский язык': 'таджикского языка', 'военный урок': 'военного урока'
+    };
+
+    let queue = [], timer = null, lastTs = 0;
+    let gradeQueue = [], gradeTimer = null;
+
+    // ── утилиты ──
+    function readJSON(storage, key) {
+      try { return JSON.parse(storage.getItem(key) || '{}') || {}; } catch (e) { return {}; }
+    }
+    function esc(s) {
+      return String(s == null ? '' : s).replace(/[&<>"']/g, function(c) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+      });
+    }
+    function norm(s) { return String(s || '').toLowerCase().replace(/ё/g, 'е').replace(/\s+/g, ' ').trim(); }
+    function lc(s) { s = String(s || '').trim(); return s ? s.charAt(0).toLowerCase() + s.slice(1) : s; }
+    function cap(s) { s = String(s || ''); return s ? s.charAt(0).toUpperCase() + s.slice(1) : s; }
+    function genitive(name) { return GEN[norm(name)] || ''; }
+
+    function catAllowed(type) {
+      const key = PREF_KEYS[type];
+      if (!key) return true;
+      try { return readJSON(localStorage, 'st_settings')[key] !== false; } catch (e) { return true; }
+    }
+    function masterOn() {
+      try { return readJSON(localStorage, 'myp_settings').notifs !== false; } catch (e) { return true; }
+    }
+    function notifsEnabled() {
+      if (!masterOn()) return false;
+      return 'Notification' in window && Notification.permission === 'granted';
     }
 
-    // Слушаем notify_trigger — срабатывает когда учитель добавил ДЗ
-    function listenForHW() {
-      if (!window.firebaseDB) { setTimeout(listenForHW, 500); return; }
+    function myNames() {
+      const out = [];
+      try { out.push(localStorage.getItem('chat_name')); } catch (e) {}
+      try { out.push(readJSON(localStorage, 'myp_profile').name); } catch (e) {}
+      try { out.push(readJSON(sessionStorage, 'login_user').name); } catch (e) {}
+      try { out.push(readJSON(localStorage, 'login_user').name); } catch (e) {}
+      return out.map(norm).filter(Boolean);
+    }
+    function isMe(student) {
+      const s = norm(student);
+      if (!s) return false;
+      const st = s.split(' ');
+      return myNames().some(function(n) {
+        if (n === s) return true;
+        return n.split(' ').every(function(t) { return st.indexOf(t) !== -1; });
+      });
+    }
+
+    // ── показ уведомления ──
+    // Через Service Worker (Android/PWA), запасной вариант — new Notification
+    async function show(title, body, tag, section) {
+      if (!notifsEnabled()) return;
+      const opts = {
+        body: body || '', icon: ICON, badge: ICON, tag: tag || ('site-' + Date.now()), renotify: true,
+        data: { section: section || '', url: './' + (section ? '#' + section : '') }
+      };
+      try {
+        if ('serviceWorker' in navigator) {
+          const reg = await navigator.serviceWorker.getRegistration();
+          if (reg && reg.showNotification) { await reg.showNotification(title, opts); return; }
+        }
+      } catch (e) { console.warn('SW notification error:', e); }
+      try {
+        const n = new Notification(title, opts);
+        n.onclick = function() {
+          window.focus();
+          if (section) { const el = document.getElementById(section); if (el) el.scrollIntoView({ behavior: 'smooth' }); }
+          n.close();
+        };
+        setTimeout(function() { try { n.close(); } catch (e) {} }, 10000);
+      } catch (e) { console.warn('Notification error:', e); }
+    }
+    window.showSiteNotification = show;
+
+    // ── отправка (на стороне учителя) ──
+    function send(p) {
+      if (!window.firebaseDB) return;
+      let ts = Date.now();
+      if (ts <= lastTs) ts = lastTs + 1;
+      p.ts = ts;
+      window.firebaseDB.ref('notify_trigger').set(p).catch(function(e) { console.error('notify error:', e); });
+    }
+
+    // Умное уведомление: { type, title, body, section } или { type:'grades', grades:[{s,n,g}] }
+    window.smartNotify = function(o) {
+      if (!o || !window.firebaseDB) return;
+      const type = o.type || 'other';
+      if (type === 'grades' && o.grades && o.grades.length) {
+        gradeQueue = gradeQueue.concat(o.grades);
+        clearTimeout(gradeTimer);
+        gradeTimer = setTimeout(flushGrades, 3000); // несколько оценок подряд -> одно уведомление
+        return;
+      }
+      send({ type: type, title: o.title || '🔔 Обновление на сайте', body: o.body || '', section: o.section || SECTION_TYPE[type] || '' });
+    };
+
+    function flushGrades() {
+      const total = gradeQueue.length;
+      const list = gradeQueue.slice(0, 40);
+      gradeQueue = [];
+      if (!total) return;
+      let title, body;
+      if (total === 1) {
+        title = '🏆 Новая оценка';
+        body = list[0].s + ': ' + list[0].n + ' — ' + list[0].g;
+      } else {
+        const subs = [];
+        list.forEach(function(x) { if (subs.indexOf(x.s) === -1) subs.push(x.s); });
+        title = '🏆 Новые оценки';
+        body = 'Выставлено оценок: ' + total + ' (' + subs.slice(0, 3).join(', ') + ')';
+      }
+      send({ type: 'grades', title: title, body: body, section: 'grades', grades: list });
+    }
+
+    // Старый вызов notifyChange(text, section, immediate) работает как раньше
+    window.notifyChange = function(text, section, immediate) {
+      if (!window.firebaseDB) return;
+      queue.push({ text: text, section: section || '' });
+      clearTimeout(timer);
+      timer = setTimeout(flush, immediate ? 0 : 4000);
+    };
+    function flush() {
+      if (!queue.length || !window.firebaseDB) return;
+      const items = queue; queue = [];
+      const uniq = [];
+      items.forEach(function(i) { if (uniq.indexOf(i.text) === -1) uniq.push(i.text); });
+      const types = [];
+      items.forEach(function(i) { const t = SECTION_TYPE[i.section] || 'other'; if (types.indexOf(t) === -1) types.push(t); });
+      const type = types.length === 1 ? types[0] : 'other';
+      let title = '🔔 Обновление на сайте', body;
+      if (uniq.length === 1) {
+        const parts = uniq[0].split('|');
+        title = parts[0];
+        body = parts[1] || 'Откройте сайт, чтобы посмотреть';
+      } else {
+        body = uniq.slice(0, 3).map(function(t) { return t.replace('|', ': '); }).join('\n') + (uniq.length > 3 ? '\n…и ещё ' + (uniq.length - 3) : '');
+      }
+      send({ type: type, title: title, body: body, section: items[items.length - 1].section });
+    }
+
+    // ── приём (у всех) ──
+    function handle(d) {
+      const type = d.type || SECTION_TYPE[d.section] || 'other';
+      if (!catAllowed(type)) return;
+      let title = d.title || '🔔 Обновление на сайте', body = d.body || '';
+      if (type === 'grades' && Array.isArray(d.grades) && d.grades.length) {
+        const mine = d.grades.filter(function(g) { return g && isMe(g.n); });
+        if (mine.length) {
+          title = mine.length === 1 ? '🏆 Новая оценка' : '🏆 Новые оценки';
+          body = mine.map(function(g) { return g.s + ' — ' + g.g; }).join('\n');
+        }
+      }
+      show(title, body, 'site-' + d.ts, d.section);
+    }
+
+    function listen() {
+      if (!window.firebaseDB) { setTimeout(listen, 500); return; }
       let firstRun = true;
       window.firebaseDB.ref('notify_trigger').on('value', function(snap) {
         if (firstRun) { firstRun = false; return; } // пропускаем начальную загрузку
         const d = snap.val();
-        if (!d) return;
-        if (Notification.permission === 'granted') {
-          const due = d.due
-            ? new Date(d.due + 'T00:00:00').toLocaleDateString('ru-RU', {day:'numeric', month:'long'})
-            : 'без срока';
-          const n = new Notification('📚 Новое ДЗ — ' + d.subject, {
-            body: d.title + '\n📅 Срок: ' + due,
-            icon: './Picsart_25-04-29_18-23-38-058.jpg',
-            tag: 'hw-' + d.ts
-          });
-          n.onclick = function() {
-            window.focus();
-            document.getElementById('homework')?.scrollIntoView({ behavior: 'smooth' });
-            n.close();
-          };
-          setTimeout(() => n.close(), 10000);
-        }
+        if (!d || !d.ts || d.ts <= lastTs) return;
+        lastTs = d.ts;
+        try { handle(d); } catch (e) { console.warn('notify handle error:', e); }
       });
     }
-    listenForHW();
-  });
+
+    // 💬 Ответ в чате: уведомляем, когда ответили на сообщение этого пользователя
+    function chatVisible() {
+      const el = document.getElementById('chat-section');
+      if (!el) return false;
+      const r = el.getBoundingClientRect();
+      return r.top < window.innerHeight && r.bottom > 0;
+    }
+    function listenChat() {
+      if (!window.firebaseDB) { setTimeout(listenChat, 600); return; }
+      const ref = window.firebaseDB.ref('chat');
+      ref.limitToLast(1).once('value', function(snap) {
+        let lastKey = '';
+        snap.forEach(function(c) { lastKey = c.key; });
+        ref.limitToLast(1).on('child_added', function(c) {
+          if (c.key <= lastKey) return; // ключи push() растут по времени
+          lastKey = c.key;
+          const m = c.val();
+          if (!m || m.type === 'system') return;
+          let me = '';
+          try { me = localStorage.getItem('chat_name') || ''; } catch (e) {}
+          if (!me || !m.replySender || m.replySender !== me || m.sender === me) return;
+          if (!catAllowed('chat')) return;
+          if (!document.hidden && chatVisible()) return; // чат у человека на экране — не дублируем
+          show('💬 Ответ в чате', (m.sender || 'Кто-то') + ': ' + String(m.text || '').slice(0, 120), 'chat-' + c.key, 'chat-section');
+        });
+      }, function(e) { console.warn('chat listen error:', e); });
+    }
+
+    // ── 🔔 Проверка уведомлений (кнопка в настройках) ──
+    window.testNotification = function() {
+      if (!('Notification' in window)) { alert('Этот браузер не поддерживает уведомления. На iPhone: добавьте сайт на экран «Домой» и откройте оттуда.'); return; }
+      if (!masterOn()) { alert('Уведомления выключены в профиле (переключатель «Уведомления»). Включите его и повторите.'); return; }
+      function go() {
+        show('✅ Уведомления работают', 'Так будут выглядеть уведомления с сайта', 'site-test', '');
+      }
+      if (Notification.permission === 'granted') { go(); return; }
+      if (Notification.permission === 'denied') { alert('Уведомления заблокированы в настройках браузера для этого сайта. Разрешите их и обновите страницу.'); return; }
+      Notification.requestPermission().then(function(p) { if (p === 'granted') go(); });
+    };
+
+    // ══ ОБЪЯВЛЕНИЯ и ИЗМЕНЕНИЯ РАСПИСАНИЯ (учитель создаёт, все видят) ══
+    let announcements = [], changes = [];
+
+    function injectStyles() {
+      if (document.getElementById('sn-style')) return;
+      const st = document.createElement('style');
+      st.id = 'sn-style';
+      st.textContent =
+        '.sn-panel{display:none;background:#fff;border:2px dashed var(--purple,#A855F7);border-radius:16px;padding:14px 16px;margin:0 0 16px;}' +
+        '.sn-title{font-weight:800;font-size:.95rem;margin-bottom:10px;color:#17174d;}' +
+        '.sn-title span{font-weight:600;font-size:.75rem;opacity:.6;margin-left:6px;}' +
+        '.sn-row{display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap;}' +
+        '.sn-input{flex:1;min-width:120px;border:2px solid #e5e7eb;border-radius:10px;padding:9px 11px;font:inherit;font-size:.9rem;background:#fff;color:#17174d;outline:none;}' +
+        '.sn-input:focus{border-color:var(--purple,#A855F7);}' +
+        'textarea.sn-input{width:100%;resize:vertical;margin-bottom:8px;}' +
+        '.sn-btn{background:var(--purple,#A855F7);color:#fff;border:none;border-radius:10px;padding:10px 18px;font-weight:800;font-size:.88rem;cursor:pointer;}' +
+        '.sn-banner{display:none;background:linear-gradient(135deg,#fff1f2,#fff7ed);border:2px solid #fb7185;border-radius:16px;padding:12px 16px;margin:0 0 16px;}' +
+        '.sn-banner-title{font-weight:800;color:#be123c;margin-bottom:6px;font-size:.95rem;}' +
+        '.sn-banner-item{display:flex;gap:8px;align-items:flex-start;justify-content:space-between;padding:4px 0;color:#17174d;font-size:.92rem;line-height:1.4;}' +
+        '.sn-del{background:#fee2e2;color:#ef4444;border:none;border-radius:8px;padding:3px 9px;font-weight:800;font-size:.75rem;cursor:pointer;flex-shrink:0;}' +
+        'body.dark-mode .sn-panel{background:#1a1a2e;}' +
+        'body.dark-mode .sn-title,body.dark-mode .sn-banner-item{color:#e2e8f0;}' +
+        'body.dark-mode .sn-input{background:#22223a;color:#e2e8f0;border-color:#2a2a45;}' +
+        'body.dark-mode .sn-banner{background:#2a1a24;border-color:#be123c;}' +
+        'body.dark-mode .sn-banner-title{color:#fda4af;}';
+      document.head.appendChild(st);
+    }
+
+    function fmtDateTime(ts) {
+      try { return new Date(ts).toLocaleString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' }); }
+      catch (e) { return ''; }
+    }
+    function pad(n) { return (n < 10 ? '0' : '') + n; }
+    function ymd(d) { return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+    function parseYmd(s) {
+      const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s || '');
+      return m ? new Date(+m[1], +m[2] - 1, +m[3]) : null;
+    }
+    function dayDiff(date) {
+      const a = new Date(); a.setHours(0, 0, 0, 0);
+      const b = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+      return Math.round((b - a) / 86400000);
+    }
+    function whenText(date) {
+      const diff = dayDiff(date);
+      if (diff === 0) return 'Сегодня';
+      if (diff === 1) return 'Завтра';
+      const dm = date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' });
+      return cap(WD_PREP[date.getDay()]) + ' (' + dm + ')';
+    }
+
+    // Предмет из базового расписания (карточки #schedule .day-card)
+    function baseSubject(date, n) {
+      const dayName = WD_NOM[date.getDay()];
+      const cards = document.querySelectorAll('#schedule .day-card');
+      for (let i = 0; i < cards.length; i++) {
+        const h = cards[i].querySelector('.day-header');
+        if (h && h.textContent.trim() === dayName) {
+          const p = cards[i].querySelectorAll('.period-name');
+          return p[n - 1] ? p[n - 1].textContent.trim() : '';
+        }
+      }
+      return '';
+    }
+    function composeSchedule(date, n, newSubj, oldSubj) {
+      const when = whenText(date);
+      const og = oldSubj ? genitive(oldSubj) : '';
+      const oldPart = oldSubj ? (og ? ' вместо ' + og : ' вместо урока «' + oldSubj + '»') : '';
+      if (!newSubj) {
+        return when + ' ' + (ORD_NOM[n] || (n + '-й')) + ' урок' + (oldSubj ? ' (' + lc(oldSubj) + ')' : '') + ' отменён.';
+      }
+      return when + ' ' + (ORD_INST[n] || (n + '-м')) + ' уроком будет ' + lc(newSubj) + oldPart + '.';
+    }
+    window.__sn = { composeSchedule: composeSchedule, whenText: whenText, isMe: isMe, genitive: genitive };
+
+    function teacher() { return !!window.hwIsTeacher; }
+
+    // ── объявления ──
+    function renderAnn() {
+      const box = document.querySelector('#announcements .cards');
+      if (!box) return;
+      box.querySelectorAll('.sn-dyn').forEach(function(el) { el.remove(); });
+      const isT = teacher();
+      announcements.slice().sort(function(a, b) { return (a.ts || 0) - (b.ts || 0); }).forEach(function(a) {
+        const card = document.createElement('div');
+        card.className = 'announce-card sn-dyn';
+        card.innerHTML =
+          '<div class="announce-icon">' + esc(a.icon || '📢') + '</div><div>' +
+          '<div class="announce-meta">📅 ' + esc(fmtDateTime(a.ts)) + '</div>' +
+          '<h3>' + esc(a.title) + '</h3>' +
+          '<p>' + esc(a.text).replace(/\n/g, '<br>') + '</p>' +
+          (isT ? '<button class="sn-del" data-ann="' + esc(a.id) + '" style="margin-top:8px;">✕ Удалить</button>' : '') +
+          '</div>';
+        box.insertBefore(card, box.firstChild);
+      });
+    }
+    function publishAnn() {
+      if (!teacher()) { alert('Только учитель может публиковать объявления!'); return; }
+      const t = document.getElementById('snAnnTitle'), x = document.getElementById('snAnnText'), ic = document.getElementById('snAnnIcon');
+      const title = t.value.trim(), text = x.value.trim();
+      if (!title) { t.focus(); t.style.borderColor = '#ef4444'; setTimeout(function() { t.style.borderColor = ''; }, 1200); return; }
+      if (!window.firebaseDB) { alert('Firebase не подключён'); return; }
+      const id = String(Date.now());
+      window.firebaseDB.ref('announcements/' + id).set({ id: id, icon: ic.value || '📢', title: title, text: text, ts: Date.now() })
+        .then(function() {
+          window.smartNotify({ type: 'ann', title: '📢 ' + title, body: text ? text.slice(0, 140) : 'Новое объявление на сайте', section: 'announcements' });
+          t.value = ''; x.value = '';
+        })
+        .catch(function(e) { console.error(e); alert('Не удалось опубликовать: ' + (e && e.message ? e.message : e)); });
+    }
+
+    // ── изменения расписания ──
+    function upcomingChanges() {
+      const today = ymd(new Date());
+      return changes.filter(function(c) { return c.date >= today; })
+        .sort(function(a, b) { return a.date === b.date ? (a.lesson - b.lesson) : (a.date < b.date ? -1 : 1); });
+    }
+    function bannerHTML(list, isT) {
+      return '<div class="sn-banner-title">🚨 Изменения в расписании</div>' + list.map(function(c) {
+        return '<div class="sn-banner-item"><div>' + esc(c.text) + '</div>' +
+          (isT ? '<button class="sn-del" data-sch="' + esc(c.id) + '">✕</button>' : '') + '</div>';
+      }).join('');
+    }
+    function renderSched() {
+      const isT = teacher();
+      const all = upcomingChanges();
+      const near = all.filter(function(c) { const d = parseYmd(c.date); return d && dayDiff(d) <= 1; });
+      const b1 = document.getElementById('snSchBanner'), b2 = document.getElementById('snTodayBanner');
+      if (b1) { b1.style.display = all.length ? 'block' : 'none'; b1.innerHTML = all.length ? bannerHTML(all, isT) : ''; }
+      if (b2) { b2.style.display = near.length ? 'block' : 'none'; b2.innerHTML = near.length ? bannerHTML(near, isT) : ''; }
+    }
+    function publishSched() {
+      if (!teacher()) { alert('Только учитель может менять расписание!'); return; }
+      const dEl = document.getElementById('snSchDate'), lEl = document.getElementById('snSchLesson'), sEl = document.getElementById('snSchSubj');
+      const date = parseYmd(dEl.value);
+      if (!date) { dEl.focus(); dEl.style.borderColor = '#ef4444'; setTimeout(function() { dEl.style.borderColor = ''; }, 1200); return; }
+      if (date.getDay() === 0) { alert('В воскресенье уроков нет — выберите другой день.'); return; }
+      const n = parseInt(lEl.value, 10) || 1;
+      const newSubj = sEl.value.trim();
+      const oldSubj = baseSubject(date, n);
+      if (!newSubj && !oldSubj) { alert('В этот день нет урока №' + n + ', отменять нечего.'); return; }
+      if (newSubj && oldSubj && norm(newSubj) === norm(oldSubj)) { alert('Новый предмет совпадает с обычным — изменений нет.'); return; }
+      if (!window.firebaseDB) { alert('Firebase не подключён'); return; }
+      const text = composeSchedule(date, n, newSubj, oldSubj);
+      const id = String(Date.now());
+      window.firebaseDB.ref('schedule_changes/' + id).set({
+        id: id, date: ymd(date), lesson: n, newSubject: newSubj, oldSubject: oldSubj, cancel: !newSubj, text: text, ts: Date.now()
+      }).then(function() {
+        window.smartNotify({ type: 'schedule', title: '🚨 Изменение расписания', body: text, section: 'schedule' });
+        sEl.value = '';
+      }).catch(function(e) { console.error(e); alert('Не удалось сохранить: ' + (e && e.message ? e.message : e)); });
+    }
+
+    function injectPanels() {
+      injectStyles();
+      // Объявления
+      const annLabel = document.querySelector('#announcements .section-label');
+      if (annLabel && !document.getElementById('snAnnPanel')) {
+        const p = document.createElement('div');
+        p.className = 'sn-panel'; p.id = 'snAnnPanel';
+        p.innerHTML =
+          '<div class="sn-title">📢 Новое объявление<span>придёт уведомлением всем</span></div>' +
+          '<div class="sn-row"><select id="snAnnIcon" class="sn-input" style="flex:0 0 74px;min-width:74px;">' +
+          '<option>📢</option><option>📝</option><option>⚠️</option><option>🎉</option><option>📅</option><option>🏆</option><option>📚</option></select>' +
+          '<input id="snAnnTitle" class="sn-input" placeholder="Заголовок" maxlength="80"/></div>' +
+          '<textarea id="snAnnText" class="sn-input" rows="3" placeholder="Текст объявления" maxlength="500"></textarea>' +
+          '<button class="sn-btn" id="snAnnBtn" type="button">📢 Опубликовать</button>';
+        annLabel.insertAdjacentElement('afterend', p);
+        document.getElementById('snAnnBtn').addEventListener('click', publishAnn);
+      }
+      // Расписание
+      const schLabel = document.querySelector('#schedule .section-label');
+      if (schLabel && !document.getElementById('snSchPanel')) {
+        const p = document.createElement('div');
+        p.className = 'sn-panel'; p.id = 'snSchPanel';
+        let lessonOpts = '';
+        for (let i = 1; i <= 7; i++) lessonOpts += '<option value="' + i + '">' + i + ' урок</option>';
+        p.innerHTML =
+          '<div class="sn-title">🚨 Изменение расписания<span>придёт уведомлением всем</span></div>' +
+          '<div class="sn-row"><input type="date" id="snSchDate" class="sn-input"/>' +
+          '<select id="snSchLesson" class="sn-input">' + lessonOpts + '</select></div>' +
+          '<div class="sn-row"><input id="snSchSubj" class="sn-input" list="snSubjList" maxlength="40" placeholder="Новый предмет (пусто = урок отменён)"/>' +
+          '<datalist id="snSubjList"></datalist></div>' +
+          '<button class="sn-btn" id="snSchBtn" type="button">🚨 Сообщить об изменении</button>';
+        schLabel.insertAdjacentElement('afterend', p);
+        const banner = document.createElement('div');
+        banner.className = 'sn-banner'; banner.id = 'snSchBanner';
+        p.insertAdjacentElement('afterend', banner);
+        const tm = new Date(); tm.setDate(tm.getDate() + 1);
+        document.getElementById('snSchDate').value = ymd(tm);
+        const seen = {}, dl = document.getElementById('snSubjList');
+        document.querySelectorAll('#schedule .period-name').forEach(function(el) {
+          const nm = el.textContent.trim();
+          if (nm && !seen[nm]) { seen[nm] = 1; const o = document.createElement('option'); o.value = nm; dl.appendChild(o); }
+        });
+        document.getElementById('snSchBtn').addEventListener('click', publishSched);
+      }
+      // Баннер «сегодня/завтра» в блоке «Сегодняшний день»
+      const todayLabel = document.querySelector('#today .section-label');
+      if (todayLabel && !document.getElementById('snTodayBanner')) {
+        const b = document.createElement('div');
+        b.className = 'sn-banner'; b.id = 'snTodayBanner';
+        todayLabel.insertAdjacentElement('afterend', b);
+      }
+      // Кнопки «Удалить» (делегирование событий)
+      if (!document.body.getAttribute('data-sn-del')) {
+        document.body.setAttribute('data-sn-del', '1');
+        document.addEventListener('click', function(e) {
+          const t = e.target;
+          if (!t || !t.getAttribute) return;
+          const a = t.getAttribute('data-ann'), s = t.getAttribute('data-sch');
+          if (!teacher() || !window.firebaseDB) return;
+          if (a && confirm('Удалить объявление?')) window.firebaseDB.ref('announcements/' + a).remove().catch(function(err) { console.error(err); });
+          if (s && confirm('Удалить это изменение расписания?')) window.firebaseDB.ref('schedule_changes/' + s).remove().catch(function(err) { console.error(err); });
+        });
+      }
+    }
+
+    function listenContent() {
+      if (!window.firebaseDB) { setTimeout(listenContent, 500); return; }
+      window.firebaseDB.ref('announcements').on('value', function(snap) {
+        const v = snap.val() || {};
+        announcements = Object.keys(v).map(function(k) { const o = v[k] || {}; o.id = o.id || k; return o; });
+        renderAnn();
+      }, function(e) { console.warn('announcements error:', e); });
+      window.firebaseDB.ref('schedule_changes').on('value', function(snap) {
+        const v = snap.val() || {};
+        changes = Object.keys(v).map(function(k) { const o = v[k] || {}; o.id = o.id || k; return o; })
+          .filter(function(o) { return o.date && o.text; });
+        renderSched();
+      }, function(e) { console.warn('schedule_changes error:', e); });
+    }
+
+    window.addEventListener('load', function() {
+      try { injectPanels(); } catch (e) { console.warn('panels error:', e); }
+      listen();
+      listenChat();
+      listenContent();
+
+      // Панели учителя показываются только после входа учителя (флаг hwIsTeacher)
+      let lastT = null;
+      setInterval(function() {
+        const t = teacher();
+        if (t === lastT) return;
+        lastT = t;
+        ['snAnnPanel', 'snSchPanel'].forEach(function(id) {
+          const el = document.getElementById(id);
+          if (el) el.style.display = t ? 'block' : 'none';
+        });
+        renderAnn(); renderSched();
+      }, 800);
+
+      // Кнопка включения уведомлений (на телефонах разрешение можно запросить только по нажатию)
+      if ('Notification' in window && Notification.permission !== 'granted' && Notification.permission !== 'denied') {
+        const b = document.createElement('button');
+        b.textContent = '🔔 Включить уведомления';
+        b.style.cssText = 'position:fixed;left:14px;bottom:14px;z-index:99999;background:#A855F7;color:#fff;border:none;border-radius:999px;padding:11px 18px;font-weight:800;font-size:.85rem;box-shadow:0 6px 20px rgba(0,0,0,.25);cursor:pointer;';
+        b.onclick = function() {
+          Notification.requestPermission().then(function(p) {
+            if (p === 'granted') {
+              b.remove();
+              show('✅ Уведомления включены', 'Теперь вы будете узнавать о новом ДЗ, оценках и изменениях в расписании', 'site-ok', '');
+            } else if (p === 'denied') { b.remove(); }
+          });
+        };
+        document.body.appendChild(b);
+      }
+    });
+  })();
 </script>
 <style>
 
@@ -4899,6 +5362,7 @@ function filterNav(query) {
       db.journal[name] = { dates: [], grades: {} };
       STUDENTS.forEach(n => { db.journal[name].grades[n] = []; });
       saveDb();
+      notifyChange('📘 Новый предмет в журнале: ' + name, 'journal');
       document.getElementById("jSubjectCustom").value = "";
       document.getElementById("jSubjectPreset").value = "";
       activeSubj = name;
@@ -4911,6 +5375,7 @@ function filterNav(query) {
       delete db.journal[subj];
       if (activeSubj === subj) activeSubj = db.subjects[0] || null;
       saveDb(); render();
+      notifyChange('🗑️ Предмет удалён из журнала: ' + subj, 'journal');
     };
 
     window.jAddDate = function() {
@@ -4923,6 +5388,7 @@ function filterNav(query) {
       j.dates.sort();
       ensureStudents(activeSubj);
       saveDb(); render();
+      notifyChange('📅 ' + activeSubj + ': новая дата в журнале', 'journal');
     };
 
     window.jRemoveDate = function(dateStr) {
@@ -4934,6 +5400,7 @@ function filterNav(query) {
       j.dates.splice(idx, 1);
       STUDENTS.forEach(n => { if (j.grades[n]) j.grades[n].splice(idx, 1); });
       saveDb(); render();
+      notifyChange('🗑️ ' + activeSubj + ': удалён столбец ' + fmtDate(dateStr), 'journal');
     };
 
     window.jEditGrade = function(studentName, dateIdx, cell) {
@@ -4949,8 +5416,11 @@ function filterNav(query) {
       const commit = () => {
         const v = parseInt(inp.value);
         if (!j.grades[studentName]) j.grades[studentName] = Array(j.dates.length).fill(null);
-        j.grades[studentName][dateIdx] = (v >= 1 && v <= 10) ? v : null;
+        const newVal = (v >= 1 && v <= 10) ? v : null;
+        const changed = newVal !== cur;
+        j.grades[studentName][dateIdx] = newVal;
         saveDb(); render();
+        if (changed && newVal != null) smartNotify({ type: 'grades', grades: [{ s: activeSubj, n: studentName, g: newVal }] });
       };
       inp.addEventListener("blur", commit);
       inp.addEventListener("keydown", e => { if (e.key === "Enter") inp.blur(); if (e.key === "Escape") render(); });
@@ -5896,6 +6366,7 @@ body.dark-mode .pay-search, body.dark-mode .pay-amount-input { background: #1313
     if (!payData[name]) payData[name] = {};
     payData[name].paid = val;
     savePayment();
+    notifyChange('💳 Обновлена информация об оплате', 'payment');
   };
 
   function updatePayStats() {
@@ -6476,8 +6947,8 @@ body.dark-mode .divider { background: #2a2a45 !important; }
       </div>
       <div class="myp-setting-row">
         <div>
-          <div class="myp-setting-label">🔔 Уведомления о ДЗ</div>
-          <div class="myp-setting-sub">Push-уведомления когда добавляют новое задание</div>
+          <div class="myp-setting-label">🔔 Уведомления</div>
+          <div class="myp-setting-sub">Главный переключатель: ДЗ, расписание, оценки, объявления, чат</div>
         </div>
         <label class="myp-toggle">
           <input type="checkbox" id="mypNotifs" onchange="mypToggleNotifs(this.checked)"/>
@@ -8100,10 +8571,30 @@ body.dark-mode .divider { background: #2a2a45 !important; }
           <div class="st-icon" style="background:#fef3c7">📝</div>
           <div>
             <div class="st-label">Новое ДЗ</div>
-            <div class="st-sub">Push при добавлении задания</div>
+            <div class="st-sub">Что задали и по какому предмету</div>
           </div>
         </div>
         <label class="st-toggle"><input type="checkbox" id="stNotifHW" checked onchange="stSave()"/><span class="st-toggle-slider"></span></label>
+      </div>
+      <div class="st-row">
+        <div class="st-row-left">
+          <div class="st-icon" style="background:#fee2e2">📅</div>
+          <div>
+            <div class="st-label">Изменение расписания</div>
+            <div class="st-sub">Замены и отмены уроков</div>
+          </div>
+        </div>
+        <label class="st-toggle"><input type="checkbox" id="stNotifSched" checked onchange="stSave()"/><span class="st-toggle-slider"></span></label>
+      </div>
+      <div class="st-row">
+        <div class="st-row-left">
+          <div class="st-icon" style="background:#ede9fe">🏆</div>
+          <div>
+            <div class="st-label">Новая оценка</div>
+            <div class="st-sub">Когда учитель выставил оценку</div>
+          </div>
+        </div>
+        <label class="st-toggle"><input type="checkbox" id="stNotifGrades" checked onchange="stSave()"/><span class="st-toggle-slider"></span></label>
       </div>
       <div class="st-row">
         <div class="st-row-left">
@@ -8124,6 +8615,26 @@ body.dark-mode .divider { background: #2a2a45 !important; }
           </div>
         </div>
         <label class="st-toggle"><input type="checkbox" id="stNotifAnn" checked onchange="stSave()"/><span class="st-toggle-slider"></span></label>
+      </div>
+      <div class="st-row">
+        <div class="st-row-left">
+          <div class="st-icon" style="background:#e0f2fe">💬</div>
+          <div>
+            <div class="st-label">Ответ в чате</div>
+            <div class="st-sub">Когда отвечают на ваше сообщение</div>
+          </div>
+        </div>
+        <label class="st-toggle"><input type="checkbox" id="stNotifChat" checked onchange="stSave()"/><span class="st-toggle-slider"></span></label>
+      </div>
+      <div class="st-row">
+        <div class="st-row-left">
+          <div class="st-icon" style="background:#f0fdf4">🔔</div>
+          <div>
+            <div class="st-label">Проверить уведомления</div>
+            <div class="st-sub">Покажет тестовое уведомление</div>
+          </div>
+        </div>
+        <button class="st-danger-btn" style="background:#ede9fe;color:#7c3aed;" onclick="testNotification()">Проверить</button>
       </div>
     </div>
 
@@ -8195,6 +8706,9 @@ body.dark-mode .divider { background: #2a2a45 !important; }
     if(stSettings.notifHW !== undefined) document.getElementById('stNotifHW').checked = stSettings.notifHW;
     if(stSettings.notifBD !== undefined) document.getElementById('stNotifBD').checked = stSettings.notifBD;
     if(stSettings.notifAnn !== undefined) document.getElementById('stNotifAnn').checked = stSettings.notifAnn;
+    if(stSettings.notifSched !== undefined) document.getElementById('stNotifSched').checked = stSettings.notifSched;
+    if(stSettings.notifGrades !== undefined) document.getElementById('stNotifGrades').checked = stSettings.notifGrades;
+    if(stSettings.notifChat !== undefined) document.getElementById('stNotifChat').checked = stSettings.notifChat;
     if(stSettings.visible !== undefined) document.getElementById('stVisible').checked = stSettings.visible;
     if(stSettings.showBD !== undefined) document.getElementById('stShowBD').checked = stSettings.showBD;
   }
@@ -8203,6 +8717,9 @@ body.dark-mode .divider { background: #2a2a45 !important; }
     stSettings.notifHW = document.getElementById('stNotifHW').checked;
     stSettings.notifBD = document.getElementById('stNotifBD').checked;
     stSettings.notifAnn = document.getElementById('stNotifAnn').checked;
+    stSettings.notifSched = document.getElementById('stNotifSched').checked;
+    stSettings.notifGrades = document.getElementById('stNotifGrades').checked;
+    stSettings.notifChat = document.getElementById('stNotifChat').checked;
     stSettings.visible = document.getElementById('stVisible').checked;
     stSettings.showBD = document.getElementById('stShowBD').checked;
     localStorage.setItem('st_settings', JSON.stringify(stSettings));
@@ -9968,6 +10485,7 @@ function renderTable() {
 function changeAbsence(idx, delta) {
   students[idx].absences = Math.max(0, students[idx].absences + delta);
   saveAttData();
+  notifyChange('🗓️ Обновлены данные о прогулах', 'attendance');
   renderTable();
 }
 
@@ -9986,6 +10504,7 @@ function resetAllAbsences() {
   if (!confirm("Вы уверены? Все прогулы будут сброшены до нуля.")) return;
   students.forEach(s => s.absences = 0);
   saveAttData();
+  notifyChange('🗓️ Прогулы сброшены', 'attendance');
   document.getElementById("attSearch").value = "";
   renderTable();
 }
@@ -10041,24 +10560,34 @@ initAttendance();
      УМНЫЙ ПРОФИЛЬ — JS
 ══════════════════════════════════════ -->
 <script>
-// Данные оценок (синхронизированы с таблицей)
+// ── Оценки берутся из электронного журнала (Firebase: journal) и обновляются сами ──
 const GRADES_DATA = [
-  { name:"Абдурахмонов Иброхим",  scores:{ "Математика":8,"Английский":10,"История":8,"Информатика":10 } },
-  { name:"Додоев Хушнуд",         scores:{ "Математика":7,"Английский":7,"История":9,"Информатика":8 } },
-  { name:"Зоиров Рауф",           scores:{ "Математика":8,"Английский":9,"История":9,"Информатика":9 } },
-  { name:"Имомов Шахром",         scores:{ "Математика":7,"Английский":9,"История":7,"Информатика":8 } },
-  { name:"Кобилов Шириншох",      scores:{ "Математика":6,"Английский":9,"История":7,"Информатика":9 } },
-  { name:"Кодиров Исроил",        scores:{ "Математика":8,"Английский":8,"История":8,"Информатика":8 } },
-  { name:"Косимов Мансур",        scores:{ "Математика":6,"Английский":7,"История":6,"Информатика":6 } },
-  { name:"Окилов Хусрав",         scores:{ "Математика":8,"Английский":9,"История":8,"Информатика":9 } },
-  { name:"Рахматуллоев Эхром",    scores:{ "Математика":7,"Английский":8,"История":7,"Информатика":8 } },
-  { name:"Файзуллоев Мухриддин",  scores:{ "Математика":5,"Английский":7,"История":8,"Информатика":6 } },
-  { name:"Файзуллоев Файзулло",   scores:{ "Математика":9,"Английский":10,"История":10,"Информатика":10 } },
-  { name:"Хакимов Хасан",         scores:{ "Математика":7,"Английский":8,"История":8,"Информатика":8 } },
-  { name:"Хакимов Хусейн",        scores:{ "Математика":7,"Английский":8,"История":8,"Информатика":8 } },
-  { name:"Чураев Аскар",          scores:{ "Математика":10,"Английский":10,"История":10,"Информатика":10 } },
-  { name:"Юсупов Юсуф",           scores:{ "Математика":6,"Английский":9,"История":8,"Информатика":9 } },
-];
+  "Абдурахмонов Иброхим","Додоев Хушнуд","Зоиров Рауф","Имомов Шахром",
+  "Кобилов Шириншох","Кодиров Исроил","Косимов Мансур","Окилов Хусрав",
+  "Рахматуллоев Эхром","Файзуллоев Мухриддин","Файзуллоев Файзулло",
+  "Хакимов Хасан","Хакимов Хусейн","Чураев Аскар","Юсупов Юсуф"
+].map(name => ({ name, scores:{} }));
+
+// 8 → "8", 8.333 → "8.3"
+function fmt(v) { return Number.isInteger(v) ? String(v) : v.toFixed(1); }
+
+// Журнал → средний балл по каждому предмету (пустые клетки не считаются)
+function rebuildScoresFromJournal(val) {
+  const toArr = x => !x ? [] : Array.isArray(x) ? x : Object.values(x);
+  GRADES_DATA.forEach(s => { s.scores = {}; });
+  if (!val || !val.journal) return;
+  toArr(val.subjects).forEach(subj => {
+    const j = val.journal[subj];
+    if (!j || !j.grades) return;
+    GRADES_DATA.forEach(s => {
+      const nums = toArr(j.grades[s.name])
+        .filter(v => v !== null && v !== undefined && v !== '')
+        .map(Number)
+        .filter(Number.isFinite);
+      if (nums.length) s.scores[subj] = nums.reduce((x,y)=>x+y,0) / nums.length;
+    });
+  });
+}
 
 // Заполняем select
 (function fillSelect() {
@@ -10068,6 +10597,15 @@ const GRADES_DATA = [
     opt.value = i;
     opt.textContent = s.name;
     sel.appendChild(opt);
+  });
+})();
+
+// Живая подписка на журнал
+(function listenJournal() {
+  if (!window.firebaseDB) { setTimeout(listenJournal, 500); return; }
+  window.firebaseDB.ref('journal').on('value', snap => {
+    rebuildScoresFromJournal(snap.val());
+    renderProfile();
   });
 })();
 
@@ -10119,11 +10657,11 @@ function generateInsights(data) {
   }
 
   // Лучший предмет
-  insights.push({ type:"positive", icon:"🌟", text:`Твой сильный предмет — ${bestSubj[0]} (${bestSubj[1]}/10). Молодец, продолжай!` });
+  insights.push({ type:"positive", icon:"🌟", text:`Твой сильный предмет — ${bestSubj[0]} (${fmt(bestSubj[1])}/10). Молодец, продолжай!` });
 
   // Слабый предмет
-  if (weakSubj[1] < 7) {
-    insights.push({ type:"warning", icon:"📉", text:`Стоит уделить больше времени ${weakSubj[0]} (${weakSubj[1]}/10). Небольшое усилие — и оценка вырастет!` });
+  if (subjects.length > 1 && weakSubj[1] < 7) {
+    insights.push({ type:"warning", icon:"📉", text:`Стоит уделить больше времени ${weakSubj[0]} (${fmt(weakSubj[1])}/10). Небольшое усилие — и оценка вырастет!` });
   }
 
   // Посещаемость
@@ -10158,16 +10696,40 @@ function renderProfile() {
   const gd = GRADES_DATA[idx];
   const att = students.find(s => s.name === gd.name) || { absences: 0 };
   const subjects = Object.entries(gd.scores);
+
+  // Пока в журнале нет оценок этого ученика
+  if (!subjects.length) {
+    card.innerHTML = `
+      <div class="profile-hero">
+        <div class="profile-avatar">${getInitials(gd.name)}</div>
+        <div class="profile-hero-info">
+          <div class="profile-name">${gd.name}</div>
+          <div class="profile-meta-row">
+            <span class="profile-meta-badge">10 «А» класс</span>
+            <span class="profile-meta-badge">Гимназия №4</span>
+            <span class="profile-meta-badge">2025–2026</span>
+          </div>
+        </div>
+      </div>
+      <div class="profile-body">
+        <div class="profile-stat-block" style="grid-column:1/-1;text-align:center">
+          <div class="profile-stat-icon">📭</div>
+          <div class="profile-stat-label">В журнале пока нет оценок</div>
+          <div class="profile-stat-sub">Как только учитель выставит оценки, профиль заполнится сам.</div>
+        </div>
+      </div>`;
+    requestAnimationFrame(() => card.classList.add("visible"));
+    return;
+  }
+
   const avg = (subjects.reduce((a,[,v])=>a+v,0)/subjects.length).toFixed(1);
 
-  // Вычисляем рейтинг среди всех
-  const allAvgs = GRADES_DATA.map(s => {
-    const vals = Object.values(s.scores);
-    return vals.reduce((a,b)=>a+b,0)/vals.length;
-  });
-  const sortedAvgs = [...allAvgs].sort((a,b)=>b-a);
-  const rank = sortedAvgs.indexOf(allAvgs[idx]) + 1;
-  const total = GRADES_DATA.length;
+  // Рейтинг — только среди тех, у кого есть оценки
+  const avgOf = s => { const v = Object.values(s.scores); return v.length ? v.reduce((a,b)=>a+b,0)/v.length : null; };
+  const myAvg = avgOf(gd);
+  const ranked = GRADES_DATA.map(avgOf).filter(v => v !== null).sort((a,b)=>b-a);
+  const rank = ranked.indexOf(myAvg) + 1;
+  const total = ranked.length;
 
   const best = subjects.reduce((a,b)=>b[1]>a[1]?b:a);
   const weak = subjects.reduce((a,b)=>b[1]<a[1]?b:a);
@@ -10194,7 +10756,7 @@ function renderProfile() {
       <div class="subject-bar-wrap">
         <div class="subject-bar-fill" style="width:${score*10}%;background:${barColor(score)}"></div>
       </div>
-      <div class="subject-score" style="color:${score>=9?"#15803d":score>=7?"#1d4ed8":score>=5?"#d97706":"#dc2626"}">${score}</div>
+      <div class="subject-score" style="color:${score>=9?"#15803d":score>=7?"#1d4ed8":score>=5?"#d97706":"#dc2626"}">${fmt(score)}</div>
     </div>`).join("");
 
   // Блоки вывода
@@ -10238,7 +10800,7 @@ function renderProfile() {
         <div class="profile-stat-icon">🏆</div>
         <div class="profile-stat-label">Лучший предмет</div>
         <div class="profile-stat-value" style="font-size:1.3rem">${best[0]}</div>
-        <div class="profile-stat-sub">Оценка: ${best[1]}/10</div>
+        <div class="profile-stat-sub">Оценка: ${fmt(best[1])}/10</div>
         <div class="profile-progress-bar">
           <div class="profile-progress-fill" style="width:${best[1]*10}%;background:linear-gradient(90deg,#22c55e,#16a34a)"></div>
         </div>
@@ -10249,7 +10811,7 @@ function renderProfile() {
         <div class="profile-stat-icon">📉</div>
         <div class="profile-stat-label">Требует внимания</div>
         <div class="profile-stat-value" style="font-size:1.3rem">${weak[0]}</div>
-        <div class="profile-stat-sub">Оценка: ${weak[1]}/10</div>
+        <div class="profile-stat-sub">Оценка: ${fmt(weak[1])}/10</div>
         <div class="profile-progress-bar">
           <div class="profile-progress-fill" style="width:${weak[1]*10}%;background:${barColor(weak[1])}"></div>
         </div>
@@ -10488,15 +11050,8 @@ function renderProfile() {
     const newTask = { id: Date.now(), title, subject: subjectEl.value, due: dueEl.value, done: false };
     tasks.unshift(newTask);
     save(); render();
-    // Триггер уведомления для всех
-    if (window.firebaseDB) {
-      window.firebaseDB.ref('notify_trigger').set({
-        subject: newTask.subject,
-        title: newTask.title,
-        due: newTask.due || '',
-        ts: Date.now()
-      });
-    }
+    // Уведомление для всех
+    smartNotify({ type: 'hw', title: '📝 Новое ДЗ', body: newTask.subject + ' — ' + newTask.title + (newTask.due ? '\n📅 До: ' + formatDate(newTask.due) : ''), section: 'homework' });
     titleEl.value = '';
     titleEl.focus();
   };
@@ -10512,6 +11067,7 @@ function renderProfile() {
     if (!tasks[idx]) return;
     tasks.splice(idx, 1);
     save(); render();
+    notifyChange('🗑️ Домашнее задание удалено', 'homework');
   };
 
   window.hwFilter = function(type, btn) {
